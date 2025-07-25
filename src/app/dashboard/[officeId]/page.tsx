@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import { Button } from '@/components/ui/button';
@@ -39,10 +39,6 @@ export default function DashboardPage({ params }: DashboardPageProps) {
                 Volver al Inicio
               </Button>
             </Link>
-            <Button>
-              <FileText className="mr-2 h-4 w-4" />
-              Generar Reporte Diario
-            </Button>
         </div>
       </header>
       <main className="flex-1 overflow-auto">

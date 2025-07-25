@@ -4,8 +4,11 @@ import { useState, useMemo, useEffect } from 'react';
 import { type Employee, type Office, type AttendanceStatus, updateEmployee } from '@/lib/data';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
+import AttendanceReport from './AttendanceReport';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
+import { Button } from './ui/button';
+import { FileText } from 'lucide-react';
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
@@ -52,6 +55,7 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
 export default function DashboardClient({ initialEmployees, offices, officeName }: { initialEmployees: Employee[], offices: Office[], officeName: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [showReport, setShowReport] = useState(false);
 
   useEffect(() => {
     setEmployees(initialEmployees);
@@ -103,7 +107,19 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="p-4 md:p-8 space-y-8">
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex justify-center">
+            <Button onClick={() => setShowReport(!showReport)}>
+              <FileText className="mr-2 h-4 w-4" />
+              {showReport ? 'Ocultar Reporte' : 'Generar Reporte Diario'}
+            </Button>
+        </div>
+
+        {showReport && (
+            <div className="mt-8">
+                <AttendanceReport employeesByStatus={employeesByStatus} />
+            </div>
+        )}
+        <div className="flex flex-col md:flex-row gap-6 mt-8">
           {STATUSES.map(status => (
             <StatusColumn
               key={status}
