@@ -9,9 +9,9 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-4xl text-center mb-12">
-        <h1 className="text-4xl sm:text-5xl font-bold text-primary-foreground tracking-tight">Attendance Hero</h1>
+        <h1 className="text-4xl sm:text-5xl font-bold text-primary-foreground tracking-tight">Héroe de Asistencia</h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          Select a dashboard to manage daily staff attendance.
+          Selecciona un panel para gestionar la asistencia diaria del personal.
         </p>
       </div>
 
@@ -23,8 +23,8 @@ export default function Home() {
                 <div className="p-4 bg-primary/10 rounded-full mb-4">
                   <Globe className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl font-semibold">General Dashboard</CardTitle>
-                <CardDescription className="mt-2">View all offices combined</CardDescription>
+                <CardTitle className="text-xl font-semibold">Panel General</CardTitle>
+                <CardDescription className="mt-2">Ver todas las oficinas combinadas</CardDescription>
               </CardHeader>
             </Card>
           </Link>
@@ -37,7 +37,7 @@ export default function Home() {
                     <Building className="h-8 w-8 text-accent" />
                   </div>
                   <CardTitle className="text-xl font-semibold">{office.name}</CardTitle>
-                  <CardDescription className="mt-2">View specific office</CardDescription>
+                  <CardDescription className="mt-2">Ver oficina específica</CardDescription>
                 </CardHeader>
               </Card>
             </Link>

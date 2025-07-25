@@ -14,14 +14,14 @@ export default function DashboardPage({ params }: DashboardPageProps) {
   const { officeId } = params;
   const initialEmployees = getEmployees(officeId);
   const offices = getOffices();
-  const office = officeId === 'general' ? { name: 'General Dashboard' } : getOfficeBySlug(officeId);
+  const office = officeId === 'general' ? { name: 'Panel General' } : getOfficeBySlug(officeId);
 
   if (!office) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold mb-4">Office not found</h1>
+        <h1 className="text-2xl font-bold mb-4">Oficina no encontrada</h1>
         <Link href="/">
-          <Button>Go back to selection</Button>
+          <Button>Volver a la selección</Button>
         </Link>
       </div>
     );

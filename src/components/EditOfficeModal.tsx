@@ -35,18 +35,18 @@ export default function EditOfficeModal({ employee, offices, isOpen, onClose, on
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Office for {employee.name}</DialogTitle>
+          <DialogTitle>Editar Oficina para {employee.name}</DialogTitle>
           <DialogDescription>
-            Select a new commercial office for this employee.
+            Selecciona una nueva oficina comercial para este empleado.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <Label htmlFor="office-select" className="mb-2 block">
-            Office
+            Oficina
           </Label>
           <Select value={selectedOfficeId} onValueChange={setSelectedOfficeId}>
             <SelectTrigger id="office-select">
-              <SelectValue placeholder="Select an office" />
+              <SelectValue placeholder="Seleccione una oficina" />
             </SelectTrigger>
             <SelectContent>
               {offices.map((office) => (
@@ -58,8 +58,8 @@ export default function EditOfficeModal({ employee, offices, isOpen, onClose, on
           </Select>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button onClick={handleSave}>Guardar Cambios</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

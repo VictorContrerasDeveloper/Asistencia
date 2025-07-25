@@ -52,7 +52,7 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
           }}
         >
           <Pencil className="h-4 w-4" />
-          <span className="sr-only">Edit Office</span>
+          <span className="sr-only">Editar Oficina</span>
         </Button>
       </CardHeader>
     </Card>

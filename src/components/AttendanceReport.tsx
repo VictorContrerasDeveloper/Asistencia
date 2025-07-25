@@ -31,8 +31,8 @@ export default function AttendanceReport({ employeesByStatus }: AttendanceReport
     navigator.clipboard.writeText(reportText).then(() => {
       setCopied(true);
       toast({
-        title: "Report Copied!",
-        description: "The attendance summary has been copied to your clipboard.",
+        title: "¡Reporte Copiado!",
+        description: "El resumen de asistencia ha sido copiado a tu portapapeles.",
       });
       setTimeout(() => setCopied(false), 2000);
     });
@@ -41,17 +41,17 @@ export default function AttendanceReport({ employeesByStatus }: AttendanceReport
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Daily Report</CardTitle>
+        <CardTitle>Reporte Diario</CardTitle>
         <Button variant="outline" onClick={handleCopy}>
           {copied ? <ClipboardCheck className="mr-2 h-4 w-4" /> : <Clipboard className="mr-2 h-4 w-4" />}
-          {copied ? 'Copied!' : 'Copy Report'}
+          {copied ? '¡Copiado!' : 'Copiar Reporte'}
         </Button>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Present</CardTitle>
+              <CardTitle className="text-sm font-medium text-green-700 dark:text-green-300">Presente</CardTitle>
               <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
             </CardHeader>
             <CardContent>
@@ -60,7 +60,7 @@ export default function AttendanceReport({ employeesByStatus }: AttendanceReport
           </Card>
           <Card className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Late</CardTitle>
+              <CardTitle className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Atrasado</CardTitle>
               <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
             </CardHeader>
             <CardContent>
@@ -69,7 +69,7 @@ export default function AttendanceReport({ employeesByStatus }: AttendanceReport
           </Card>
           <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-red-700 dark:text-red-300">Absent</CardTitle>
+              <CardTitle className="text-sm font-medium text-red-700 dark:text-red-300">Ausente</CardTitle>
               <UserX className="h-4 w-4 text-red-600 dark:text-red-400" />
             </CardHeader>
             <CardContent>
