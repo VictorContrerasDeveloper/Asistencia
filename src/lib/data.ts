@@ -81,3 +81,14 @@ export const updateEmployee = (employeeId: string, newStatus?: AttendanceStatus,
     });
     return employees.find(e => e.id === employeeId);
 }
+
+export const addEmployee = (name: string, officeId: string) => {
+  const newEmployee: Employee = {
+    id: `e${employees.length + 1}`,
+    name,
+    officeId,
+    status: 'Presente', // Default status
+  };
+  employees.push(newEmployee);
+  return newEmployee;
+};

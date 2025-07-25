@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,12 @@ export default function DashboardPage({ params }: DashboardPageProps) {
           </Link>
           <h1 className="text-xl md:text-2xl font-bold text-primary-foreground">{office.name}</h1>
         </div>
+        <Link href="/dashboard/add-employee">
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Agregar Ejecutivo
+          </Button>
+        </Link>
       </header>
       <main className="flex-1 overflow-auto">
         <DashboardClient initialEmployees={initialEmployees} offices={offices} />
