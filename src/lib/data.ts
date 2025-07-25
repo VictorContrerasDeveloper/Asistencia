@@ -10,6 +10,8 @@ import {
   updateDoc, 
   addDoc,
   getDoc,
+  deleteDoc,
+  writeBatch,
 } from 'firebase/firestore';
 
 export type Office = {
@@ -43,7 +45,23 @@ export function slugify(text: string): string {
     .replace(/-+$/, ""); // Trim - from end of text
 }
 
+// This function will now clear the database.
 export const getOffices = async (): Promise<Office[]> => {
+  const batch = writeBatch(db);
+
+  const employeesSnapshot = await getDocs(employeesCollection);
+  employeesSnapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  const officesSnapshot = await getDocs(officesCollection);
+  officesSnapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  await batch.commit();
+  
+  // After deleting, return an empty array.
   const snapshot = await getDocs(officesCollection);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
 };
