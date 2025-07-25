@@ -1,3 +1,4 @@
+
 export type Office = {
   id: string;
   name: string;
@@ -19,6 +20,8 @@ const offices: Office[] = [
   { id: '4', name: 'Of. Com. Mall Plaza Norte' },
   { id: '5', name: 'Of. Com. Centro' },
   { id: '6', name: 'Of. Com. Providencia' },
+  { id: '7', name: 'Sub. Gerente Helpbank' },
+  { id: '8', name: 'Prevencion Riesgo' },
 ];
 
 let employees: Employee[] = [
@@ -37,6 +40,13 @@ let employees: Employee[] = [
   { id: 'e13', name: 'Catalina Silva', officeId: '6', status: 'Presente' },
   { id: 'e14', name: 'Matias Gonzalez', officeId: '2', status: 'Ausente' },
   { id: 'e15', name: 'Fernanda Ortiz', officeId: '1', status: 'Atrasado' },
+  { id: 'e16', name: 'Fernando Hernandez', officeId: '7', status: 'Presente' },
+  { id: 'e17', name: 'Christian Lezana', officeId: '8', status: 'Presente' },
+  { id: 'e18', name: 'Patricia Astorga Soto', officeId: '6', status: 'Presente' },
+  { id: 'e19', name: 'Patricia Ríos Contreras', officeId: '3', status: 'Presente' },
+  { id: 'e20', name: 'Leyla Andrea Soto García', officeId: '4', status: 'Presente' },
+  { id: 'e21', name: 'Jorge Alexis Martínez Tapia', officeId: '1', status: 'Presente' },
+  { id: 'e22', name: 'Johanna Contreras Salfate', officeId: '2', status: 'Presente' },
 ];
 
 export function slugify(text: string): string {
