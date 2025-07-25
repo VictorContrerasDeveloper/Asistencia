@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,12 @@ export default function DashboardPage({ params }: DashboardPageProps) {
                 Volver al Inicio
               </Button>
             </Link>
+            <Link href="/dashboard/add-employee">
+              <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Agregar Ejecutivo
+              </Button>
+          </Link>
         </div>
       </header>
       <main className="flex-1 overflow-auto">
