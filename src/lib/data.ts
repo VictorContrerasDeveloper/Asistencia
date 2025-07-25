@@ -38,10 +38,7 @@ const officeNames = [
     "Of. Com. Mall Plaza Norte",
     "Of. Com. Maipu",
     "Of. Com. Gran Avenida",
-    "Sub. Gerente Helpbank",
-    "Prevencion Riesgo"
 ];
-
 
 export function slugify(text: string): string {
   if (!text) return "";
@@ -57,6 +54,20 @@ export function slugify(text: string): string {
 }
 
 export const getOffices = async (): Promise<Office[]> => {
+    const officesToDelete = ["Sub. Gerente Helpbank", "Prevencion Riesgo"];
+    
+    // Delete the specified offices
+    const q = query(officesCollection, where('name', 'in', officesToDelete));
+    const snapshotToDelete = await getDocs(q);
+    if (!snapshotToDelete.empty) {
+        const batch = writeBatch(db);
+        snapshotToDelete.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+    }
+    
+    // Fetch remaining offices
     const snapshot = await getDocs(officesCollection);
     
     if (snapshot.empty) {
