@@ -33,14 +33,14 @@ const employeesCollection = collection(db, 'employees');
 
 // Initial data for seeding
 const initialOffices: Omit<Office, 'id'>[] = [
-  { name: 'Of. Com. Maipú' },
-  { name: 'Of. Com. Gran Avenida' },
-  { name: 'Of. Com. Plaza Egaña' },
-  { name: 'Of. Com. Mall Plaza Norte' },
-  { name: 'Of. Com. Centro' },
-  { name: 'Of. Com. Providencia' },
-  { name: 'Sub. Gerente Helpbank' },
-  { name: 'Prevencion Riesgo' },
+    { name: 'Of. Com. Maipú' },
+    { name: 'Of. Com. Gran Avenida' },
+    { name: 'Of. Com. Plaza Egaña' },
+    { name: 'Of. Com. Mall Plaza Norte' },
+    { name: 'Of. Com. Centro' },
+    { name: 'Of. Com. Providencia' },
+    { name: 'Sub. Gerente Helpbank' },
+    { name: 'Prevencion Riesgo' },
 ];
 
 const initialEmployees: Omit<Employee, 'id'>[] = [
@@ -120,19 +120,22 @@ const initialEmployees: Omit<Employee, 'id'>[] = [
 async function seedDatabase() {
   const officesSnapshot = await getDocs(query(officesCollection));
   if (officesSnapshot.empty) {
-    const officePromises = initialOffices.map(office => addDoc(officesCollection, office));
-    const officeDocs = await Promise.all(officePromises);
-
     const officeNameToIdMap = new Map<string, string>();
-    officeDocs.forEach((doc, index) => {
-        officeNameToIdMap.set(initialOffices[index].name, doc.id);
-    });
     
+    // Create offices and store their IDs
+    for (const office of initialOffices) {
+        const officeRef = await addDoc(officesCollection, office);
+        officeNameToIdMap.set(office.name, officeRef.id);
+    }
+    
+    // Create employees using the stored office IDs
     const employeePromises = initialEmployees.map(employee => {
       const officeId = officeNameToIdMap.get(employee.officeId);
       if(officeId) {
-        return addDoc(employeesCollection, { ...employee, officeId });
+        // Correctly reference officeId from the map
+        return addDoc(employeesCollection, { name: employee.name, status: employee.status, officeId: officeId });
       }
+      console.warn(`Could not find office ID for office name: ${employee.officeId}`);
       return null;
     }).filter(p => p !== null);
 
@@ -140,7 +143,7 @@ async function seedDatabase() {
   }
 }
 
-seedDatabase();
+seedDatabase().catch(console.error);
 
 export function slugify(text: string): string {
   if (!text) return "";
@@ -161,6 +164,7 @@ export const getOffices = async (): Promise<Office[]> => {
 };
 
 export const getOfficeById = async (id: string): Promise<Office | undefined> => {
+  if (!id) return undefined;
   const docRef = doc(db, 'offices', id);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
