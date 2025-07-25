@@ -24,30 +24,7 @@ const offices: Office[] = [
   { id: '8', name: 'Prevencion Riesgo' },
 ];
 
-let employees: Employee[] = [
-  { id: 'e1', name: 'Ana García', officeId: '1', status: 'Presente' },
-  { id: 'e2', name: 'Luis Pérez', officeId: '1', status: 'Presente' },
-  { id: 'e3', name: 'Carla Rojas', officeId: '1', status: 'Ausente' },
-  { id: 'e4', name: 'Pedro Soto', officeId: '2', status: 'Presente' },
-  { id: 'e5', name: 'María López', officeId: '2', status: 'Atrasado' },
-  { id: 'e6', name: 'Juan Morales', officeId: '3', status: 'Presente' },
-  { id: 'e7', name: 'Sofía Castro', officeId: '3', status: 'Presente' },
-  { id: 'e8', name: 'Diego Reyes', officeId: '4', status: 'Ausente' },
-  { id: 'e9', name: 'Valentina Muñoz', officeId: '4', status: 'Presente' },
-  { id: 'e10', name: 'Javier Torres', officeId: '5', status: 'Presente' },
-  { id: 'e11', name: 'Isidora Flores', officeId: '5', status: 'Atrasado' },
-  { id: 'e12', name: 'Benjamín Navarro', officeId: '6', status: 'Presente' },
-  { id: 'e13', name: 'Catalina Silva', officeId: '6', status: 'Presente' },
-  { id: 'e14', name: 'Matias Gonzalez', officeId: '2', status: 'Ausente' },
-  { id: 'e15', name: 'Fernanda Ortiz', officeId: '1', status: 'Atrasado' },
-  { id: 'e16', name: 'Fernando Hernandez', officeId: '7', status: 'Presente' },
-  { id: 'e17', name: 'Christian Lezana', officeId: '8', status: 'Presente' },
-  { id: 'e18', name: 'Patricia Astorga Soto', officeId: '6', status: 'Presente' },
-  { id: 'e19', name: 'Patricia Ríos Contreras', officeId: '3', status: 'Presente' },
-  { id: 'e20', name: 'Leyla Andrea Soto García', officeId: '4', status: 'Presente' },
-  { id: 'e21', name: 'Jorge Alexis Martínez Tapia', officeId: '1', status: 'Presente' },
-  { id: 'e22', name: 'Johanna Contreras Salfate', officeId: '2', status: 'Presente' },
-];
+let employees: Employee[] = [];
 
 export function slugify(text: string): string {
   return text
