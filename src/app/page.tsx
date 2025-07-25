@@ -2,8 +2,7 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getOffices, slugify } from '@/lib/data';
-import { Building, Globe, PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Building, Globe } from 'lucide-react';
 
 export default async function Home() {
   const offices = await getOffices();
@@ -15,14 +14,6 @@ export default async function Home() {
         <p className="mt-4 text-lg text-muted-foreground">
           Selecciona un panel para gestionar la asistencia diaria del personal.
         </p>
-        <div className="mt-6 flex justify-center">
-            <Link href="/dashboard/add-office">
-              <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Agregar Oficina
-              </Button>
-            </Link>
-        </div>
       </div>
 
       <div className="w-full max-w-4xl">

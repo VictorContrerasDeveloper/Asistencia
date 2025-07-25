@@ -2,11 +2,17 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById } from '@/lib/data';
+import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById, addOffice as apiAddOffice } from '@/lib/data';
+import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
+import AddOfficeModal from './AddOfficeModal';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
+import { Button } from './ui/button';
+import { PlusCircle } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from 'next/navigation';
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
@@ -50,9 +56,12 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
   )
 }
 
-export default function DashboardClient({ initialEmployees, offices, officeName }: { initialEmployees: Employee[], offices: Office[], officeName: string }) {
+export default function DashboardClient({ initialEmployees, offices, officeName, officeId }: { initialEmployees: Employee[], offices: Office[], officeName: string, officeId: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [isAddOfficeModalOpen, setAddOfficeModalOpen] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     setEmployees(initialEmployees);
@@ -103,9 +112,42 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
     handleCloseModal();
   };
 
+  const handleAddOffice = async (name: string) => {
+    if (!name) {
+      toast({
+        title: "Error",
+        description: "Por favor, ingresa el nombre de la oficina.",
+        variant: "destructive",
+      });
+      return;
+    }
+    await apiAddOffice(name);
+    toast({
+        title: "¡Éxito!",
+        description: "La oficina ha sido agregada correctamente.",
+    });
+    setAddOfficeModalOpen(false);
+    // Refresh the page to show the new office in the list on the home page
+    router.refresh();
+  };
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="p-4 md:p-8 space-y-8">
+        {officeId === 'general' && (
+            <div className="flex justify-center gap-4">
+                 <Button onClick={() => setAddOfficeModalOpen(true)}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Agregar Oficina
+                </Button>
+                <Link href="/dashboard/add-employee">
+                <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Agregar Ejecutivo
+                </Button>
+            </Link>
+            </div>
+        )}
         <div className="flex flex-col md:flex-row gap-6">
           {STATUSES.map(status => (
             <StatusColumn
@@ -127,6 +169,11 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
           onSave={handleSaveOffice}
         />
       )}
+      <AddOfficeModal
+        isOpen={isAddOfficeModalOpen}
+        onClose={() => setAddOfficeModalOpen(false)}
+        onSave={handleAddOffice}
+      />
     </DndContext>
   );
 }

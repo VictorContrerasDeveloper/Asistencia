@@ -40,16 +40,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                 Volver al Inicio
               </Button>
             </Link>
-            <Link href="/dashboard/add-employee">
-              <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Agregar Ejecutivo
-              </Button>
-          </Link>
         </div>
       </header>
       <main className="flex-1 overflow-auto">
-        <DashboardClient initialEmployees={initialEmployees} offices={offices} officeName={office.name} />
+        <DashboardClient initialEmployees={initialEmployees} offices={offices} officeName={office.name} officeId={officeId} />
       </main>
     </div>
   );
