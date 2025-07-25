@@ -32,6 +32,17 @@ const db = getFirestore(app);
 const officesCollection = collection(db, 'offices');
 const employeesCollection = collection(db, 'employees');
 
+const officeNames = [
+    "Of. Com. Providencia",
+    "Of. Com. Plaza Egaña",
+    "Of. Com. Mall Plaza Norte",
+    "Of. Com. Maipu",
+    "Of. Com. Gran Avenida",
+    "Sub. Gerente Helpbank",
+    "Prevencion Riesgo"
+];
+
+
 export function slugify(text: string): string {
   if (!text) return "";
   return text
@@ -45,25 +56,22 @@ export function slugify(text: string): string {
     .replace(/-+$/, ""); // Trim - from end of text
 }
 
-// This function will now clear the database.
 export const getOffices = async (): Promise<Office[]> => {
-  const batch = writeBatch(db);
+    const snapshot = await getDocs(officesCollection);
+    
+    if (snapshot.empty) {
+        const batch = writeBatch(db);
+        officeNames.forEach(name => {
+            const newOfficeRef = doc(officesCollection);
+            batch.set(newOfficeRef, { name });
+        });
+        await batch.commit();
+        
+        const newSnapshot = await getDocs(officesCollection);
+        return newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+    }
 
-  const employeesSnapshot = await getDocs(employeesCollection);
-  employeesSnapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-
-  const officesSnapshot = await getDocs(officesCollection);
-  officesSnapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-
-  await batch.commit();
-  
-  // After deleting, return an empty array.
-  const snapshot = await getDocs(officesCollection);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
 };
 
 export const getOfficeById = async (id: string): Promise<Office | undefined> => {
@@ -78,7 +86,9 @@ export const getOfficeById = async (id: string): Promise<Office | undefined> => 
 
 
 export const getOfficeBySlug = async (slug: string): Promise<Office | undefined> => {
-  const offices = await getOffices();
+  const q = query(officesCollection);
+  const snapshot = await getDocs(q);
+  const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
   return offices.find(office => slugify(office.name) === slug);
 }
 
