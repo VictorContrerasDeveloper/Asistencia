@@ -32,14 +32,6 @@ const db = getFirestore(app);
 const officesCollection = collection(db, 'offices');
 const employeesCollection = collection(db, 'employees');
 
-const officeNames = [
-    "Of. Com. Providencia",
-    "Of. Com. Plaza Egaña",
-    "Of. Com. Mall Plaza Norte",
-    "Of. Com. Maipu",
-    "Of. Com. Gran Avenida",
-];
-
 export function slugify(text: string): string {
   if (!text) return "";
   return text
@@ -70,19 +62,15 @@ export const getOffices = async (): Promise<Office[]> => {
     // Fetch remaining offices
     const snapshot = await getDocs(officesCollection);
     
-    if (snapshot.empty) {
-        const batch = writeBatch(db);
-        officeNames.forEach(name => {
-            const newOfficeRef = doc(officesCollection);
-            batch.set(newOfficeRef, { name });
-        });
-        await batch.commit();
-        
-        const newSnapshot = await getDocs(officesCollection);
-        return newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
-    }
-
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+};
+
+export const addOffice = async (name: string) => {
+  const newOffice = {
+    name,
+  };
+  const docRef = await addDoc(officesCollection, newOffice);
+  return { id: docRef.id, ...newOffice } as Office;
 };
 
 export const getOfficeById = async (id: string): Promise<Office | undefined> => {
