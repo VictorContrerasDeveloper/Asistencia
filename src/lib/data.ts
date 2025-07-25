@@ -46,22 +46,7 @@ export function slugify(text: string): string {
 }
 
 export const getOffices = async (): Promise<Office[]> => {
-    const officesToDelete = ["Sub. Gerente Helpbank", "Prevencion Riesgo"];
-    
-    // Delete the specified offices
-    const q = query(officesCollection, where('name', 'in', officesToDelete));
-    const snapshotToDelete = await getDocs(q);
-    if (!snapshotToDelete.empty) {
-        const batch = writeBatch(db);
-        snapshotToDelete.docs.forEach(doc => {
-            batch.delete(doc.ref);
-        });
-        await batch.commit();
-    }
-    
-    // Fetch remaining offices
     const snapshot = await getDocs(officesCollection);
-    
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
 };
 
@@ -123,3 +108,23 @@ export const addEmployee = async (name: string, officeId: string) => {
   const docRef = await addDoc(employeesCollection, newEmployee);
   return { id: docRef.id, ...newEmployee } as Employee;
 };
+
+export const bulkAddEmployees = async (names: string, officeId: string) => {
+  const nameList = names.split('\n').filter(name => name.trim() !== '');
+  if (nameList.length === 0) {
+    return;
+  }
+
+  const batch = writeBatch(db);
+  nameList.forEach(name => {
+    const newEmployee = {
+      name: name.trim(),
+      officeId,
+      status: 'Atrasado',
+    };
+    const docRef = doc(employeesCollection); // Automatically generate new doc ID
+    batch.set(docRef, newEmployee);
+  });
+
+  await batch.commit();
+}

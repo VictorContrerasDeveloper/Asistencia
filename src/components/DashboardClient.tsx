@@ -10,7 +10,7 @@ import AddOfficeModal from './AddOfficeModal';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import { Button } from './ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Users } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
 
@@ -45,7 +45,7 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
   return (
     <div ref={setNodeRef} className={`flex-1 rounded-lg p-4 min-h-[300px] transition-colors duration-300 ${config.bgColor}`}>
       <h2 className={`text-lg font-bold pb-2 mb-4 border-b-2 ${config.borderColor} ${config.textColor}`}>
-        {status === 'Presente' ? `Presentes en ${officeName}` : config.title} ({employees.length})
+        {status === 'Presente' && officeName !== 'Panel General' ? `Presentes en ${officeName}` : config.title} ({employees.length})
       </h2>
       <div className="space-y-4">
         {employees.map(employee => (
@@ -144,6 +144,12 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
                 <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Agregar Ejecutivo
+                </Button>
+            </Link>
+            <Link href="/dashboard/bulk-add-employees">
+                <Button>
+                    <Users className="mr-2 h-4 w-4" />
+                    Carga Masiva
                 </Button>
             </Link>
             </div>
