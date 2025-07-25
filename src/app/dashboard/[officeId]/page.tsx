@@ -12,9 +12,9 @@ type DashboardPageProps = {
 
 export default function DashboardPage({ params }: DashboardPageProps) {
   const { officeId } = params;
-  const initialEmployees = getEmployees(officeId);
   const offices = getOffices();
-  const office = officeId === 'general' ? { name: 'Panel General' } : getOfficeBySlug(officeId);
+  const office = officeId === 'general' ? { name: 'Panel General', id: 'general' } : getOfficeBySlug(officeId);
+  const initialEmployees = getEmployees(officeId);
 
   if (!office) {
     return (

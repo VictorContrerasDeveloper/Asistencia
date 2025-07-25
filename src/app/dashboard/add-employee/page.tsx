@@ -47,7 +47,7 @@ export default function AddEmployeePage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-xl md:text-2xl font-bold text-primary-foreground">Agregar Nuevo Ejecutivo</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Agregar Nuevo Ejecutivo</h1>
         </div>
       </header>
       <main className="flex-1 flex items-center justify-center p-4">

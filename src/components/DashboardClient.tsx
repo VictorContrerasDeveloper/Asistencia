@@ -15,9 +15,9 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
   const statusConfig = {
      Presente: {
       title: `Presentes en ${officeName}`,
-      bgColor: 'bg-slate-100 dark:bg-slate-800/50',
-      borderColor: 'border-slate-300',
-      textColor: 'text-slate-800 dark:text-slate-200',
+      bgColor: 'bg-green-100 dark:bg-green-900/50',
+      borderColor: 'border-green-500',
+      textColor: 'text-green-800 dark:text-green-200',
     },
     Atrasado: {
       title: 'Pendientes / Atrasados',
@@ -38,7 +38,7 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
   return (
     <div ref={setNodeRef} className={`flex-1 rounded-lg p-4 min-h-[300px] transition-colors duration-300 ${config.bgColor}`}>
       <h2 className={`text-lg font-bold pb-2 mb-4 border-b-2 ${config.borderColor} ${config.textColor}`}>
-        {config.title} ({employees.length})
+        {status === 'Presente' ? `Presentes en ${officeName}` : config.title} ({employees.length})
       </h2>
       <div className="space-y-4">
         {employees.map(employee => (
@@ -58,23 +58,10 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
   }, [initialEmployees]);
 
   const employeesByStatus = useMemo(() => {
-    const allStatuses: Record<AttendanceStatus, Employee[]> = {
-      Presente: [],
-      Atrasado: [],
-      Ausente: [],
-    };
-    
-    employees.forEach(e => {
-      if (e.status === 'Presente') {
-        allStatuses.Presente.push(e);
-      } else if (e.status === 'Atrasado') {
-        allStatuses.Atrasado.push(e);
-      } else {
-        allStatuses.Ausente.push(e);
-      }
-    });
-
-    return allStatuses;
+    return employees.reduce((acc, employee) => {
+      acc[employee.status].push(employee);
+      return acc;
+    }, { Presente: [], Atrasado: [], Ausente: [] } as Record<AttendanceStatus, Employee[]>);
   }, [employees]);
 
 
@@ -87,7 +74,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
       
       const employee = employees.find(e => e.id === employeeId);
       if(employee && employee.status !== newStatus) {
-        updateEmployee(employeeId, newStatus);
+        updateEmployee(employeeId, { status: newStatus });
         setEmployees(prev => prev.map(e => e.id === employeeId ? { ...e, status: newStatus } : e));
       }
     }
@@ -102,8 +89,14 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
   };
   
   const handleSaveOffice = (employeeId: string, newOfficeId: string) => {
-    updateEmployee(employeeId, undefined, newOfficeId);
-    setEmployees(prev => prev.map(e => e.id === employeeId ? { ...e, officeId: newOfficeId } : e));
+    updateEmployee(employeeId, { officeId: newOfficeId });
+    setEmployees(prev => {
+      // If we are in a specific office view, filter out the employee if they are moved to another office.
+      if (officeName !== 'Panel General' && offices.find(o => o.id === newOfficeId)?.name !== officeName) {
+        return prev.filter(e => e.id !== employeeId);
+      }
+      return prev.map(e => e.id === employeeId ? { ...e, officeId: newOfficeId } : e)
+    });
     handleCloseModal();
   };
 
@@ -111,25 +104,15 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
     <DndContext onDragEnd={handleDragEnd}>
       <div className="p-4 md:p-8 space-y-8">
         <div className="flex flex-col md:flex-row gap-6">
-          <StatusColumn
-            key="Atrasado"
-            status="Atrasado"
-            employees={employeesByStatus['Atrasado']}
-            onEdit={handleOpenModal}
-          />
-          <StatusColumn
-            key="Presente"
-            status="Presente"
-            employees={employeesByStatus['Presente']}
-            onEdit={handleOpenModal}
-            officeName={officeName}
-          />
-          <StatusColumn
-            key="Ausente"
-            status="Ausente"
-            employees={employeesByStatus['Ausente']}
-            onEdit={handleOpenModal}
-          />
+          {STATUSES.map(status => (
+            <StatusColumn
+              key={status}
+              status={status}
+              employees={employeesByStatus[status]}
+              onEdit={handleOpenModal}
+              officeName={officeName}
+            />
+          ))}
         </div>
       </div>
       {editingEmployee && (
