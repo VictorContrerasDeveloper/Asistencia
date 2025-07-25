@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices } from '@/lib/data';
@@ -10,11 +11,11 @@ type DashboardPageProps = {
   };
 };
 
-export default function DashboardPage({ params }: DashboardPageProps) {
+export default async function DashboardPage({ params }: DashboardPageProps) {
   const { officeId } = params;
-  const offices = getOffices();
-  const office = officeId === 'general' ? { name: 'Panel General', id: 'general' } : getOfficeBySlug(officeId);
-  const initialEmployees = getEmployees(officeId);
+  const offices = await getOffices();
+  const office = officeId === 'general' ? { name: 'Panel General', id: 'general' } : await getOfficeBySlug(officeId);
+  const initialEmployees = await getEmployees(officeId);
 
   if (!office) {
     return (

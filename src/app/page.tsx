@@ -1,10 +1,11 @@
+
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getOffices, slugify } from '@/lib/data';
 import { Building, Globe } from 'lucide-react';
 
-export default function Home() {
-  const offices = getOffices();
+export default async function Home() {
+  const offices = await getOffices();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">

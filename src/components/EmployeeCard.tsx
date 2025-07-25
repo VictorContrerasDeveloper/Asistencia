@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useDraggable } from '@dnd-kit/core';
@@ -6,7 +7,8 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
-import { type Employee, getOffices } from '@/lib/data';
+import { type Employee, getOfficeById } from '@/lib/data';
+import { useEffect, useState } from 'react';
 
 type EmployeeCardProps = {
   employee: Employee;
@@ -18,11 +20,21 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
     id: employee.id,
   });
 
+  const [officeName, setOfficeName] = useState('Cargando...');
+
+  useEffect(() => {
+    const fetchOfficeName = async () => {
+      const office = await getOfficeById(employee.officeId);
+      setOfficeName(office?.name || 'N/A');
+    }
+    fetchOfficeName();
+  }, [employee.officeId]);
+
+
   const style = {
     transform: CSS.Translate.toString(transform),
   };
 
-  const officeName = getOffices().find(o => o.id === employee.officeId)?.name || 'N/A';
   const initials = employee.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
 
   return (

@@ -1,4 +1,17 @@
 
+import { app } from './firebase';
+import { 
+  getFirestore, 
+  collection, 
+  getDocs, 
+  query, 
+  where, 
+  doc, 
+  updateDoc, 
+  addDoc,
+  getDoc,
+} from 'firebase/firestore';
+
 export type Office = {
   id: string;
   name: string;
@@ -7,98 +20,130 @@ export type Office = {
 export type AttendanceStatus = 'Presente' | 'Atrasado' | 'Ausente';
 
 export type Employee = {
-  id: string;
+  id:string;
   name: string;
   officeId: string;
   status: AttendanceStatus;
 };
 
-const offices: Office[] = [
-  { id: '1', name: 'Of. Com. Maipú' },
-  { id: '2', name: 'Of. Com. Gran Avenida' },
-  { id: '3', name: 'Of. Com. Plaza Egaña' },
-  { id: '4', name: 'Of. Com. Mall Plaza Norte' },
-  { id: '5', name: 'Of. Com. Centro' },
-  { id: '6', name: 'Of. Com. Providencia' },
-  { id: '7', name: 'Sub. Gerente Helpbank' },
-  { id: '8', name: 'Prevencion Riesgo' },
+const db = getFirestore(app);
+const officesCollection = collection(db, 'offices');
+const employeesCollection = collection(db, 'employees');
+
+
+// Initial data for seeding
+const initialOffices: Omit<Office, 'id'>[] = [
+  { name: 'Of. Com. Maipú' },
+  { name: 'Of. Com. Gran Avenida' },
+  { name: 'Of. Com. Plaza Egaña' },
+  { name: 'Of. Com. Mall Plaza Norte' },
+  { name: 'Of. Com. Centro' },
+  { name: 'Of. Com. Providencia' },
+  { name: 'Sub. Gerente Helpbank' },
+  { name: 'Prevencion Riesgo' },
 ];
 
-let employees: Employee[] = [
-    { id: 'e1', name: 'Patricia Astorga Soto', officeId: '6', status: 'Atrasado' },
-    { id: 'e2', name: 'Patricia Ríos Contreras', officeId: '3', status: 'Atrasado' },
-    { id: 'e3', name: 'Leyla Andrea Soto García', officeId: '4', status: 'Atrasado' },
-    { id: 'e4', name: 'Jorge Alexis Martínez Tapia', officeId: '1', status: 'Atrasado' },
-    { id: 'e5', name: 'Johanna Contreras Salfate', officeId: '2', status: 'Atrasado' },
-    { id: 'e6', name: 'Jesennia Torres Aguilar', officeId: '6', status: 'Atrasado' },
-    { id: 'e7', name: 'Carlos Vera Carvajal', officeId: '5', status: 'Atrasado' },
-    { id: 'e8', name: 'Jenny Llanillos Aguilar', officeId: '5', status: 'Atrasado' },
-    { id: 'e9', name: 'Paula Andrea Muñoz Ceriani', officeId: '1', status: 'Atrasado' },
-    { id: 'e10', name: 'Clarisa Silva Maldonado', officeId: '4', status: 'Atrasado' },
-    { id: 'e11', name: 'Maria Soledad Zuñiga Hernandez', officeId: '3', status: 'Atrasado' },
-    { id: 'e12', name: 'Carola Andrea Valladares Poblete', officeId: '5', status: 'Atrasado' },
-    { id: 'e13', name: 'Solanch Quezada Morales', officeId: '5', status: 'Atrasado' },
-    { id: 'e14', name: 'Marisol Abarca Toro', officeId: '5', status: 'Atrasado' },
-    { id: 'e15', name: 'Patricia Reyes Osorio', officeId: '1', status: 'Atrasado' },
-    { id: 'e16', name: 'Nicole Belen Muñoz Silva', officeId: '5', status: 'Atrasado' },
-    { id: 'e17', name: 'Sixtina Rojo Astorga', officeId: '4', status: 'Atrasado' },
-    { id: 'e18', name: 'Athan Alonso Abarca Vidal', officeId: '4', status: 'Atrasado' },
-    { id: 'e19', name: 'Rosaliz Pacheco Asuaje', officeId: '6', status: 'Atrasado' },
-    { id: 'e20', name: 'Sandra Alarcon Parada', officeId: '5', status: 'Atrasado' },
-    { id: 'e21', name: 'Yaritza Huaiquinao Peñaloza', officeId: '2', status: 'Atrasado' },
-    { id: 'e22', name: 'Fabian Jesus Muñoz Ceriani', officeId: '1', status: 'Atrasado' },
-    { id: 'e23', name: 'Teresa del Carmen Marillanca Torres', officeId: '2', status: 'Atrasado' },
-    { id: 'e24', name: 'Karina Andrea Sobino Perez', officeId: '5', status: 'Atrasado' },
-    { id: 'e25', name: 'Marisol Cornejo Díaz', officeId: '1', status: 'Atrasado' },
-    { id: 'e26', name: 'Paulina Gloria Opazo Villalobos', officeId: '5', status: 'Atrasado' },
-    { id: 'e27', name: 'Nicole Martinez Escobar', officeId: '5', status: 'Atrasado' },
-    { id: 'e28', name: 'Nisnoibeth Rodriguez Nery', officeId: '5', status: 'Atrasado' },
-    { id: 'e29', name: 'Mary Cruz Oviedo De Cedeño', officeId: '5', status: 'Atrasado' },
-    { id: 'e30', name: 'Constanza Antonia Azocar Bascuñan', officeId: '5', status: 'Atrasado' },
-    { id: 'e31', name: 'Jessica Rodríguez Anríquez', officeId: '2', status: 'Atrasado' },
-    { id: 'e32', name: 'Annais Arenas Pardo', officeId: '2', status: 'Atrasado' },
-    { id: 'e33', name: 'Jocelyn de Lourdes Larenas Jimenez', officeId: '2', status: 'Atrasado' },
-    { id: 'e34', name: 'Muriel Andrea Aranguiz Lazo', officeId: '2', status: 'Atrasado' },
-    { id: 'e35', name: 'Margott Vidal Gómez', officeId: '1', status: 'Atrasado' },
-    { id: 'e36', name: 'Lucia Begoña Vargas Paillan', officeId: '1', status: 'Atrasado' },
-    { id: 'e37', name: 'Analia Adriazola Quintupill', officeId: '4', status: 'Atrasado' },
-    { id: 'e38', name: 'Oscar Boris Soto Muñoz', officeId: '3', status: 'Atrasado' },
-    { id: 'e39', name: 'Gisel Olivares Jofre', officeId: '6', status: 'Atrasado' },
-    { id: 'e40', name: 'Anchely Taborda de Ortega', officeId: '3', status: 'Atrasado' },
-    { id: 'e41', name: 'Fresia Miranda Diaz', officeId: '2', status: 'Atrasado' },
-    { id: 'e42', name: 'Jaidemarie Deutelmoser', officeId: '6', status: 'Atrasado' },
-    { id: 'e43', name: 'Isabel Margarita Riquelme Sepulveda', officeId: '6', status: 'Atrasado' },
-    { id: 'e44', name: 'Ana Belen Bascur Salas', officeId: '3', status: 'Atrasado' },
-    { id: 'e45', name: 'Consuelo del Pilar Salazar Roman', officeId: '4', status: 'Atrasado' },
-    { id: 'e46', name: 'Alexandra Rodriguez silva', officeId: '4', status: 'Atrasado' },
-    { id: 'e47', name: 'Josefa Antonia Leal Pirela', officeId: '3', status: 'Atrasado' },
-    { id: 'e48', name: 'Erika Caceres Lobos', officeId: '5', status: 'Atrasado' },
-    { id: 'e49', name: 'Reina Bueno Gateño', officeId: '3', status: 'Atrasado' },
-    { id: 'e50', name: 'Vanesa Rojas Peña', officeId: '1', status: 'Atrasado' },
-    { id: 'e51', name: 'Maria Angelica Valenzuela Hernandez', officeId: '2', status: 'Atrasado' },
-    { id: 'e52', name: 'Jose Luis Cañas Caicedo', officeId: '6', status: 'Atrasado' },
-    { id: 'e53', name: 'Lilian Gutiérrez Velásquez', officeId: '1', status: 'Atrasado' },
-    { id: 'e54', name: 'Violeta Astorga Maturana', officeId: '3', status: 'Atrasado' },
-    { id: 'e55', name: 'Jhaneilis Vera Montiel', officeId: '6', status: 'Atrasado' },
-    { id: 'e56', name: 'Valeria Irene Lizama Guzmán', officeId: '1', status: 'Atrasado' },
-    { id: 'e57', name: 'Flor Maria Diaz Hernandez', officeId: '5', status: 'Atrasado' },
-    { id: 'e58', name: 'Marcela Gonzalez Liempi', officeId: '6', status: 'Atrasado' },
-    { id: 'e59', name: 'Maritza Norambuena Estay', officeId: '2', status: 'Atrasado' },
-    { id: 'e60', name: 'Javiera Paz Fernandez Ramirez', officeId: '4', status: 'Atrasado' },
-    { id: 'e61', name: 'Magaly Sonia Retamal Castro', officeId: '3', status: 'Atrasado' },
-    { id: 'e62', name: 'Aida Farfan Gutierrez', officeId: '6', status: 'Atrasado' },
-    { id: 'e63', name: 'Benjamín Ignacio Martinez Mallega', officeId: '1', status: 'Atrasado' },
-    { id: 'e64', name: 'Camila Marillanaca', officeId: '1', status: 'Atrasado' },
-    { id: 'e65', name: 'Catalina Rojas Barrales', officeId: '5', status: 'Atrasado' },
-    { id: 'e66', name: 'Michelle Casanova Gutierrez', officeId: '2', status: 'Atrasado' },
-    { id: 'e67', name: 'Evelyn Robinson Mallega', officeId: '6', status: 'Atrasado' },
-    { id: 'e68', name: 'Jocelyn Alejandra Pino Pinto', officeId: '5', status: 'Atrasado' },
-    { id: 'e69', name: 'Julissa Andrea Venegas Carreño', officeId: '4', status: 'Atrasado' },
-    { id: 'e70', name: 'Fernando Hernandez', officeId: '7', status: 'Atrasado' },
-    { id: 'e71', name: 'Christian Lezana', officeId: '8', status: 'Atrasado' },
+const initialEmployees: Omit<Employee, 'id'>[] = [
+    { name: 'Patricia Astorga Soto', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Patricia Ríos Contreras', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Leyla Andrea Soto García', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Jorge Alexis Martínez Tapia', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Johanna Contreras Salfate', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Jesennia Torres Aguilar', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Carlos Vera Carvajal', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Jenny Llanillos Aguilar', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Paula Andrea Muñoz Ceriani', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Clarisa Silva Maldonado', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Maria Soledad Zuñiga Hernandez', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Carola Andrea Valladares Poblete', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Solanch Quezada Morales', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Marisol Abarca Toro', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Patricia Reyes Osorio', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Nicole Belen Muñoz Silva', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Sixtina Rojo Astorga', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Athan Alonso Abarca Vidal', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Rosaliz Pacheco Asuaje', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Sandra Alarcon Parada', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Yaritza Huaiquinao Peñaloza', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Fabian Jesus Muñoz Ceriani', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Teresa del Carmen Marillanca Torres', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Karina Andrea Sobino Perez', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Marisol Cornejo Díaz', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Paulina Gloria Opazo Villalobos', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Nicole Martinez Escobar', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Nisnoibeth Rodriguez Nery', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Mary Cruz Oviedo De Cedeño', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Constanza Antonia Azocar Bascuñan', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Jessica Rodríguez Anríquez', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Annais Arenas Pardo', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Jocelyn de Lourdes Larenas Jimenez', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Muriel Andrea Aranguiz Lazo', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Margott Vidal Gómez', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Lucia Begoña Vargas Paillan', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Analia Adriazola Quintupill', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Oscar Boris Soto Muñoz', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Gisel Olivares Jofre', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Anchely Taborda de Ortega', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Fresia Miranda Diaz', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Jaidemarie Deutelmoser', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Isabel Margarita Riquelme Sepulveda', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Ana Belen Bascur Salas', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Consuelo del Pilar Salazar Roman', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Alexandra Rodriguez silva', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Josefa Antonia Leal Pirela', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Erika Caceres Lobos', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Reina Bueno Gateño', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Vanesa Rojas Peña', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Maria Angelica Valenzuela Hernandez', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Jose Luis Cañas Caicedo', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Lilian Gutiérrez Velásquez', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Violeta Astorga Maturana', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Jhaneilis Vera Montiel', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Valeria Irene Lizama Guzmán', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Flor Maria Diaz Hernandez', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Marcela Gonzalez Liempi', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Maritza Norambuena Estay', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Javiera Paz Fernandez Ramirez', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Magaly Sonia Retamal Castro', officeId: 'Of. Com. Plaza Egaña', status: 'Atrasado' },
+    { name: 'Aida Farfan Gutierrez', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Benjamín Ignacio Martinez Mallega', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Camila Marillanaca', officeId: 'Of. Com. Maipu', status: 'Atrasado' },
+    { name: 'Catalina Rojas Barrales', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Michelle Casanova Gutierrez', officeId: 'Of. Com. Gran Avenida', status: 'Atrasado' },
+    { name: 'Evelyn Robinson Mallega', officeId: 'Of. Com. Providencia', status: 'Atrasado' },
+    { name: 'Jocelyn Alejandra Pino Pinto', officeId: 'Of. Com. Centro', status: 'Atrasado' },
+    { name: 'Julissa Andrea Venegas Carreño', officeId: 'Of. Com. Mall Plaza Norte', status: 'Atrasado' },
+    { name: 'Fernando Hernandez', officeId: 'Sub. Gerente Helpbank', status: 'Atrasado' },
+    { name: 'Christian Lezana', officeId: 'Prevencion Riesgo', status: 'Atrasado' },
 ];
+
+async function seedDatabase() {
+  const officesSnapshot = await getDocs(query(officesCollection));
+  if (officesSnapshot.empty) {
+    const officePromises = initialOffices.map(office => addDoc(officesCollection, office));
+    const officeDocs = await Promise.all(officePromises);
+
+    const officeNameToIdMap = new Map<string, string>();
+    officeDocs.forEach((doc, index) => {
+        officeNameToIdMap.set(initialOffices[index].name, doc.id);
+    });
+    
+    const employeePromises = initialEmployees.map(employee => {
+      const officeId = officeNameToIdMap.get(employee.officeId);
+      if(officeId) {
+        return addDoc(employeesCollection, { ...employee, officeId });
+      }
+      return null;
+    }).filter(p => p !== null);
+
+    await Promise.all(employeePromises);
+  }
+}
+
+seedDatabase();
 
 export function slugify(text: string): string {
+  if (!text) return "";
   return text
     .toString()
     .toLowerCase()
@@ -110,40 +155,55 @@ export function slugify(text: string): string {
     .replace(/-+$/, ""); // Trim - from end of text
 }
 
-export const getOffices = (): Office[] => offices;
+export const getOffices = async (): Promise<Office[]> => {
+  const snapshot = await getDocs(officesCollection);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+};
 
-export const getOfficeBySlug = (slug: string): Office | undefined => {
+export const getOfficeById = async (id: string): Promise<Office | undefined> => {
+  const docRef = doc(db, 'offices', id);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return { id: docSnap.id, ...docSnap.data() } as Office;
+  }
+  return undefined;
+};
+
+
+export const getOfficeBySlug = async (slug: string): Promise<Office | undefined> => {
+  const offices = await getOffices();
   return offices.find(office => slugify(office.name) === slug);
 }
 
-export const getEmployees = (officeSlug?: string): Employee[] => {
+export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => {
   if (!officeSlug || officeSlug === 'general') {
-    return employees;
+    const snapshot = await getDocs(employeesCollection);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
   }
-  const office = getOfficeBySlug(officeSlug);
+  
+  const office = await getOfficeBySlug(officeSlug);
   if (!office) {
     return [];
   }
-  return employees.filter(employee => employee.officeId === office.id);
+  
+  const q = query(employeesCollection, where('officeId', '==', office.id));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
 };
 
-export const updateEmployee = (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId'>>) => {
-    employees = employees.map(emp => {
-        if (emp.id === employeeId) {
-            return { ...emp, ...updates };
-        }
-        return emp;
-    });
-    return employees.find(e => e.id === employeeId);
+export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId'>>) => {
+    const employeeRef = doc(db, 'employees', employeeId);
+    await updateDoc(employeeRef, updates);
+    const updatedDoc = await getDoc(employeeRef);
+    return { id: updatedDoc.id, ...updatedDoc.data() } as Employee;
 }
 
-export const addEmployee = (name: string, officeId: string) => {
-  const newEmployee: Employee = {
-    id: `e${employees.length + 1}`,
+export const addEmployee = async (name: string, officeId: string) => {
+  const newEmployee = {
     name,
     officeId,
     status: 'Atrasado', // Default status
   };
-  employees.push(newEmployee);
-  return newEmployee;
+  const docRef = await addDoc(employeesCollection, newEmployee);
+  return { id: docRef.id, ...newEmployee } as Employee;
 };

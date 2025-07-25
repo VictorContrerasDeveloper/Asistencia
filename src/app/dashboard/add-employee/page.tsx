@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { getOffices, addEmployee } from '@/lib/data';
+import { getOffices, addEmployee, Office } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
 
 export default function AddEmployeePage() {
@@ -18,9 +18,17 @@ export default function AddEmployeePage() {
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [officeId, setOfficeId] = useState('');
-  const offices = getOffices();
+  const [offices, setOffices] = useState<Office[]>([]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchOffices = async () => {
+      const fetchedOffices = await getOffices();
+      setOffices(fetchedOffices);
+    }
+    fetchOffices();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !officeId) {
       toast({
@@ -30,7 +38,7 @@ export default function AddEmployeePage() {
       });
       return;
     }
-    addEmployee(name, officeId);
+    await addEmployee(name, officeId);
     toast({
         title: "¡Éxito!",
         description: "El ejecutivo ha sido agregado correctamente.",

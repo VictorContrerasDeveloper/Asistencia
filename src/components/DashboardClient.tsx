@@ -1,14 +1,12 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { type Employee, type Office, type AttendanceStatus, updateEmployee } from '@/lib/data';
+import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById } from '@/lib/data';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
-import Link from 'next/link';
-import { Button } from './ui/button';
-import { PlusCircle } from 'lucide-react';
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
@@ -91,11 +89,13 @@ export default function DashboardClient({ initialEmployees, offices, officeName 
     setEditingEmployee(null);
   };
   
-  const handleSaveOffice = (employeeId: string, newOfficeId: string) => {
-    updateEmployee(employeeId, { officeId: newOfficeId });
-    setEmployees(prev => {
+  const handleSaveOffice = async (employeeId: string, newOfficeId: string) => {
+    await updateEmployee(employeeId, { officeId: newOfficeId });
+    
+    setEmployees(async prev => {
       // If we are in a specific office view, filter out the employee if they are moved to another office.
-      if (officeName !== 'Panel General' && offices.find(o => o.id === newOfficeId)?.name !== officeName) {
+      const newOffice = await getOfficeById(newOfficeId);
+      if (officeName !== 'Panel General' && newOffice?.name !== officeName) {
         return prev.filter(e => e.id !== employeeId);
       }
       return prev.map(e => e.id === employeeId ? { ...e, officeId: newOfficeId } : e)
