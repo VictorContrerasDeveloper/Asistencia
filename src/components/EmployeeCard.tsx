@@ -3,7 +3,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
 import { type Employee, getOffices } from '@/lib/data';
@@ -23,7 +23,7 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
   };
 
   const officeName = getOffices().find(o => o.id === employee.officeId)?.name || 'N/A';
-  const initials = employee.name.split(' ').map(n => n[0]).join('');
+  const initials = employee.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
 
   return (
     <Card
@@ -34,8 +34,7 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
       className="bg-card shadow-sm hover:shadow-md transition-shadow duration-200 cursor-grab active:cursor-grabbing touch-none"
     >
       <CardHeader className="flex flex-row items-center gap-4 p-3 relative">
-        <Avatar>
-          <AvatarImage src={`https://placehold.co/40x40.png?text=${initials}`} alt={employee.name} data-ai-hint="person portrait" />
+        <Avatar className="h-10 w-10 bg-primary/20 text-primary font-bold">
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
