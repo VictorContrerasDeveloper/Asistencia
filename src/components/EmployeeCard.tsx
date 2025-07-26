@@ -14,9 +14,10 @@ type EmployeeCardProps = {
   employee: Employee;
   onEdit: (employee: Employee) => void;
   onDelete: (employee: Employee) => void;
+  showDelete: boolean;
 };
 
-export default function EmployeeCard({ employee, onEdit, onDelete }: EmployeeCardProps) {
+export default function EmployeeCard({ employee, onEdit, onDelete, showDelete }: EmployeeCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: employee.id,
   });
@@ -67,18 +68,20 @@ export default function EmployeeCard({ employee, onEdit, onDelete }: EmployeeCar
             <Pencil className="h-4 w-4" />
             <span className="sr-only">Editar Oficina</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
-            onClick={(e) => {
-              e.stopPropagation(); 
-              onDelete(employee);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Eliminar Ejecutivo</span>
-          </Button>
+          {showDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+              onClick={(e) => {
+                e.stopPropagation(); 
+                onDelete(employee);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="sr-only">Eliminar Ejecutivo</span>
+            </Button>
+          )}
         </div>
       </CardHeader>
     </Card>

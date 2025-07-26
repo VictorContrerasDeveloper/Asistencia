@@ -26,7 +26,7 @@ import { useRouter } from 'next/navigation';
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
-function StatusColumn({ status, employees, onEdit, onDelete, officeName }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, onDelete: (employee: Employee) => void, officeName?: string }) {
+function StatusColumn({ status, employees, onEdit, onDelete, officeName, canDelete }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, onDelete: (employee: Employee) => void, officeName?: string, canDelete: boolean }) {
   const { setNodeRef } = useDroppable({ id: status });
 
   const statusConfig = {
@@ -59,7 +59,7 @@ function StatusColumn({ status, employees, onEdit, onDelete, officeName }: { sta
       </h2>
       <div className="space-y-4">
         {employees.map(employee => (
-          <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} onDelete={() => onDelete(employee)} />
+          <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} onDelete={() => onDelete(employee)} showDelete={canDelete} />
         ))}
       </div>
     </div>
@@ -166,6 +166,8 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     }
   }
 
+  const canDelete = officeId === 'general';
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="p-4 md:p-8 space-y-8">
@@ -198,6 +200,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               onEdit={handleOpenEditModal}
               onDelete={handleOpenDeleteModal}
               officeName={officeName}
+              canDelete={canDelete}
             />
           ))}
         </div>
