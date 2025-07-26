@@ -32,7 +32,7 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
     };
     
     employees.forEach(emp => {
-      if(roles[emp.role] !== undefined && emp.status === 'Presente') {
+      if(roles[emp.role] !== undefined && (emp.status === 'Presente' || emp.status === 'Atrasado')) {
           roles[emp.role]++;
       }
     });
@@ -50,34 +50,34 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
   }
 
   return (
-    <div className="hidden md:flex items-center gap-6">
-        <div className="flex items-center gap-4 border-l pl-4">
-            <div className="flex items-center gap-2 text-sm font-medium" title="Presentes">
+    <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 font-medium" title="Presentes">
                 <UserCheck className="h-4 w-4 text-green-600" />
                 <span>Presentes:</span>
-                <span className="font-bold">{summary.present}</span>
+                <span className="font-bold text-foreground">{summary.present}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm font-medium" title="Atrasados">
+            <div className="flex items-center gap-2 font-medium" title="Atrasados">
                 <Clock className="h-4 w-4 text-orange-600" />
                 <span>Atrasados:</span>
-                <span className="font-bold">{summary.late}</span>
+                <span className="font-bold text-foreground">{summary.late}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm font-medium" title="Ausentes">
+            <div className="flex items-center gap-2 font-medium" title="Ausentes">
                 <UserX className="h-4 w-4 text-red-600" />
                 <span>Ausentes:</span>
-                <span className="font-bold">{summary.absent}</span>
+                <span className="font-bold text-foreground">{summary.absent}</span>
             </div>
         </div>
 
-        <div className="flex items-center gap-4 border-l pl-4">
+        <div className="flex items-center gap-4 border-l border-border pl-6">
             {ROLES.map(role => {
                  const Icon = roleIcons[role];
-                 const presentCount = employees.filter(e => e.role === role && (e.status === 'Presente' || e.status === 'Atrasado')).length;
+                 const presentCount = summary.roles[role];
                  return (
-                    <div key={role} className="flex items-center gap-2 text-sm text-muted-foreground" title={role}>
+                    <div key={role} className="flex items-center gap-2" title={role}>
                         <Icon className="h-4 w-4" />
                         <span>{role}:</span>
-                        <span className="font-bold">{presentCount}</span>
+                        <span className="font-bold text-foreground">{presentCount}</span>
                     </div>
                  )
             })}
