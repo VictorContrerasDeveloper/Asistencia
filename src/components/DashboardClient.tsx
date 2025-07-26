@@ -24,6 +24,8 @@ function StatusColumn({
   officeName,
   offices,
   officeId,
+  activeId,
+  draggedOverColumn
 }: {
   status: AttendanceStatus,
   employees: Employee[],
@@ -31,8 +33,10 @@ function StatusColumn({
   officeName?: string,
   offices: Office[],
   officeId: string,
+  activeId: string | null;
+  draggedOverColumn: AttendanceStatus | null;
 }) {
-  const { setNodeRef } = useDroppable({ id: status });
+  const { setNodeRef, isOver } = useDroppable({ id: status });
 
   const statusConfig = {
     Presente: {
@@ -59,15 +63,24 @@ function StatusColumn({
   const title = officeId === 'general' ? config.title : (status === 'Presente' ? `Presentes en ${officeName}` : config.title);
 
   return (
-    <div ref={setNodeRef} className={`flex-1 rounded-lg p-4 min-h-[300px] transition-colors duration-300 ${config.bgColor}`}>
+    <div 
+      ref={setNodeRef} 
+      className={`flex-1 rounded-lg p-4 min-h-[300px] transition-colors duration-300 ${config.bgColor} ${isOver ? 'border-2 border-dashed' : ''} ${config.borderColor}`}
+    >
       <h2 className={`text-lg font-bold pb-2 mb-4 border-b-2 ${config.borderColor} ${config.textColor}`}>
         {title} ({employees.length})
       </h2>
-       <SortableContext items={employees.map(e => e.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-4">
-            {employees.map((employee) => (
-               <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} offices={offices} />
-            ))}
+      <SortableContext items={employees.map(e => e.id)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-3">
+          {employees.map((employee, index) => (
+             <EmployeeCard 
+                key={employee.id} 
+                employee={employee} 
+                onEdit={onEdit} 
+                offices={offices}
+                isDragging={activeId === employee.id}
+             />
+          ))}
         </div>
       </SortableContext>
     </div>
@@ -81,6 +94,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const { toast } = useToast();
   const router = useRouter();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [draggedOverColumn, setDraggedOverColumn] = useState<AttendanceStatus | null>(null);
  
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -111,64 +125,95 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     setActiveId(event.active.id as string);
   };
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    const overId = over?.id;
+
+    if (STATUSES.includes(overId as AttendanceStatus)) {
+      setDraggedOverColumn(overId as AttendanceStatus);
+    } else {
+      const employee = employees.find(e => e.id === overId);
+      if(employee) {
+        setDraggedOverColumn(employee.status);
+      } else {
+        setDraggedOverColumn(null);
+      }
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
     setActiveId(null);
-  
-    if (!over) return;
-  
-    const activeEmployee = employees.find(e => e.id === active.id);
-    if (!activeEmployee) return;
-  
-    // Determine the new status. It can be a column ID or the status of the employee we're dropping on.
-    const overId = over.id;
-    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
-    const overEmployee = employees.find(e => e.id === overId);
-  
-    let newStatus: AttendanceStatus | undefined = undefined;
-    if (overIsColumn) {
-      newStatus = overId as AttendanceStatus;
-    } else if (overEmployee) {
-      newStatus = overEmployee.status;
+    setDraggedOverColumn(null);
+
+    const { active, over } = event;
+
+    if (!over) {
+      return;
     }
   
-    if (!newStatus) return;
+    const overId = over.id;
+    const employeeId = active.id as string;
   
-    // Update the employee in the database
-    updateEmployee(active.id as string, { status: newStatus });
-  
-    setEmployees(currentEmployees => {
-      const activeIndex = currentEmployees.findIndex(e => e.id === active.id);
-      let newIndex: number;
-  
+    // Determine the new status
+    let newStatus: AttendanceStatus | undefined;
+    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
+    
+    if (overIsColumn) {
+      newStatus = overId as AttendanceStatus;
+    } else {
+      // It's over another employee card
+      const overEmployee = employees.find(e => e.id === overId);
       if (overEmployee) {
-        // Dropped on another employee card
-        newIndex = currentEmployees.findIndex(e => e.id === overId);
-      } else {
-        // Dropped on a column, find the last employee in that column
-        const employeesInNewStatus = currentEmployees.filter(e => e.status === newStatus);
-        if (employeesInNewStatus.length > 0) {
-            // Place it at the end of the target column
-            const lastEmployee = employeesInNewStatus[employeesInNewStatus.length - 1];
-            newIndex = currentEmployees.findIndex(e => e.id === lastEmployee.id) + 1;
-        } else {
-            // If the column is empty, we can just append it to the end of the whole list for now.
-            // The status update will handle the column assignment.
-            newIndex = currentEmployees.length; 
-        }
+        newStatus = overEmployee.status;
       }
-      
-      // Update the status of the dragged employee
-      const updatedEmployee = { ...currentEmployees[activeIndex], status: newStatus };
-      
-      // Create a new array with the employee removed
-      const tempEmployees = [...currentEmployees];
-      tempEmployees.splice(activeIndex, 1);
+    }
   
-      // Insert the employee in the new position
-      tempEmployees.splice(newIndex, 0, updatedEmployee);
-  
-      return tempEmployees;
+    if (!newStatus) {
+      return;
+    }
+
+    const activeEmployee = employees.find(e => e.id === employeeId);
+
+    // If status is the same and we are not reordering, do nothing
+    if (activeEmployee && activeEmployee.status === newStatus && active.id === over.id) {
+        return;
+    }
+
+    // Optimistic UI Update
+    setEmployees(currentEmployees => {
+      const activeIndex = currentEmployees.findIndex(e => e.id === employeeId);
+      if (activeIndex === -1) return currentEmployees;
+
+      const overIndex = currentEmployees.findIndex(e => e.id === overId);
+
+      // If dropped on a column, not a specific card
+      if (overIsColumn) {
+         const updatedEmployee = { ...currentEmployees[activeIndex], status: newStatus };
+         const newEmployees = currentEmployees.filter(e => e.id !== employeeId);
+         newEmployees.push(updatedEmployee);
+         return newEmployees;
+      }
+
+      // If dropped on another card
+      if (overIndex !== -1) {
+          let newItems = [...currentEmployees];
+          newItems[activeIndex] = { ...newItems[activeIndex], status: newStatus! };
+          return arrayMove(newItems, activeIndex, overIndex);
+      }
+
+      return currentEmployees;
+    });
+
+    // Update in database
+    updateEmployee(employeeId, { status: newStatus }).catch(error => {
+      console.error("Failed to update employee:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el empleado. Por favor, inténtelo de nuevo.",
+        variant: "destructive",
+      });
+      // Revert UI change if API call fails
+      setEmployees(initialEmployees);
     });
   };
 
@@ -215,6 +260,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
       onDragCancel={() => setActiveId(null)}
     >
       <div className="p-4 md:p-8 space-y-8">
@@ -254,13 +300,15 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               officeName={officeName}
               offices={offices}
               officeId={officeId}
+              activeId={activeId}
+              draggedOverColumn={draggedOverColumn}
             />
           ))}
         </div>
       </div>
 
        <DragOverlay>
-        {activeEmployee ? <EmployeeCard employee={activeEmployee} onEdit={handleOpenEditModal} offices={offices} /> : null}
+        {activeEmployee ? <EmployeeCard employee={activeEmployee} onEdit={handleOpenEditModal} offices={offices} isDragging={true} /> : null}
       </DragOverlay>
 
       {editingEmployee && (
