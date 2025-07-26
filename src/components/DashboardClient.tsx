@@ -23,7 +23,6 @@ function StatusColumn({
   onEdit,
   officeName,
   offices,
-  activeId,
   officeId,
 }: {
   status: AttendanceStatus,
@@ -31,7 +30,6 @@ function StatusColumn({
   onEdit: (employee: Employee) => void,
   officeName?: string,
   offices: Office[],
-  activeId: string | null,
   officeId: string,
 }) {
   const { setNodeRef } = useDroppable({ id: status });
@@ -67,12 +65,9 @@ function StatusColumn({
       </h2>
        <SortableContext items={employees.map(e => e.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-4">
-            {employees.map((employee) => {
-              if (activeId === employee.id) {
-                return <div key={employee.id} className="bg-card/50 rounded-lg h-[76px] border-2 border-dashed border-primary"></div>
-              }
-              return <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} offices={offices} />
-            })}
+            {employees.map((employee) => (
+               <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} offices={offices} />
+            ))}
         </div>
       </SortableContext>
     </div>
@@ -112,7 +107,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
 
   const activeEmployee = useMemo(() => employees.find(e => e.id === activeId), [activeId, employees]);
 
- const handleDragStart = (event: any) => {
+  const handleDragStart = (event: any) => {
     setActiveId(event.active.id as string);
   };
 
@@ -120,57 +115,62 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     const { active, over } = event;
     setActiveId(null);
   
-    if (over && active.id !== over.id) {
-      const activeEmployee = employees.find((e) => e.id === active.id);
-      const overEmployee = employees.find((e) => e.id === over.id);
-      let newStatus: AttendanceStatus | undefined = undefined;
-
-      if(STATUSES.includes(over.id as AttendanceStatus)){
-        newStatus = over.id as AttendanceStatus;
-      }
-
-      if (!activeEmployee) {
-        return;
-      }
-
-      setEmployees((employees) => {
-        const originalPos = employees.findIndex((e) => e.id === active.id);
-        let newPos = employees.findIndex((e) => e.id === over.id);
-
-        if (newStatus !== undefined) {
-          // If we are dropping on a column, find last employee in that column
-          const employeesInStatus = employees.filter(e => e.status === newStatus);
-          if (employeesInStatus.length > 0) {
-              const lastEmployeeInStatus = employeesInStatus[employeesInStatus.length - 1];
-              newPos = employees.findIndex(e => e.id === lastEmployeeInStatus.id);
-          } else {
-             // If column is empty, we will append it. We need to handle this case
-             // For now, let's just update the status and put it at the end.
-             const updatedEmployees = employees.map(e => e.id === active.id ? {...e, status: newStatus!} : e);
-             const activeEmp = updatedEmployees.find(e => e.id === active.id)!;
-             const others = updatedEmployees.filter(e => e.id !== active.id);
-             return [...others, activeEmp];
-          }
-        }
-        
-        const movedEmployees = arrayMove(employees, originalPos, newPos);
-        
-        const finalEmployees = movedEmployees.map(e => {
-            if (e.id === active.id) {
-                const targetStatus = newStatus || employees.find(emp => emp.id === over.id)?.status;
-                if(targetStatus) {
-                    updateEmployee(e.id, { status: targetStatus });
-                    return {...e, status: targetStatus};
-                }
-            }
-            return e;
-        });
-
-        return finalEmployees;
-      });
-    }
-  };
+    if (!over) return;
   
+    const activeEmployee = employees.find(e => e.id === active.id);
+    if (!activeEmployee) return;
+  
+    // Determine the new status. It can be a column ID or the status of the employee we're dropping on.
+    const overId = over.id;
+    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
+    const overEmployee = employees.find(e => e.id === overId);
+  
+    let newStatus: AttendanceStatus | undefined = undefined;
+    if (overIsColumn) {
+      newStatus = overId as AttendanceStatus;
+    } else if (overEmployee) {
+      newStatus = overEmployee.status;
+    }
+  
+    if (!newStatus) return;
+  
+    // Update the employee in the database
+    updateEmployee(active.id as string, { status: newStatus });
+  
+    setEmployees(currentEmployees => {
+      const activeIndex = currentEmployees.findIndex(e => e.id === active.id);
+      let newIndex: number;
+  
+      if (overEmployee) {
+        // Dropped on another employee card
+        newIndex = currentEmployees.findIndex(e => e.id === overId);
+      } else {
+        // Dropped on a column, find the last employee in that column
+        const employeesInNewStatus = currentEmployees.filter(e => e.status === newStatus);
+        if (employeesInNewStatus.length > 0) {
+            // Place it at the end of the target column
+            const lastEmployee = employeesInNewStatus[employeesInNewStatus.length - 1];
+            newIndex = currentEmployees.findIndex(e => e.id === lastEmployee.id) + 1;
+        } else {
+            // If the column is empty, we can just append it to the end of the whole list for now.
+            // The status update will handle the column assignment.
+            newIndex = currentEmployees.length; 
+        }
+      }
+      
+      // Update the status of the dragged employee
+      const updatedEmployee = { ...currentEmployees[activeIndex], status: newStatus };
+      
+      // Create a new array with the employee removed
+      const tempEmployees = [...currentEmployees];
+      tempEmployees.splice(activeIndex, 1);
+  
+      // Insert the employee in the new position
+      tempEmployees.splice(newIndex, 0, updatedEmployee);
+  
+      return tempEmployees;
+    });
+  };
 
   const handleOpenEditModal = (employee: Employee) => {
     setEditingEmployee(employee);
@@ -253,7 +253,6 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               onEdit={handleOpenEditModal}
               officeName={officeName}
               offices={offices}
-              activeId={activeId}
               officeId={officeId}
             />
           ))}
