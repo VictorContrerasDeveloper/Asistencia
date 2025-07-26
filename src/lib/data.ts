@@ -21,12 +21,14 @@ export type Office = {
 };
 
 export type AttendanceStatus = 'Presente' | 'Ausente' | 'Licencia';
+export type EmployeeRole = 'Atención en Módulo' | 'Anfitrión' | 'Atención en Tablet';
 
 export type Employee = {
   id:string;
   name: string;
   officeId: string;
   status: AttendanceStatus;
+  role: EmployeeRole;
 };
 
 const db = getFirestore(app);
@@ -93,16 +95,17 @@ export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => 
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
 };
 
-export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId'>>) => {
+export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role'>>) => {
     const employeeRef = doc(db, 'employees', employeeId);
     await updateDoc(employeeRef, updates);
 };
 
-export const addEmployee = async (name: string, officeId: string) => {
+export const addEmployee = async (name: string, officeId: string, role: EmployeeRole) => {
   const newEmployee = {
     name,
     officeId,
     status: 'Ausente',
+    role: role || 'Atención en Módulo',
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
   return { id: docRef.id, ...newEmployee } as Employee;
@@ -120,6 +123,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       name: name.trim(),
       officeId,
       status: 'Ausente',
+      role: 'Atención en Módulo',
     };
     const docRef = doc(employeesCollection);
     batch.set(docRef, newEmployee);

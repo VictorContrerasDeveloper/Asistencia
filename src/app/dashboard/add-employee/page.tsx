@@ -10,14 +10,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { getOffices, addEmployee, Office } from '@/lib/data';
+import { getOffices, addEmployee, Office, EmployeeRole } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
+
+const ROLES: EmployeeRole[] = ['Atención en Módulo', 'Anfitrión', 'Atención en Tablet'];
 
 export default function AddEmployeePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [officeId, setOfficeId] = useState('');
+  const [role, setRole] = useState<EmployeeRole>('Atención en Módulo');
   const [offices, setOffices] = useState<Office[]>([]);
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function AddEmployeePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !officeId) {
+    if (!name || !officeId || !role) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos.",
@@ -38,7 +41,7 @@ export default function AddEmployeePage() {
       });
       return;
     }
-    await addEmployee(name, officeId);
+    await addEmployee(name, officeId, role);
     toast({
         title: "¡Éxito!",
         description: "El ejecutivo ha sido agregado correctamente.",
@@ -88,6 +91,21 @@ export default function AddEmployeePage() {
                         {offices.map((office) => (
                             <SelectItem key={office.id} value={office.id}>
                                 {office.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Función Asignada</Label>
+                <Select value={role} onValueChange={(value) => setRole(value as EmployeeRole)} required>
+                    <SelectTrigger id="role">
+                        <SelectValue placeholder="Selecciona una función" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {ROLES.map((role) => (
+                            <SelectItem key={role} value={role}>
+                                {role}
                             </SelectItem>
                         ))}
                     </SelectContent>

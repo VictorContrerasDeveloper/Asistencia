@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { type Employee, type Office, type AttendanceStatus, updateEmployee } from '@/lib/data';
+import { type Employee, type Office, type AttendanceStatus, type EmployeeRole, updateEmployee } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -12,10 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const STATUSES: AttendanceStatus[] = ['Presente', 'Ausente', 'Licencia'];
+const ROLES: EmployeeRole[] = ['Atención en Módulo', 'Anfitrión', 'Atención en Tablet'];
 
 export default function DashboardClient({ initialEmployees, offices, officeId }: { initialEmployees: Employee[], offices: Office[], officeId: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
@@ -52,6 +53,29 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
     }
   };
 
+  const handleRoleChange = async (employeeId: string, newRole: EmployeeRole) => {
+    // Optimistic UI update
+    setEmployees(currentEmployees => 
+      currentEmployees.map(emp => 
+        emp.id === employeeId ? { ...emp, role: newRole } : emp
+      )
+    );
+
+    try {
+      await updateEmployee(employeeId, { role: newRole });
+    } catch (error) {
+      console.error("Failed to update employee role:", error);
+      // Revert UI change on failure
+      setEmployees(initialEmployees);
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la función.",
+        variant: "destructive",
+      });
+    }
+  };
+
+
   const getOfficeName = (officeId: string) => {
     return offices.find(o => o.id === officeId)?.name || 'N/A';
   }
@@ -61,7 +85,8 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
       <Table>
         <TableHeader className="sticky top-0 z-10 bg-card">
           <TableRow>
-            <TableHead className="w-[40%] text-primary font-bold text-lg">Ejecutivo</TableHead>
+            <TableHead className="w-[30%] text-primary font-bold text-lg">Ejecutivo</TableHead>
+             <TableHead className="w-[25%] text-center text-primary font-bold text-lg">Función</TableHead>
             {STATUSES.map(status => (
               <TableHead key={status} className="text-center text-primary font-bold text-lg">{status}</TableHead>
             ))}
@@ -72,6 +97,20 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
             <TableRow key={employee.id}>
               <TableCell>
                 <div className="font-medium">{employee.name}</div>
+              </TableCell>
+               <TableCell>
+                <Select value={employee.role} onValueChange={(value) => handleRoleChange(employee.id, value as EmployeeRole)}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccionar función" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {ROLES.map((role) => (
+                            <SelectItem key={role} value={role}>
+                                {role}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
               </TableCell>
               {STATUSES.map(status => (
                 <TableCell key={status} className="text-center">
