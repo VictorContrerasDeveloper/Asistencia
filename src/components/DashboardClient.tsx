@@ -86,7 +86,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
     const oldRole = currentEmployee.role;
     if (oldRole === newRole) return;
 
-    const isChangingRequiredRole = oldRole === 'Filtro' || oldRole === 'Tablet';
+    const isChangingRequiredRole = oldRole === 'Filtro' || oldRole === 'Tablet' || oldRole === 'Supervisión';
 
     if (isChangingRequiredRole) {
         const employeesInOffice = employees.filter(emp => emp.officeId === currentEmployee.officeId);
