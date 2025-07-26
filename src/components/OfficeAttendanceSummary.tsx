@@ -74,22 +74,6 @@ export default function OfficeAttendanceSummary({ employees, office }: { employe
 
         <div className="flex flex-col items-start gap-1">
             {ROLES_ORDER.map(role => {
-                 const Icon = roleIcons[role];
-                 const presentCount = summary.roles[role];
-                 return (
-                    <div key={role} className="flex items-center gap-2 font-medium" title={role}>
-                        <Icon className="h-4 w-4" />
-                        <span>{role}:</span>
-                        <span className="font-bold text-foreground">{presentCount}</span>
-                    </div>
-                 )
-            })}
-        </div>
-
-        <Separator orientation="vertical" className="h-16" />
-
-        <div className="flex flex-col items-start gap-1">
-            {ROLES_ORDER.map(role => {
                  const realCount = summary.roles[role] || 0;
                  const theoreticalCount = office.theoreticalStaffing?.[role] || 0;
                  return (
