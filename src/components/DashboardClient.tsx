@@ -95,7 +95,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
         if (roleCount <= 1) {
             toast({
                 title: "Cambio no permitido",
-                description: `Debe haber al menos un ejecutivo con la función "${oldRole}" en esta oficina.`,
+                description: `Debe haber al menos una persona con la función "${oldRole}" en esta oficina.`,
                 variant: "destructive",
             });
             return; // Block the change
@@ -129,11 +129,11 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
   }
 
   return (
-    <div className="bg-card rounded-lg border">
+    <div className="bg-card rounded-lg border overflow-auto h-[calc(100vh-10rem)]">
       <Table>
         <TableHeader className="sticky top-0 z-10 bg-card">
           <TableRow>
-            <TableHead className="w-[25%] text-primary font-bold text-lg">Ejecutivo</TableHead>
+            <TableHead className="w-[25%] text-primary font-bold text-lg">Personal asignado</TableHead>
             <TableHead className="w-[20%] text-primary font-bold text-lg">Trabaja en</TableHead>
             <TableHead className="w-[15%] text-center text-primary font-bold text-lg">Presente</TableHead>
             <TableHead className="w-[15%] text-center text-primary font-bold text-lg">Ausente</TableHead>
@@ -202,7 +202,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
       </Table>
        {sortedEmployees.length === 0 && (
           <div className="text-center p-8 text-muted-foreground">
-              No hay ejecutivos para mostrar.
+              No hay personal para mostrar.
           </div>
         )}
     </div>

@@ -61,7 +61,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                 <Link href="/dashboard/add-employee">
                   <Button>
                       <PlusCircle />
-                      Agregar Ejecutivo
+                      Agregar Personal
                   </Button>
                 </Link>
                 <Link href="/dashboard/bulk-add-employees">
@@ -73,7 +73,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                 <Link href="/dashboard/delete-employee">
                     <Button variant="destructive">
                         <Trash2 />
-                        Eliminar Ejecutivo(s)
+                        Eliminar Personal
                     </Button>
                 </Link>
              </>

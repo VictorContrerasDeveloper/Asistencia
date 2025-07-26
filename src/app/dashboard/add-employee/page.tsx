@@ -44,7 +44,7 @@ export default function AddEmployeePage() {
     await addEmployee(name, officeId, role);
     toast({
         title: "¡Éxito!",
-        description: "El ejecutivo ha sido agregado correctamente.",
+        description: "El personal ha sido agregado correctamente.",
     });
     router.push('/dashboard/general');
   };
@@ -58,15 +58,15 @@ export default function AddEmployeePage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Agregar Nuevo Ejecutivo</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Agregar Nuevo Personal</h1>
         </div>
       </header>
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-lg">
           <CardHeader>
-            <CardTitle>Detalles del Ejecutivo</CardTitle>
+            <CardTitle>Detalles del Personal</CardTitle>
             <CardDescription>
-              Ingresa la información del nuevo ejecutivo y asígnalo a una oficina.
+              Ingresa la información del nuevo personal y asígnalo a una oficina.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -118,7 +118,7 @@ export default function AddEmployeePage() {
                     </Button>
                  </Link>
                 <Button type="submit">
-                    Guardar Ejecutivo
+                    Guardar Personal
                 </Button>
               </div>
             </form>

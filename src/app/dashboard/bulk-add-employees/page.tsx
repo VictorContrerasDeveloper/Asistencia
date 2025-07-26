@@ -44,13 +44,13 @@ export default function BulkAddEmployeesPage() {
       await bulkAddEmployees(names, officeId);
       toast({
           title: "¡Éxito!",
-          description: "Los ejecutivos han sido agregados correctamente.",
+          description: "El personal ha sido agregado correctamente.",
       });
       router.push('/dashboard/general');
     } catch (error) {
        toast({
         title: "Error",
-        description: "Ocurrió un error al guardar los ejecutivos.",
+        description: "Ocurrió un error al guardar el personal.",
         variant: "destructive",
       });
     } finally {
@@ -67,13 +67,13 @@ export default function BulkAddEmployeesPage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Carga Masiva de Ejecutivos</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Carga Masiva de Personal</h1>
         </div>
       </header>
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-lg">
           <CardHeader>
-            <CardTitle>Agregar Múltiples Ejecutivos</CardTitle>
+            <CardTitle>Agregar Múltiples Personas</CardTitle>
             <CardDescription>
               Pega una lista de nombres (uno por línea) y asígnalos a una oficina.
             </CardDescription>
@@ -81,7 +81,7 @@ export default function BulkAddEmployeesPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="names">Nombres de los Ejecutivos</Label>
+                <Label htmlFor="names">Nombres del Personal</Label>
                 <Textarea
                   id="names"
                   value={names}
@@ -113,7 +113,7 @@ export default function BulkAddEmployeesPage() {
                     </Button>
                  </Link>
                 <Button type="submit" disabled={isSaving}>
-                    {isSaving ? 'Guardando...' : 'Guardar Ejecutivos'}
+                    {isSaving ? 'Guardando...' : 'Guardar Personal'}
                 </Button>
               </div>
             </form>

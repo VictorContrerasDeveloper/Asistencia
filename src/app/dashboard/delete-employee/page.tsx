@@ -53,7 +53,7 @@ export default function DeleteEmployeePage() {
     if (selectedEmployees.length === 0) {
       toast({
         title: "Error",
-        description: "No has seleccionado ningún ejecutivo para eliminar.",
+        description: "No has seleccionado a nadie para eliminar.",
         variant: "destructive",
       });
       return;
@@ -63,13 +63,13 @@ export default function DeleteEmployeePage() {
       await bulkDeleteEmployees(selectedEmployees);
       toast({
           title: "¡Éxito!",
-          description: "Los ejecutivos seleccionados han sido eliminados.",
+          description: "El personal seleccionado ha sido eliminado.",
       });
       router.push('/dashboard/general');
     } catch (error) {
        toast({
         title: "Error",
-        description: "Ocurrió un error al eliminar los ejecutivos.",
+        description: "Ocurrió un error al eliminar el personal.",
         variant: "destructive",
       });
     } finally {
@@ -87,15 +87,15 @@ export default function DeleteEmployeePage() {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Eliminar Ejecutivos</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Eliminar Personal</h1>
           </div>
         </header>
         <main className="flex-1 flex items-center justify-center p-4">
           <Card className="w-full max-w-lg">
             <CardHeader>
-              <CardTitle>Seleccionar Ejecutivos</CardTitle>
+              <CardTitle>Seleccionar Personal</CardTitle>
               <CardDescription>
-                Marca las casillas de los ejecutivos que deseas eliminar permanentemente.
+                Marca las casillas del personal que deseas eliminar permanentemente.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -140,7 +140,7 @@ export default function DeleteEmployeePage() {
             <AlertDialogHeader>
               <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
               <AlertDialogDescription>
-                Esta acción no se puede deshacer. Esto eliminará permanentemente a {selectedEmployees.length} ejecutivo(s).
+                Esta acción no se puede deshacer. Esto eliminará permanentemente a {selectedEmployees.length} persona(s).
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

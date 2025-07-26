@@ -46,7 +46,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
   if (employees.length === 0) {
       return (
         <div className="text-center p-8 text-muted-foreground bg-card rounded-lg shadow-md">
-            No hay ejecutivos para mostrar. Agrega uno para comenzar.
+            No hay personal para mostrar. Agrega a alguien para comenzar.
         </div>
       )
   }
@@ -64,7 +64,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                <div className="flex items-center justify-between p-3 rounded-md bg-muted/50">
                   <div className='flex items-center gap-3'>
                     <Users className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">Total Ejecutivos</span>
+                    <span className="font-medium">Total Personal</span>
                   </div>
                   <span className="font-bold text-lg">{globalSummary.total}</span>
               </div>
