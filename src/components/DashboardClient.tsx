@@ -39,10 +39,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
 
     try {
       await updateEmployee(employeeId, { status: newStatus });
-      toast({
-        title: "Estado actualizado",
-        description: `El estado del ejecutivo ha sido cambiado a ${newStatus}.`,
-      });
+      // The toast notification has been removed as per user request.
     } catch (error) {
       console.error("Failed to update employee status:", error);
       // Revert UI change on failure
