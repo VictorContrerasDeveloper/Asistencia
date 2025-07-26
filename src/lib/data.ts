@@ -22,7 +22,7 @@ export type Office = {
 
 export type AttendanceStatus = 'Presente' | 'Ausente';
 export type AbsenceReason = 'Inasistencia' | 'Licencia médica' | 'Vacaciones' | 'Otro' | null;
-export type EmployeeRole = 'Modulo' | 'Filtro' | 'Tablet';
+export type EmployeeRole = 'Modulo' | 'Filtro' | 'Tablet' | 'Supervisión';
 
 export type Employee = {
   id:string;

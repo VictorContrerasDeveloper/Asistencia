@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 
 const STATUSES: AttendanceStatus[] = ['Presente', 'Ausente'];
 const ABSENCE_REASONS: Exclude<AbsenceReason, null>[] = ['Inasistencia', 'Licencia médica', 'Vacaciones', 'Otro'];
-const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet'];
+const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet', 'Supervisión'];
 
 export default function DashboardClient({ initialEmployees, offices, officeId }: { initialEmployees: Employee[], offices: Office[], officeId: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
