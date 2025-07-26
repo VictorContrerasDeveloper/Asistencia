@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { getOffices, addEmployee, Office, EmployeeRole } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
 
-const ROLES: EmployeeRole[] = ['Atención en Módulo', 'Anfitrión', 'Atención en Tablet'];
+const ROLES: EmployeeRole[] = ['Atención en Módulo', 'Anfitrión', 'Tablet'];
 
 export default function AddEmployeePage() {
   const router = useRouter();

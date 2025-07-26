@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const STATUSES: AttendanceStatus[] = ['Presente', 'Ausente', 'Licencia'];
-const ROLES: EmployeeRole[] = ['Atención en Módulo', 'Anfitrión', 'Atención en Tablet'];
+const ROLES: EmployeeRole[] = ['Atención en Módulo', 'Anfitrión', 'Tablet'];
 
 export default function DashboardClient({ initialEmployees, offices, officeId }: { initialEmployees: Employee[], offices: Office[], officeId: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
@@ -60,7 +60,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
     const oldRole = currentEmployee.role;
     if (oldRole === newRole) return;
 
-    const isChangingRequiredRole = oldRole === 'Anfitrión' || oldRole === 'Atención en Tablet';
+    const isChangingRequiredRole = oldRole === 'Anfitrión' || oldRole === 'Tablet';
 
     if (isChangingRequiredRole) {
         const employeesInOffice = employees.filter(emp => emp.officeId === currentEmployee.officeId);
