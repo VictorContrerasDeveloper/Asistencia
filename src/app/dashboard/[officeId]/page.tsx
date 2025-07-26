@@ -40,24 +40,28 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                 Volver al Inicio
               </Button>
             </Link>
-             <Link href="/dashboard/add-employee">
-              <Button>
-                  <PlusCircle />
-                  Agregar Ejecutivo
-              </Button>
-            </Link>
-             <Link href="/dashboard/bulk-add-employees">
-                <Button>
-                    <Users />
-                    Carga Masiva
-                </Button>
-            </Link>
-             <Link href="/dashboard/delete-employee">
-                <Button variant="destructive">
-                    <Trash2 />
-                    Eliminar Ejecutivo(s)
-                </Button>
-            </Link>
+            {officeId === 'general' && (
+              <>
+                <Link href="/dashboard/add-employee">
+                  <Button>
+                      <PlusCircle />
+                      Agregar Ejecutivo
+                  </Button>
+                </Link>
+                <Link href="/dashboard/bulk-add-employees">
+                    <Button>
+                        <Users />
+                        Carga Masiva
+                    </Button>
+                </Link>
+                <Link href="/dashboard/delete-employee">
+                    <Button variant="destructive">
+                        <Trash2 />
+                        Eliminar Ejecutivo(s)
+                    </Button>
+                </Link>
+              </>
+            )}
         </div>
       </header>
       <main className="flex-1 overflow-auto p-4 md:p-8">
