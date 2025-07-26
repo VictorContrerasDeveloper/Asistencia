@@ -6,16 +6,17 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { type Employee, getOfficeById } from '@/lib/data';
 import { useEffect, useState } from 'react';
 
 type EmployeeCardProps = {
   employee: Employee;
   onEdit: (employee: Employee) => void;
+  onDelete: (employee: Employee) => void;
 };
 
-export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
+export default function EmployeeCard({ employee, onEdit, onDelete }: EmployeeCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: employee.id,
   });
@@ -45,7 +46,7 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
       {...attributes}
       className="bg-card shadow-sm hover:shadow-md transition-shadow duration-200 cursor-grab active:cursor-grabbing touch-none"
     >
-      <CardHeader className="flex flex-row items-center gap-4 p-3 relative">
+      <CardHeader className="flex flex-row items-center gap-4 p-3">
         <Avatar className="h-10 w-10 bg-primary/20 text-primary font-bold">
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
@@ -53,18 +54,32 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
           <CardTitle className="text-base font-medium">{employee.name}</CardTitle>
           <CardDescription className="text-xs">{officeName}</CardDescription>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 absolute top-2 right-2"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(employee);
-          }}
-        >
-          <Pencil className="h-4 w-4" />
-          <span className="sr-only">Editar Oficina</span>
-        </Button>
+        <div className="flex gap-1">
+           <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(employee);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+            <span className="sr-only">Editar Oficina</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+            onClick={(e) => {
+              e.stopPropagation(); 
+              onDelete(employee);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Eliminar Ejecutivo</span>
+          </Button>
+        </div>
       </CardHeader>
     </Card>
   );

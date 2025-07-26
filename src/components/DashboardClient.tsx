@@ -2,11 +2,21 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById, addOffice as apiAddOffice } from '@/lib/data';
+import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById, addOffice as apiAddOffice, deleteEmployee } from '@/lib/data';
 import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
 import AddOfficeModal from './AddOfficeModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import { Button } from './ui/button';
@@ -16,7 +26,7 @@ import { useRouter } from 'next/navigation';
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
-function StatusColumn({ status, employees, onEdit, officeName }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, officeName?: string }) {
+function StatusColumn({ status, employees, onEdit, onDelete, officeName }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, onDelete: (employee: Employee) => void, officeName?: string }) {
   const { setNodeRef } = useDroppable({ id: status });
 
   const statusConfig = {
@@ -49,7 +59,7 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
       </h2>
       <div className="space-y-4">
         {employees.map(employee => (
-          <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} />
+          <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} onDelete={() => onDelete(employee)} />
         ))}
       </div>
     </div>
@@ -59,6 +69,7 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
 export default function DashboardClient({ initialEmployees, offices, officeName, officeId }: { initialEmployees: Employee[], offices: Office[], officeName: string, officeId: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null);
   const [isAddOfficeModalOpen, setAddOfficeModalOpen] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -90,19 +101,23 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     }
   };
 
-  const handleOpenModal = (employee: Employee) => {
+  const handleOpenEditModal = (employee: Employee) => {
     setEditingEmployee(employee);
+  };
+  
+  const handleOpenDeleteModal = (employee: Employee) => {
+    setDeletingEmployee(employee);
   };
 
   const handleCloseModal = () => {
     setEditingEmployee(null);
+    setDeletingEmployee(null);
   };
   
   const handleSaveOffice = async (employeeId: string, newOfficeId: string) => {
     await updateEmployee(employeeId, { officeId: newOfficeId });
     
     setEmployees(async prev => {
-      // If we are in a specific office view, filter out the employee if they are moved to another office.
       const newOffice = await getOfficeById(newOfficeId);
       if (officeName !== 'Panel General' && newOffice?.name !== officeName) {
         return prev.filter(e => e.id !== employeeId);
@@ -127,9 +142,29 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
         description: "La oficina ha sido agregada correctamente.",
     });
     setAddOfficeModalOpen(false);
-    // Refresh the page to show the new office in the list on the home page
     router.refresh();
   };
+
+  const handleDeleteEmployee = async () => {
+    if(!deletingEmployee) return;
+
+    try {
+      await deleteEmployee(deletingEmployee.id);
+      setEmployees(prev => prev.filter(e => e.id !== deletingEmployee.id));
+      toast({
+        title: "¡Éxito!",
+        description: `El ejecutivo ${deletingEmployee.name} ha sido eliminado.`,
+      });
+    } catch (error) {
+       toast({
+        title: "Error",
+        description: "Ocurrió un error al eliminar el ejecutivo.",
+        variant: "destructive",
+      });
+    } finally {
+        handleCloseModal();
+    }
+  }
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
@@ -160,7 +195,8 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               key={status}
               status={status}
               employees={employeesByStatus[status]}
-              onEdit={handleOpenModal}
+              onEdit={handleOpenEditModal}
+              onDelete={handleOpenDeleteModal}
               officeName={officeName}
             />
           ))}
@@ -180,6 +216,24 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
         onClose={() => setAddOfficeModalOpen(false)}
         onSave={handleAddOffice}
       />
+       {deletingEmployee && (
+        <AlertDialog open={!!deletingEmployee} onOpenChange={() => setDeletingEmployee(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Esto eliminará permanentemente al ejecutivo <strong>{deletingEmployee.name}</strong> de la base de datos.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={handleCloseModal}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteEmployee}>
+                Sí, eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </DndContext>
   );
 }

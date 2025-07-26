@@ -128,3 +128,8 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
 
   await batch.commit();
 }
+
+export const deleteEmployee = async (employeeId: string) => {
+  const employeeRef = doc(db, 'employees', employeeId);
+  await deleteDoc(employeeRef);
+};
