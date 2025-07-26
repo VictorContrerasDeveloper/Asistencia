@@ -13,14 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { getOffices, addEmployee, Office, EmployeeRole } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
 
-const ROLES: EmployeeRole[] = ['Atención en Módulo', 'Anfitrión', 'Tablet'];
+const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
 
 export default function AddEmployeePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [officeId, setOfficeId] = useState('');
-  const [role, setRole] = useState<EmployeeRole>('Atención en Módulo');
+  const [role, setRole] = useState<EmployeeRole>('Modulo');
   const [offices, setOffices] = useState<Office[]>([]);
 
   useEffect(() => {

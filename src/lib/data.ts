@@ -22,7 +22,7 @@ export type Office = {
 
 export type AttendanceStatus = 'Presente' | 'Ausente';
 export type AbsenceReason = 'Inasistencia' | 'Licencia médica' | 'Vacaciones' | 'Otro' | null;
-export type EmployeeRole = 'Atención en Módulo' | 'Anfitrión' | 'Tablet';
+export type EmployeeRole = 'Modulo' | 'Anfitrión' | 'Tablet';
 
 export type Employee = {
   id:string;
@@ -108,7 +108,7 @@ export const addEmployee = async (name: string, officeId: string, role: Employee
     officeId,
     status: 'Ausente',
     absenceReason: 'Inasistencia',
-    role: role || 'Atención en Módulo',
+    role: role || 'Modulo',
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
   return { id: docRef.id, ...newEmployee } as Employee;
@@ -127,7 +127,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       officeId,
       status: 'Ausente',
       absenceReason: 'Inasistencia',
-      role: 'Atención en Módulo',
+      role: 'Modulo',
     };
     const docRef = doc(employeesCollection);
     batch.set(docRef, newEmployee);
