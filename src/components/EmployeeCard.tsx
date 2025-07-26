@@ -7,15 +7,15 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
-import { type Employee, getOfficeById } from '@/lib/data';
-import { useEffect, useState } from 'react';
+import { type Employee, type Office } from '@/lib/data';
 
 type EmployeeCardProps = {
   employee: Employee;
   onEdit: (employee: Employee) => void;
+  offices: Office[];
 };
 
-export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
+export default function EmployeeCard({ employee, onEdit, offices }: EmployeeCardProps) {
   const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform } = useDraggable({
     id: employee.id,
     data: {
@@ -32,18 +32,8 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
     }
   });
 
-
-  const [officeName, setOfficeName] = useState('Cargando...');
-
-  useEffect(() => {
-    const fetchOfficeName = async () => {
-      const office = await getOfficeById(employee.officeId);
-      setOfficeName(office?.name || 'N/A');
-    }
-    fetchOfficeName();
-  }, [employee.officeId]);
-
-
+  const officeName = offices.find(o => o.id === employee.officeId)?.name || 'N/A';
+  
   const style = {
     transform: CSS.Translate.toString(transform),
   };
@@ -89,5 +79,3 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
     </Card>
   );
 }
-
-    

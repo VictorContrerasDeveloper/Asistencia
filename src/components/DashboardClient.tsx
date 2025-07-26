@@ -21,14 +21,16 @@ function StatusColumn({
   onEdit, 
   officeName, 
   activeId,
-  overId 
+  overId,
+  offices
 }: { 
   status: AttendanceStatus, 
   employees: Employee[], 
   onEdit: (employee: Employee) => void, 
   officeName?: string, 
   activeId: string | null,
-  overId: string | null 
+  overId: string | null,
+  offices: Office[]
 }) {
   const { setNodeRef } = useDroppable({ id: status });
 
@@ -61,29 +63,32 @@ function StatusColumn({
         {status === 'Presente' && officeName !== 'Panel General' ? `Presentes en ${officeName}` : config.title} ({employees.length})
       </h2>
       <div className="space-y-4">
-        {employees.map((employee) => {
+        {employees.map((employee, index) => {
           const isOver = overId === employee.id && activeId !== employee.id;
-          const transform = isOver ? 'translateY(110px)' : 'translateY(0)';
           
-          const isDraggingDifferentStatus = activeId && employee.status !== status;
-          const shouldAnimate = isOver && isDraggingDifferentStatus;
-          
-          // Don't render the placeholder for the item being dragged
+          const activeEmployee = employees.find(e => e.id === activeId);
+          const overIndex = employees.findIndex(e => e.id === overId);
+          const employeeIndex = employees.findIndex(e => e.id === employee.id);
+
+          let transform = 'translateY(0)';
+          if (activeId && activeEmployee && activeEmployee.status === status && overId && employee.status === status && overIndex !== -1 && employeeIndex > overIndex) {
+              // This is a placeholder for reordering within the same column
+          }
+          if (activeId && activeEmployee && activeEmployee.status !== status && overId === employee.id) {
+              transform = 'translateY(110px)';
+          }
+
+
+          const shouldAnimate = isOver;
+
           if (employee.id === activeId) return null;
 
           return (
-            <div key={employee.id} style={{ transition: 'transform 0.25s ease-in-out', transform: shouldAnimate ? transform : 'translateY(0)' }}>
-              <EmployeeCard employee={employee} onEdit={onEdit} />
+            <div key={employee.id} style={{ transition: 'transform 0.25s ease-in-out', transform }}>
+              <EmployeeCard employee={employee} onEdit={onEdit} offices={offices} />
             </div>
           );
         })}
-        {/* Placeholder for the dragged item */}
-        {activeId && overId && employees.find(e => e.id === overId) && employees.find(e=>e.id === overId)?.status === status &&
-          <div style={{ transition: 'transform 0.25s ease-in-out', transform: 'translateY(0)' }}>
-            {/* You might want a different looking placeholder */}
-          </div>
-        }
-
       </div>
     </div>
   )
@@ -118,30 +123,8 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
         statusMap[employee.status].push(employee);
     }
     
-    // Logic to re-order based on drag operation for visual feedback
-    if (activeId && overId && activeId !== overId) {
-        const activeEmployee = employees.find(e => e.id === activeId);
-        if (activeEmployee) {
-            const overEmployee = employees.find(e => e.id === overId);
-            const overStatus = overEmployee?.status;
-            if(overStatus) {
-                const activeStatus = activeEmployee.status;
-
-                if (activeStatus !== overStatus) {
-                    // Remove from old status column
-                    statusMap[activeStatus] = statusMap[activeStatus].filter(e => e.id !== activeId);
-                    // Add to new status column at correct position
-                    const overIndex = statusMap[overStatus].findIndex(e => e.id === overId);
-                    if (overIndex !== -1) {
-                         statusMap[overStatus].splice(overIndex, 0, activeEmployee);
-                    }
-                }
-            }
-        }
-    }
-
     return statusMap;
-  }, [employees, activeId, overId]);
+  }, [employees]);
 
 
   const handleDragStart = (event: any) => {
@@ -151,15 +134,14 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const handleDragOver = (event: DragOverEvent) => {
     const { over } = event;
     if (over) {
-      const isOverEmployeeCard = over.data?.current?.type === 'Employee';
-      if(isOverEmployeeCard) {
+      const overIsEmployee = over.data?.current?.type === 'Employee';
+      if(overIsEmployee) {
         setOverId(over.id as string);
       } else {
-         // It's a column
          const columnId = over.id as AttendanceStatus;
          const employeesInColumn = employees.filter(e => e.status === columnId);
          if (employeesInColumn.length === 0) {
-            setOverId(columnId); // Target the column directly if empty
+            setOverId(columnId);
          } else {
             setOverId(null);
          }
@@ -282,6 +264,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               officeName={officeName}
               activeId={activeId}
               overId={overId}
+              offices={offices}
             />
           ))}
         </div>
@@ -303,5 +286,3 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     </DndContext>
   );
 }
-
-    
