@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo } from 'react';
@@ -10,7 +11,7 @@ type Summary = {
   roles: Record<EmployeeRole, number>;
 };
 
-const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet', 'Supervisión'];
+const ROLES: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Filtro'];
 
 const roleIcons: Record<EmployeeRole, React.ElementType> = {
     'Modulo': Clipboard,
@@ -30,7 +31,7 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
     };
     
     employees.forEach(emp => {
-      if(roles[emp.role] !== undefined) {
+      if(roles[emp.role] !== undefined && emp.status === 'Presente') {
           roles[emp.role]++;
       }
     });
