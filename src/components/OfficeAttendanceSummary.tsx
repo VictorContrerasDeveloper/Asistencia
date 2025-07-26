@@ -2,8 +2,9 @@
 "use client";
 
 import { useMemo } from 'react';
-import { type Employee, type EmployeeRole } from '@/lib/data';
+import { type Employee, type EmployeeRole, type Office } from '@/lib/data';
 import { UserCheck, UserX, User, Tablet, Shield, Clipboard, Clock } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 type Summary = {
   present: number;
@@ -12,7 +13,7 @@ type Summary = {
   roles: Record<EmployeeRole, number>;
 };
 
-const ROLES: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Filtro'];
+const ROLES_ORDER: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Filtro'];
 
 const roleIcons: Record<EmployeeRole, React.ElementType> = {
     'Modulo': Clipboard,
@@ -21,14 +22,14 @@ const roleIcons: Record<EmployeeRole, React.ElementType> = {
     'Supervisión': User,
 }
 
-export default function OfficeAttendanceSummary({ employees }: { employees: Employee[] }) {
+export default function OfficeAttendanceSummary({ employees, office }: { employees: Employee[], office: Office }) {
 
   const summary = useMemo<Summary>(() => {
     const roles: Record<EmployeeRole, number> = {
-      'Modulo': 0,
-      'Filtro': 0,
-      'Tablet': 0,
       'Supervisión': 0,
+      'Modulo': 0,
+      'Tablet': 0,
+      'Filtro': 0,
     };
     
     employees.forEach(emp => {
@@ -69,8 +70,10 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
             </div>
         </div>
 
-        <div className="flex flex-col items-start gap-1 border-l border-border pl-6">
-            {ROLES.map(role => {
+        <Separator orientation="vertical" className="h-16" />
+
+        <div className="flex flex-col items-start gap-1">
+            {ROLES_ORDER.map(role => {
                  const Icon = roleIcons[role];
                  const presentCount = summary.roles[role];
                  return (
@@ -78,6 +81,21 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
                         <Icon className="h-4 w-4" />
                         <span>{role}:</span>
                         <span className="font-bold text-foreground">{presentCount}</span>
+                    </div>
+                 )
+            })}
+        </div>
+
+        <Separator orientation="vertical" className="h-16" />
+
+        <div className="flex flex-col items-start gap-1">
+            {ROLES_ORDER.map(role => {
+                 const realCount = summary.roles[role] || 0;
+                 const theoreticalCount = office.theoreticalStaffing?.[role] || 0;
+                 return (
+                    <div key={role} className="flex items-center gap-2 font-medium" title={`Real vs Teórico ${role}`}>
+                        <span>{role}:</span>
+                        <span className="font-bold text-foreground">{realCount} / {theoreticalCount}</span>
                     </div>
                  )
             })}

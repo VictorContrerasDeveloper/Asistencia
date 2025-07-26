@@ -246,21 +246,6 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                                   ))}
                                 </div>
                               </div>
-                             <div className="border-t pt-3 mt-3 space-y-3">
-                                <Label className="text-sm font-medium">
-                                    Dotación Real vs. Teórica
-                                </Label>
-                                <div className="space-y-1 text-sm">
-                                    {ROLES_ORDER.map(role => (
-                                        <div key={role} className="flex items-center justify-between">
-                                            <span className="text-muted-foreground">{role}</span>
-                                            <span className="font-semibold">
-                                                {summary.realStaffing[role] || 0} / {summary.theoreticalStaffing?.[role] || 0}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
                         </CardContent>
                     </Card>
                 ))}

@@ -23,11 +23,11 @@ const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet', 'Supervisión'];
 type DashboardClientProps = {
   initialEmployees: Employee[];
   offices: Office[];
-  officeId: string;
+  office: Office;
   officeHeader: React.ReactNode;
 };
 
-export default function DashboardClient({ initialEmployees, offices, officeId, officeHeader }: DashboardClientProps) {
+export default function DashboardClient({ initialEmployees, offices, office, officeHeader }: DashboardClientProps) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const { toast } = useToast();
 
@@ -117,7 +117,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId, o
     <div className="h-full flex flex-col">
        <header className="flex items-center justify-between p-4 border-b bg-card">
            {officeHeader}
-           <OfficeAttendanceSummary employees={employees} />
+           <OfficeAttendanceSummary employees={employees} office={office} />
        </header>
 
        <div className="flex-grow bg-card rounded-lg border overflow-auto mt-8">

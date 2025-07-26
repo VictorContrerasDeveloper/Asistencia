@@ -88,7 +88,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           <DashboardClient 
             initialEmployees={initialEmployees} 
             offices={offices} 
-            officeId={officeId} 
+            office={office as Office}
             officeHeader={officeHeader} 
           />
         )}
