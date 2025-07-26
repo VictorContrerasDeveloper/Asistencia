@@ -69,12 +69,12 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
             </div>
         </div>
 
-        <div className="flex items-center gap-4 border-l border-border pl-6">
+        <div className="flex flex-col items-start gap-1 border-l border-border pl-6">
             {ROLES.map(role => {
                  const Icon = roleIcons[role];
                  const presentCount = summary.roles[role];
                  return (
-                    <div key={role} className="flex items-center gap-2" title={role}>
+                    <div key={role} className="flex items-center gap-2 font-medium" title={role}>
                         <Icon className="h-4 w-4" />
                         <span>{role}:</span>
                         <span className="font-bold text-foreground">{presentCount}</span>
