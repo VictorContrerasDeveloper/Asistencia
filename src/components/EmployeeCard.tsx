@@ -18,6 +18,11 @@ type EmployeeCardProps = {
 export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: employee.id,
+    data: {
+      droppableContainer: {
+        id: employee.id
+      }
+    }
   });
 
   const [officeName, setOfficeName] = useState('Cargando...');

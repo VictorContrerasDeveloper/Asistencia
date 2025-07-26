@@ -7,7 +7,7 @@ import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
 import AddOfficeModal from './AddOfficeModal';
-import { DndContext, type DragEndEvent, useDroppable, DragOverlay } from '@dnd-kit/core';
+import { DndContext, type DragEndEvent, useDroppable, DragOverlay, type DragOverEvent } from '@dnd-kit/core';
 import { Button } from './ui/button';
 import { PlusCircle, Users, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -15,8 +15,8 @@ import { useRouter } from 'next/navigation';
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
-function StatusColumn({ status, employees, onEdit, officeName }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, officeName?: string }) {
-  const { setNodeRef, isOver } = useDroppable({ id: status });
+function StatusColumn({ status, employees, onEdit, officeName, overEmployeeId }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, officeName?: string, overEmployeeId?: string | null }) {
+  const { setNodeRef } = useDroppable({ id: status });
 
   const statusConfig = {
      Presente: {
@@ -41,17 +41,23 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
   
   const config = statusConfig[status];
   
+  const overIndex = overEmployeeId ? employees.findIndex(e => e.id === overEmployeeId) : -1;
+
   return (
     <div ref={setNodeRef} className={`flex-1 rounded-lg p-4 min-h-[300px] transition-colors duration-300 ${config.bgColor}`}>
       <h2 className={`text-lg font-bold pb-2 mb-4 border-b-2 ${config.borderColor} ${config.textColor}`}>
         {status === 'Presente' && officeName !== 'Panel General' ? `Presentes en ${officeName}` : config.title} ({employees.length})
       </h2>
       <div className="space-y-4">
-        {employees.map((employee, index) => (
-          <div key={employee.id} style={{ transition: 'transform 0.2s ease-in-out', transform: isOver ? `translateY(${index * 0 + 20}px)` : 'translateY(0)' }}>
-            <EmployeeCard employee={employee} onEdit={onEdit} />
-          </div>
-        ))}
+        {employees.map((employee, index) => {
+            const isBelow = overIndex !== -1 && index >= overIndex;
+            const transform = isBelow ? 'translateY(80px)' : 'translateY(0)';
+            return (
+              <div key={employee.id} style={{ transition: 'transform 0.25s ease-in-out', transform  }}>
+                <EmployeeCard employee={employee} onEdit={onEdit} />
+              </div>
+            );
+        })}
       </div>
     </div>
   )
@@ -63,6 +69,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const [isAddOfficeModalOpen, setAddOfficeModalOpen] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const [overEmployeeId, setOverEmployeeId] = useState<string | null>(null);
 
   useEffect(() => {
     setEmployees(initialEmployees);
@@ -77,6 +84,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
 
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setOverEmployeeId(null);
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -84,12 +92,38 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
       const newStatus = over.id as AttendanceStatus;
       
       const employee = employees.find(e => e.id === employeeId);
-      if(employee && employee.status !== newStatus) {
+      // Check if it's a valid status column before updating
+      if(employee && employee.status !== newStatus && STATUSES.includes(newStatus)) {
         updateEmployee(employeeId, { status: newStatus });
         setEmployees(prev => prev.map(e => e.id === employeeId ? { ...e, status: newStatus } : e));
       }
     }
   };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    if (over) {
+      // If we are over an employee card, we get its id
+      // The id is in over.data.droppableContainer.id
+      const overId = over.data?.droppableContainer?.id as string || over.id as string;
+      const employeeOver = employees.find(e => e.id === overId);
+
+      if (employeeOver) {
+         setOverEmployeeId(employeeOver.id)
+      } else {
+        // If we are over a column but not a card
+        const isColumn = STATUSES.includes(over.id as AttendanceStatus);
+        if (isColumn && employeesByStatus[over.id as AttendanceStatus].length === 0) {
+             setOverEmployeeId(null);
+        } else if (!employeeOver) {
+            // Keep the last over employee if we are not over a column
+            const isAnotherEmployee = employees.some(e => e.id === overId);
+            if (!isAnotherEmployee) setOverEmployeeId(null);
+        }
+      }
+    }
+  };
+
 
   const handleOpenEditModal = (employee: Employee) => {
     setEditingEmployee(employee);
@@ -131,7 +165,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext onDragEnd={handleDragEnd} onDragOver={handleDragOver} onDragCancel={() => setOverEmployeeId(null)}>
       <div className="p-4 md:p-8 space-y-8">
         {officeId === 'general' && (
              <div className="flex flex-wrap justify-center gap-4">
@@ -167,6 +201,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               employees={employeesByStatus[status]}
               onEdit={handleOpenEditModal}
               officeName={officeName}
+              overEmployeeId={overEmployeeId}
             />
           ))}
         </div>
