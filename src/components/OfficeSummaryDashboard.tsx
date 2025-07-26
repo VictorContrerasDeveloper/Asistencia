@@ -25,6 +25,9 @@ type OfficeSummary = Summary & {
   theoreticalStaffing?: {
     [key in EmployeeRole]?: number;
   };
+  realStaffing: {
+    [key in EmployeeRole]?: number;
+  };
 };
 
 // Defines the state structure for staffing input values
@@ -107,7 +110,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
   const globalSummary = useMemo<Summary>(() => {
     return {
       total: employees.length,
-      present: employees.filter(emp => emp.status === 'Presente').length,
+      present: employees.filter(emp => emp.status === 'Presente' || emp.status === 'Atrasado').length,
       absent: employees.filter(emp => emp.status === 'Ausente' && (emp.absenceReason === 'Inasistencia' || emp.absenceReason === 'Otro')).length,
       license: employees.filter(emp => emp.absenceReason === 'Licencia médica' || emp.absenceReason === 'Vacaciones').length,
     };
@@ -116,14 +119,21 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
   const officeSummaries = useMemo<OfficeSummary[]>(() => {
     return offices.map(office => {
       const officeEmployees = employees.filter(emp => emp.officeId === office.id);
+      
+      const realStaffing: { [key in EmployeeRole]?: number } = {};
+      ROLES_ORDER.forEach(role => {
+          realStaffing[role] = officeEmployees.filter(emp => emp.role === role && (emp.status === 'Presente' || emp.status === 'Atrasado')).length;
+      });
+
       return {
         id: office.id,
         name: office.name,
         total: officeEmployees.length,
-        present: officeEmployees.filter(emp => emp.status === 'Presente').length,
+        present: officeEmployees.filter(emp => emp.status === 'Presente' || emp.status === 'Atrasado').length,
         absent: officeEmployees.filter(emp => emp.status === 'Ausente' && (emp.absenceReason === 'Inasistencia' || emp.absenceReason === 'Otro')).length,
         license: officeEmployees.filter(emp => emp.absenceReason === 'Licencia médica' || emp.absenceReason === 'Vacaciones').length,
-        theoreticalStaffing: office.theoreticalStaffing
+        theoreticalStaffing: office.theoreticalStaffing,
+        realStaffing
       };
     }).sort((a,b) => a.name.localeCompare(b.name));
   }, [offices, employees]);
@@ -236,6 +246,21 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                                   ))}
                                 </div>
                               </div>
+                             <div className="border-t pt-3 mt-3 space-y-3">
+                                <Label className="text-sm font-medium">
+                                    Dotación Real vs. Teórica
+                                </Label>
+                                <div className="space-y-1 text-sm">
+                                    {ROLES_ORDER.map(role => (
+                                        <div key={role} className="flex items-center justify-between">
+                                            <span className="text-muted-foreground">{role}</span>
+                                            <span className="font-semibold">
+                                                {summary.realStaffing[role] || 0} / {summary.theoreticalStaffing?.[role] || 0}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
