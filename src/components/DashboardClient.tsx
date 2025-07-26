@@ -25,7 +25,6 @@ function StatusColumn({
   offices,
   officeId,
   activeId,
-  draggedOverColumn
 }: {
   status: AttendanceStatus,
   employees: Employee[],
@@ -34,7 +33,6 @@ function StatusColumn({
   offices: Office[],
   officeId: string,
   activeId: string | null;
-  draggedOverColumn: AttendanceStatus | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -72,7 +70,7 @@ function StatusColumn({
       </h2>
       <SortableContext items={employees.map(e => e.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-3">
-          {employees.map((employee, index) => (
+          {employees.map((employee) => (
              <EmployeeCard 
                 key={employee.id} 
                 employee={employee} 
@@ -94,7 +92,6 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const { toast } = useToast();
   const router = useRouter();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [draggedOverColumn, setDraggedOverColumn] = useState<AttendanceStatus | null>(null);
  
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -125,96 +122,78 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     setActiveId(event.active.id as string);
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event;
-    const overId = over?.id;
-
-    if (STATUSES.includes(overId as AttendanceStatus)) {
-      setDraggedOverColumn(overId as AttendanceStatus);
-    } else {
-      const employee = employees.find(e => e.id === overId);
-      if(employee) {
-        setDraggedOverColumn(employee.status);
-      } else {
-        setDraggedOverColumn(null);
-      }
-    }
-  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveId(null);
-    setDraggedOverColumn(null);
-
     const { active, over } = event;
 
-    if (!over) {
-      return;
-    }
-  
-    const overId = over.id;
-    const employeeId = active.id as string;
-  
-    // Determine the new status
-    let newStatus: AttendanceStatus | undefined;
-    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
-    
-    if (overIsColumn) {
-      newStatus = overId as AttendanceStatus;
-    } else {
-      // It's over another employee card
-      const overEmployee = employees.find(e => e.id === overId);
-      if (overEmployee) {
-        newStatus = overEmployee.status;
-      }
-    }
-  
-    if (!newStatus) {
-      return;
-    }
-
-    const activeEmployee = employees.find(e => e.id === employeeId);
-
-    // If status is the same and we are not reordering, do nothing
-    if (activeEmployee && activeEmployee.status === newStatus && active.id === over.id) {
+    if (!over || active.id === over.id) {
         return;
     }
 
-    // Optimistic UI Update
-    setEmployees(currentEmployees => {
-      const activeIndex = currentEmployees.findIndex(e => e.id === employeeId);
-      if (activeIndex === -1) return currentEmployees;
+    const activeEmployee = employees.find(e => e.id === active.id);
+    if (!activeEmployee) return;
 
-      const overIndex = currentEmployees.findIndex(e => e.id === overId);
+    let newStatus: AttendanceStatus;
+    let overId = over.id;
 
-      // If dropped on a column, not a specific card
-      if (overIsColumn) {
-         const updatedEmployee = { ...currentEmployees[activeIndex], status: newStatus };
-         const newEmployees = currentEmployees.filter(e => e.id !== employeeId);
-         newEmployees.push(updatedEmployee);
-         return newEmployees;
-      }
+    if (STATUSES.includes(overId as any)) {
+        newStatus = overId as AttendanceStatus;
+    } else {
+        const overEmployee = employees.find(e => e.id === overId);
+        if (!overEmployee) return;
+        newStatus = overEmployee.status;
+    }
 
-      // If dropped on another card
-      if (overIndex !== -1) {
-          let newItems = [...currentEmployees];
-          newItems[activeIndex] = { ...newItems[activeIndex], status: newStatus! };
-          return arrayMove(newItems, activeIndex, overIndex);
-      }
+    if (activeEmployee.status === newStatus) {
+         // Reordering within the same column
+        setEmployees(currentEmployees => {
+            const oldIndex = currentEmployees.findIndex(e => e.id === active.id);
+            const newIndex = currentEmployees.findIndex(e => e.id === over.id);
+            if (oldIndex !== -1 && newIndex !== -1) {
+              return arrayMove(currentEmployees, oldIndex, newIndex);
+            }
+            return currentEmployees;
+        });
+    } else {
+        // Moving to a new column
+        setEmployees(currentEmployees => {
+            const employeeToMove = currentEmployees.find(e => e.id === active.id);
+            if (!employeeToMove) return currentEmployees;
 
-      return currentEmployees;
-    });
+            // Update status
+            employeeToMove.status = newStatus;
 
-    // Update in database
-    updateEmployee(employeeId, { status: newStatus }).catch(error => {
-      console.error("Failed to update employee:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el empleado. Por favor, inténtelo de nuevo.",
-        variant: "destructive",
-      });
-      // Revert UI change if API call fails
-      setEmployees(initialEmployees);
-    });
+            // Remove from old position
+            const filteredEmployees = currentEmployees.filter(e => e.id !== active.id);
+            
+            // Find new index in the full list
+            const overIndexInFiltered = filteredEmployees.findIndex(e => e.id === over.id);
+
+            if (overIndexInFiltered !== -1) {
+                // Insert at the position of the card we dragged over
+                filteredEmployees.splice(overIndexInFiltered, 0, employeeToMove);
+            } else {
+                // Dropped on column, add to the end of that status group conceptually
+                // For simplicity, just add to the list. Visual grouping handles the rest.
+                filteredEmployees.push(employeeToMove);
+            }
+            
+            return filteredEmployees;
+        });
+
+        // Persist the status change
+        updateEmployee(active.id as string, { status: newStatus }).catch(error => {
+            console.error("Failed to update employee:", error);
+            toast({
+                title: "Error",
+                description: "No se pudo actualizar el empleado.",
+                variant: "destructive",
+            });
+            // Revert on failure
+            setEmployees(initialEmployees);
+        });
+    }
   };
 
   const handleOpenEditModal = (employee: Employee) => {
@@ -260,7 +239,6 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
       onDragCancel={() => setActiveId(null)}
     >
       <div className="p-4 md:p-8 space-y-8">
@@ -301,7 +279,6 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               offices={offices}
               officeId={officeId}
               activeId={activeId}
-              draggedOverColumn={draggedOverColumn}
             />
           ))}
         </div>
