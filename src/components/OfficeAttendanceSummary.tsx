@@ -2,20 +2,44 @@
 "use client";
 
 import { useMemo } from 'react';
-import { type Employee } from '@/lib/data';
-import { UserCheck, UserX } from 'lucide-react';
+import { type Employee, type EmployeeRole } from '@/lib/data';
+import { UserCheck, UserX, User, Tablet, Shield, ClipboardUser } from 'lucide-react';
 
 type Summary = {
   present: number;
   absent: number;
+  roles: Record<EmployeeRole, number>;
 };
+
+const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet', 'Supervisión'];
+
+const roleIcons: Record<EmployeeRole, React.ElementType> = {
+    'Modulo': ClipboardUser,
+    'Filtro': Shield,
+    'Tablet': Tablet,
+    'Supervisión': User,
+}
 
 export default function OfficeAttendanceSummary({ employees }: { employees: Employee[] }) {
 
   const summary = useMemo<Summary>(() => {
+    const roles: Record<EmployeeRole, number> = {
+      'Modulo': 0,
+      'Filtro': 0,
+      'Tablet': 0,
+      'Supervisión': 0,
+    };
+    
+    employees.forEach(emp => {
+      if(roles[emp.role] !== undefined) {
+          roles[emp.role]++;
+      }
+    });
+
     return {
       present: employees.filter(emp => emp.status === 'Presente').length,
       absent: employees.filter(emp => emp.status === 'Ausente').length,
+      roles,
     };
   }, [employees]);
 
@@ -24,14 +48,28 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
   }
 
   return (
-    <div className="hidden md:flex items-center gap-4 border-l pl-4 ml-4">
-        <div className="flex items-center gap-2 text-sm text-green-700" title="Presentes">
-            <UserCheck className="h-4 w-4" />
-            <span className="font-bold">{summary.present}</span>
+    <div className="hidden md:flex items-center gap-6">
+        <div className="flex items-center gap-4 border-l pl-4">
+            <div className="flex items-center gap-2 text-sm text-green-700" title="Presentes">
+                <UserCheck className="h-4 w-4" />
+                <span className="font-bold">{summary.present}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-red-700" title="Ausentes">
+                <UserX className="h-4 w-4" />
+                <span className="font-bold">{summary.absent}</span>
+            </div>
         </div>
-        <div className="flex items-center gap-2 text-sm text-red-700" title="Ausentes">
-            <UserX className="h-4 w-4" />
-            <span className="font-bold">{summary.absent}</span>
+
+        <div className="flex items-center gap-4 border-l pl-4">
+            {ROLES.map(role => {
+                 const Icon = roleIcons[role];
+                 return (
+                    <div key={role} className="flex items-center gap-2 text-sm text-muted-foreground" title={role}>
+                        <Icon className="h-4 w-4" />
+                        <span className="font-bold">{summary.roles[role]}</span>
+                    </div>
+                 )
+            })}
         </div>
     </div>
   );
