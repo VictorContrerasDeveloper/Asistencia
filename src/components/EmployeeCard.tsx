@@ -6,18 +6,16 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { type Employee, getOfficeById } from '@/lib/data';
 import { useEffect, useState } from 'react';
 
 type EmployeeCardProps = {
   employee: Employee;
   onEdit: (employee: Employee) => void;
-  onDelete: (employee: Employee) => void;
-  showDelete: boolean;
 };
 
-export default function EmployeeCard({ employee, onEdit, onDelete, showDelete }: EmployeeCardProps) {
+export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: employee.id,
   });
@@ -68,20 +66,6 @@ export default function EmployeeCard({ employee, onEdit, onDelete, showDelete }:
             <Pencil className="h-4 w-4" />
             <span className="sr-only">Editar Oficina</span>
           </Button>
-          {showDelete && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
-              onClick={(e) => {
-                e.stopPropagation(); 
-                onDelete(employee);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="sr-only">Eliminar Ejecutivo</span>
-            </Button>
-          )}
         </div>
       </CardHeader>
     </Card>

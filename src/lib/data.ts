@@ -133,3 +133,16 @@ export const deleteEmployee = async (employeeId: string) => {
   const employeeRef = doc(db, 'employees', employeeId);
   await deleteDoc(employeeRef);
 };
+
+
+export const bulkDeleteEmployees = async (employeeIds: string[]) => {
+  if (employeeIds.length === 0) {
+    return;
+  }
+  const batch = writeBatch(db);
+  employeeIds.forEach(id => {
+    const docRef = doc(db, 'employees', id);
+    batch.delete(docRef);
+  });
+  await batch.commit();
+}

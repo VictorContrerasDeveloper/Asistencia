@@ -2,31 +2,21 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById, addOffice as apiAddOffice, deleteEmployee } from '@/lib/data';
+import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById, addOffice as apiAddOffice } from '@/lib/data';
 import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
 import AddOfficeModal from './AddOfficeModal';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import { Button } from './ui/button';
-import { PlusCircle, Users } from 'lucide-react';
+import { PlusCircle, Users, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
-function StatusColumn({ status, employees, onEdit, onDelete, officeName, canDelete }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, onDelete: (employee: Employee) => void, officeName?: string, canDelete: boolean }) {
+function StatusColumn({ status, employees, onEdit, officeName }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, officeName?: string }) {
   const { setNodeRef } = useDroppable({ id: status });
 
   const statusConfig = {
@@ -59,7 +49,7 @@ function StatusColumn({ status, employees, onEdit, onDelete, officeName, canDele
       </h2>
       <div className="space-y-4">
         {employees.map(employee => (
-          <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} onDelete={() => onDelete(employee)} showDelete={canDelete} />
+          <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} />
         ))}
       </div>
     </div>
@@ -69,7 +59,6 @@ function StatusColumn({ status, employees, onEdit, onDelete, officeName, canDele
 export default function DashboardClient({ initialEmployees, offices, officeName, officeId }: { initialEmployees: Employee[], offices: Office[], officeName: string, officeId: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null);
   const [isAddOfficeModalOpen, setAddOfficeModalOpen] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -105,13 +94,8 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     setEditingEmployee(employee);
   };
   
-  const handleOpenDeleteModal = (employee: Employee) => {
-    setDeletingEmployee(employee);
-  };
-
   const handleCloseModal = () => {
     setEditingEmployee(null);
-    setDeletingEmployee(null);
   };
   
   const handleSaveOffice = async (employeeId: string, newOfficeId: string) => {
@@ -145,34 +129,11 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     router.refresh();
   };
 
-  const handleDeleteEmployee = async () => {
-    if(!deletingEmployee) return;
-
-    try {
-      await deleteEmployee(deletingEmployee.id);
-      setEmployees(prev => prev.filter(e => e.id !== deletingEmployee.id));
-      toast({
-        title: "¡Éxito!",
-        description: `El ejecutivo ${deletingEmployee.name} ha sido eliminado.`,
-      });
-    } catch (error) {
-       toast({
-        title: "Error",
-        description: "Ocurrió un error al eliminar el ejecutivo.",
-        variant: "destructive",
-      });
-    } finally {
-        handleCloseModal();
-    }
-  }
-
-  const canDelete = officeId === 'general';
-
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="p-4 md:p-8 space-y-8">
         {officeId === 'general' && (
-            <div className="flex justify-center gap-4">
+             <div className="flex flex-wrap justify-center gap-4">
                  <Button onClick={() => setAddOfficeModalOpen(true)}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Agregar Oficina
@@ -189,6 +150,12 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
                     Carga Masiva
                 </Button>
             </Link>
+            <Link href="/dashboard/delete-employee">
+                <Button variant="destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Eliminar Ejecutivo(s)
+                </Button>
+            </Link>
             </div>
         )}
         <div className="flex flex-col md:flex-row gap-6">
@@ -198,9 +165,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               status={status}
               employees={employeesByStatus[status]}
               onEdit={handleOpenEditModal}
-              onDelete={handleOpenDeleteModal}
               officeName={officeName}
-              canDelete={canDelete}
             />
           ))}
         </div>
@@ -219,24 +184,6 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
         onClose={() => setAddOfficeModalOpen(false)}
         onSave={handleAddOffice}
       />
-       {deletingEmployee && (
-        <AlertDialog open={!!deletingEmployee} onOpenChange={setDeletingEmployee}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción no se puede deshacer. Esto eliminará permanentemente al ejecutivo <strong>{deletingEmployee.name}</strong> de la base de datos.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteEmployee}>
-                Sí, eliminar
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
     </DndContext>
   );
 }
