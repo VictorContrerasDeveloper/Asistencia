@@ -2,39 +2,41 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { type Employee, type Office, type AttendanceStatus, updateEmployee, addOffice as apiAddOffice } from '@/lib/data';
+import { type Employee, type Office, type AttendanceStatus, updateEmployee, addOffice as apiAddOffice, getOfficeById } from '@/lib/data';
 import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
 import AddOfficeModal from './AddOfficeModal';
-import { DndContext, type DragEndEvent, useDroppable, type DragOverEvent, useSensor, useSensors, PointerSensor, DragOverlay } from '@dnd-kit/core';
+import { DndContext, type DragEndEvent, useDroppable, type DragOverEvent, useSensor, useSensors, PointerSensor, DragOverlay, closestCenter } from '@dnd-kit/core';
 import { Button } from './ui/button';
 import { PlusCircle, Users, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { arrayMove } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
-function StatusColumn({ 
-  status, 
-  employees, 
-  onEdit, 
+function StatusColumn({
+  status,
+  employees,
+  onEdit,
   officeName,
   offices,
   activeId,
-  draggedOverItemId,
-  officeId
-}: { 
-  status: AttendanceStatus, 
-  employees: Employee[], 
-  onEdit: (employee: Employee) => void, 
+  officeId,
+  insertionId,
+  insertionStatus,
+}: {
+  status: AttendanceStatus,
+  employees: Employee[],
+  onEdit: (employee: Employee) => void,
   officeName?: string,
   offices: Office[],
   activeId: string | null,
-  draggedOverItemId: string | null,
-  officeId: string
+  officeId: string,
+  insertionId: string | null,
+  insertionStatus: AttendanceStatus | null,
 }) {
   const { setNodeRef } = useDroppable({ id: status });
 
@@ -58,7 +60,7 @@ function StatusColumn({
       textColor: 'text-red-800 dark:text-red-200',
     },
   };
-  
+
   const config = statusConfig[status];
   const title = officeId === 'general' ? config.title : (status === 'Presente' ? `Presentes en ${officeName}` : config.title);
 
@@ -71,15 +73,22 @@ function StatusColumn({
         <div className="space-y-4">
             {employees.map((employee) => {
                const isBeingDragged = activeId === employee.id;
-              
-              if (isBeingDragged) {
-                 return <div key={`${employee.id}-placeholder`} className="bg-white/50 rounded-lg h-[76px]"></div>
-              }
-              
+               if (isBeingDragged) {
+                  return <div key={`${employee.id}-placeholder`} className="bg-card/50 rounded-lg h-[76px] border-2 border-dashed border-primary"></div>
+               }
               return (
-                 <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} offices={offices} />
+                 <EmployeeCard 
+                    key={employee.id} 
+                    employee={employee} 
+                    onEdit={onEdit} 
+                    offices={offices} 
+                    isInsertionTarget={insertionId === employee.id && insertionStatus === status}
+                 />
               )
             })}
+             {insertionId === null && insertionStatus === status && (
+                <div key="insertion-point-end" className="bg-card/50 rounded-lg h-[76px] border-2 border-dashed border-primary"></div>
+             )}
         </div>
       </SortableContext>
     </div>
@@ -93,7 +102,8 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const { toast } = useToast();
   const router = useRouter();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [draggedOverItemId, setDraggedOverItemId] = useState<string | null>(null);
+  const [insertionId, setInsertionId] = useState<string | null>(null);
+  const [insertionStatus, setInsertionStatus] = useState<AttendanceStatus | null>(null);
  
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -109,98 +119,117 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
 
   const employeesByStatus = useMemo(() => {
     const statusMap: Record<AttendanceStatus, Employee[]> = { Presente: [], Atrasado: [], Ausente: [] };
-    for (const employee of employees) {
+    const tempEmployees = [...employees];
+    if (activeId) {
+        // Exclude active employee from the list to prevent it from being rendered twice
+        const activeIndex = tempEmployees.findIndex(e => e.id === activeId);
+        if (activeIndex > -1) {
+            tempEmployees.splice(activeIndex, 1);
+        }
+    }
+    for (const employee of tempEmployees) {
         statusMap[employee.status].push(employee);
     }
     return statusMap;
-  }, [employees]);
+  }, [employees, activeId]);
+
 
   const activeEmployee = useMemo(() => employees.find(e => e.id === activeId), [activeId, employees]);
 
-  const handleDragStart = (event: any) => {
+ const handleDragStart = (event: any) => {
     setActiveId(event.active.id as string);
   };
-  
+
   const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+    const { over } = event;
+    if (!over) {
+        setInsertionId(null);
+        setInsertionStatus(null);
+        return;
+    };
   
-    const activeId = active.id as string;
     const overId = over.id as string;
+    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
   
-    const isActiveAnEmployee = active.data.current?.type === 'Employee';
-    if (!isActiveAnEmployee) return;
-  
-    // Drop over a column
-    const isOverAColumn = STATUSES.includes(overId as AttendanceStatus);
-    if (isOverAColumn) {
-      const activeEmployee = employees.find(e => e.id === activeId);
-      if (activeEmployee && activeEmployee.status !== overId) {
-        setEmployees(employees => {
-          activeEmployee.status = overId as AttendanceStatus;
-          return [...employees];
-        });
-      }
+    if (overIsColumn) {
+        setInsertionStatus(overId as AttendanceStatus);
+        const employeesInStatus = employeesByStatus[overId as AttendanceStatus];
+        if (employeesInStatus.length > 0) {
+            // Default to inserting at the end if the column is not empty but no specific card is hovered.
+             setInsertionId(null); 
+        } else {
+             setInsertionId(null); // empty column
+        }
+    } else {
+        const overEmployee = employees.find(e => e.id === overId);
+        if (overEmployee) {
+            setInsertionStatus(overEmployee.status);
+            
+            const overNode = over.rect;
+            const pointerY = event.activatorEvent.clientY;
+            const isAfter = pointerY > overNode.top + overNode.height / 2;
+            
+            if(isAfter) {
+                setInsertionId(null); // insert after
+            } else {
+                 setInsertionId(overId); // insert before
+            }
+        }
     }
-  
-    // Drop over another employee
-    const isOverAnEmployee = over.data.current?.type === 'Employee';
-    if (isOverAnEmployee && activeId !== overId) {
-      const activeIndex = employees.findIndex(e => e.id === activeId);
-      const overIndex = employees.findIndex(e => e.id === overId);
-      const activeEmployee = employees[activeIndex];
-      const overEmployee = employees[overIndex];
-  
-      if (activeEmployee.status !== overEmployee.status) {
-        activeEmployee.status = overEmployee.status;
-        const newIndex = activeIndex > overIndex ? overIndex : overIndex;
-        setEmployees(employees => arrayMove(employees, activeIndex, newIndex));
-      } else {
-        setEmployees(employees => arrayMove(employees, activeIndex, overIndex));
-      }
-    }
-  };
+};
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    
     setActiveId(null);
+    setInsertionId(null);
+    setInsertionStatus(null);
   
     if (!over) return;
   
     const employeeId = active.id as string;
-    const employee = employees.find(e => e.id === employeeId);
-    if (!employee) return;
+    const oldEmployee = employees.find(e => e.id === employeeId);
+    if (!oldEmployee) return;
   
-    let finalStatus: AttendanceStatus;
+    let newStatus: AttendanceStatus;
+    let newIndex: number;
     let newEmployees = [...employees];
-    const activeIndex = newEmployees.findIndex(e => e.id === activeId);
+    
+    const overId = over.id as string;
+    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
   
-    // Determine the final status and position
-    if (STATUSES.includes(over.id as AttendanceStatus)) {
-      // Dropped on a column
-      finalStatus = over.id as AttendanceStatus;
-      if (employee.status !== finalStatus) {
-        newEmployees[activeIndex].status = finalStatus;
-        // Move to the end of the new status group
-        const lastIndexOfStatus = newEmployees.map(e => e.status).lastIndexOf(finalStatus);
-        newEmployees = arrayMove(newEmployees, activeIndex, lastIndexOfStatus >= 0 ? lastIndexOfStatus : newEmployees.length -1 );
-      }
-    } else if (over.data.current?.type === 'Employee' && active.id !== over.id) {
-      // Dropped on another employee
-      const overIndex = newEmployees.findIndex(e => e.id === over.id);
-      const overEmployee = newEmployees[overIndex];
-      finalStatus = overEmployee.status;
-      
-      newEmployees[activeIndex].status = finalStatus;
-      newEmployees = arrayMove(newEmployees, activeIndex, overIndex);
+    if (overIsColumn) {
+      newStatus = overId as AttendanceStatus;
     } else {
-      // No valid drop, do nothing
-      return;
+      const overEmployee = employees.find(e => e.id === overId);
+      if (!overEmployee) return;
+      newStatus = overEmployee.status;
     }
   
+    const activeIndex = newEmployees.findIndex(e => e.id === employeeId);
+    newEmployees[activeIndex] = { ...newEmployees[activeIndex], status: newStatus };
+  
+    const employeesInNewStatus = newEmployees.filter(e => e.status === newStatus && e.id !== employeeId);
+  
+    if (overIsColumn) {
+        newIndex = newEmployees.length - 1; // move to the end
+    } else {
+        const overIndexInAll = newEmployees.findIndex(e => e.id === overId);
+        
+        const overNode = over.rect;
+        const pointerY = (event.activatorEvent as MouseEvent).clientY;
+        const isAfter = pointerY > overNode.top + overNode.height / 2;
+
+        newIndex = isAfter ? overIndexInAll + 1 : overIndexInAll;
+    }
+  
+    // Perform the move
+    newEmployees = arrayMove(newEmployees, activeIndex, newIndex);
+    
     setEmployees(newEmployees);
-    updateEmployee(employeeId, { status: finalStatus });
+    updateEmployee(employeeId, { status: newStatus });
   };
+  
 
   const handleOpenEditModal = (employee: Employee) => {
     setEditingEmployee(employee);
@@ -240,14 +269,16 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   };
 
   return (
-    <DndContext 
+    <DndContext
       sensors={sensors}
+      collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd} 
+      onDragEnd={handleDragEnd}
       onDragCancel={() => {
         setActiveId(null);
-        setDraggedOverItemId(null);
+        setInsertionId(null);
+        setInsertionStatus(null);
       }}
     >
       <div className="p-4 md:p-8 space-y-8">
@@ -287,8 +318,9 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               officeName={officeName}
               offices={offices}
               activeId={activeId}
-              draggedOverItemId={draggedOverItemId}
               officeId={officeId}
+              insertionId={insertionId}
+              insertionStatus={insertionStatus}
             />
           ))}
         </div>
