@@ -15,10 +15,9 @@ type EmployeeCardProps = {
   employee: Employee;
   onEdit: (employee: Employee) => void;
   offices: Office[];
-  isInsertionTarget?: boolean;
 };
 
-export default function EmployeeCard({ employee, onEdit, offices, isInsertionTarget }: EmployeeCardProps) {
+export default function EmployeeCard({ employee, onEdit, offices }: EmployeeCardProps) {
   const { 
     attributes, 
     listeners, 
@@ -61,9 +60,11 @@ export default function EmployeeCard({ employee, onEdit, offices, isInsertionTar
         setDroppableNodeRef(node);
       }}
       style={style}
-      className={`bg-card shadow-sm hover:shadow-md transition-all duration-200 touch-none ${isInsertionTarget ? 'translate-y-16' : ''}`}
+      {...attributes}
+      {...listeners}
+      className={`bg-card shadow-sm hover:shadow-md transition-all duration-200 touch-none cursor-grab active:cursor-grabbing`}
     >
-        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-3 flex flex-row items-center gap-4">
+        <div className="p-3 flex flex-row items-center gap-4">
             <div className="flex-none">
                 <Avatar className="h-10 w-10 bg-primary/20 text-primary font-bold">
                 <AvatarFallback>{initials}</AvatarFallback>

@@ -25,8 +25,6 @@ function StatusColumn({
   offices,
   activeId,
   officeId,
-  insertionId,
-  insertionStatus,
 }: {
   status: AttendanceStatus,
   employees: Employee[],
@@ -35,8 +33,6 @@ function StatusColumn({
   offices: Office[],
   activeId: string | null,
   officeId: string,
-  insertionId: string | null,
-  insertionStatus: AttendanceStatus | null,
 }) {
   const { setNodeRef } = useDroppable({ id: status });
 
@@ -72,23 +68,11 @@ function StatusColumn({
        <SortableContext items={employees.map(e => e.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-4">
             {employees.map((employee) => {
-               const isBeingDragged = activeId === employee.id;
-               if (isBeingDragged) {
-                  return <div key={`${employee.id}-placeholder`} className="bg-card/50 rounded-lg h-[76px] border-2 border-dashed border-primary"></div>
-               }
-              return (
-                 <EmployeeCard 
-                    key={employee.id} 
-                    employee={employee} 
-                    onEdit={onEdit} 
-                    offices={offices} 
-                    isInsertionTarget={insertionId === employee.id && insertionStatus === status}
-                 />
-              )
+              if (activeId === employee.id) {
+                return <div key={employee.id} className="bg-card/50 rounded-lg h-[76px] border-2 border-dashed border-primary"></div>
+              }
+              return <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} offices={offices} />
             })}
-             {insertionId === null && insertionStatus === status && (
-                <div key="insertion-point-end" className="bg-card/50 rounded-lg h-[76px] border-2 border-dashed border-primary"></div>
-             )}
         </div>
       </SortableContext>
     </div>
@@ -102,8 +86,6 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const { toast } = useToast();
   const router = useRouter();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [insertionId, setInsertionId] = useState<string | null>(null);
-  const [insertionStatus, setInsertionStatus] = useState<AttendanceStatus | null>(null);
  
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -119,19 +101,13 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
 
   const employeesByStatus = useMemo(() => {
     const statusMap: Record<AttendanceStatus, Employee[]> = { Presente: [], Atrasado: [], Ausente: [] };
-    const tempEmployees = [...employees];
-    if (activeId) {
-        // Exclude active employee from the list to prevent it from being rendered twice
-        const activeIndex = tempEmployees.findIndex(e => e.id === activeId);
-        if (activeIndex > -1) {
-            tempEmployees.splice(activeIndex, 1);
+    for (const employee of employees) {
+        if(statusMap[employee.status]) {
+           statusMap[employee.status].push(employee);
         }
     }
-    for (const employee of tempEmployees) {
-        statusMap[employee.status].push(employee);
-    }
     return statusMap;
-  }, [employees, activeId]);
+  }, [employees]);
 
 
   const activeEmployee = useMemo(() => employees.find(e => e.id === activeId), [activeId, employees]);
@@ -140,94 +116,59 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
     setActiveId(event.active.id as string);
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event;
-    if (!over) {
-        setInsertionId(null);
-        setInsertionStatus(null);
-        return;
-    };
-  
-    const overId = over.id as string;
-    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
-  
-    if (overIsColumn) {
-        setInsertionStatus(overId as AttendanceStatus);
-        const employeesInStatus = employeesByStatus[overId as AttendanceStatus];
-        if (employeesInStatus.length > 0) {
-            // Default to inserting at the end if the column is not empty but no specific card is hovered.
-             setInsertionId(null); 
-        } else {
-             setInsertionId(null); // empty column
-        }
-    } else {
-        const overEmployee = employees.find(e => e.id === overId);
-        if (overEmployee) {
-            setInsertionStatus(overEmployee.status);
-            
-            const overNode = over.rect;
-            const pointerY = event.activatorEvent.clientY;
-            const isAfter = pointerY > overNode.top + overNode.height / 2;
-            
-            if(isAfter) {
-                setInsertionId(null); // insert after
-            } else {
-                 setInsertionId(overId); // insert before
-            }
-        }
-    }
-};
-
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
     setActiveId(null);
-    setInsertionId(null);
-    setInsertionStatus(null);
   
-    if (!over) return;
-  
-    const employeeId = active.id as string;
-    const oldEmployee = employees.find(e => e.id === employeeId);
-    if (!oldEmployee) return;
-  
-    let newStatus: AttendanceStatus;
-    let newIndex: number;
-    let newEmployees = [...employees];
-    
-    const overId = over.id as string;
-    const overIsColumn = STATUSES.includes(overId as AttendanceStatus);
-  
-    if (overIsColumn) {
-      newStatus = overId as AttendanceStatus;
-    } else {
-      const overEmployee = employees.find(e => e.id === overId);
-      if (!overEmployee) return;
-      newStatus = overEmployee.status;
-    }
-  
-    const activeIndex = newEmployees.findIndex(e => e.id === employeeId);
-    newEmployees[activeIndex] = { ...newEmployees[activeIndex], status: newStatus };
-  
-    const employeesInNewStatus = newEmployees.filter(e => e.status === newStatus && e.id !== employeeId);
-  
-    if (overIsColumn) {
-        newIndex = newEmployees.length - 1; // move to the end
-    } else {
-        const overIndexInAll = newEmployees.findIndex(e => e.id === overId);
-        
-        const overNode = over.rect;
-        const pointerY = (event.activatorEvent as MouseEvent).clientY;
-        const isAfter = pointerY > overNode.top + overNode.height / 2;
+    if (over && active.id !== over.id) {
+      const activeEmployee = employees.find((e) => e.id === active.id);
+      const overEmployee = employees.find((e) => e.id === over.id);
+      let newStatus: AttendanceStatus | undefined = undefined;
 
-        newIndex = isAfter ? overIndexInAll + 1 : overIndexInAll;
+      if(STATUSES.includes(over.id as AttendanceStatus)){
+        newStatus = over.id as AttendanceStatus;
+      }
+
+      if (!activeEmployee) {
+        return;
+      }
+
+      setEmployees((employees) => {
+        const originalPos = employees.findIndex((e) => e.id === active.id);
+        let newPos = employees.findIndex((e) => e.id === over.id);
+
+        if (newStatus !== undefined) {
+          // If we are dropping on a column, find last employee in that column
+          const employeesInStatus = employees.filter(e => e.status === newStatus);
+          if (employeesInStatus.length > 0) {
+              const lastEmployeeInStatus = employeesInStatus[employeesInStatus.length - 1];
+              newPos = employees.findIndex(e => e.id === lastEmployeeInStatus.id);
+          } else {
+             // If column is empty, we will append it. We need to handle this case
+             // For now, let's just update the status and put it at the end.
+             const updatedEmployees = employees.map(e => e.id === active.id ? {...e, status: newStatus!} : e);
+             const activeEmp = updatedEmployees.find(e => e.id === active.id)!;
+             const others = updatedEmployees.filter(e => e.id !== active.id);
+             return [...others, activeEmp];
+          }
+        }
+        
+        const movedEmployees = arrayMove(employees, originalPos, newPos);
+        
+        const finalEmployees = movedEmployees.map(e => {
+            if (e.id === active.id) {
+                const targetStatus = newStatus || employees.find(emp => emp.id === over.id)?.status;
+                if(targetStatus) {
+                    updateEmployee(e.id, { status: targetStatus });
+                    return {...e, status: targetStatus};
+                }
+            }
+            return e;
+        });
+
+        return finalEmployees;
+      });
     }
-  
-    // Perform the move
-    newEmployees = arrayMove(newEmployees, activeIndex, newIndex);
-    
-    setEmployees(newEmployees);
-    updateEmployee(employeeId, { status: newStatus });
   };
   
 
@@ -273,13 +214,8 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => {
-        setActiveId(null);
-        setInsertionId(null);
-        setInsertionStatus(null);
-      }}
+      onDragCancel={() => setActiveId(null)}
     >
       <div className="p-4 md:p-8 space-y-8">
         {officeId === 'general' && (
@@ -319,8 +255,6 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               offices={offices}
               activeId={activeId}
               officeId={officeId}
-              insertionId={insertionId}
-              insertionStatus={insertionStatus}
             />
           ))}
         </div>
