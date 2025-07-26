@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,15 +16,14 @@ type EmployeeCardProps = {
 };
 
 export default function EmployeeCard({ employee, onEdit, offices }: EmployeeCardProps) {
-  const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform } = useDraggable({
-    id: employee.id,
-    data: {
-      type: 'Employee',
-      employee,
-    }
-  });
-
-  const { setNodeRef: setDroppableNodeRef } = useDroppable({
+  const { 
+    attributes, 
+    listeners, 
+    setNodeRef, 
+    transform, 
+    transition,
+    isDragging,
+  } = useSortable({
     id: employee.id,
     data: {
       type: 'Employee',
@@ -35,28 +34,26 @@ export default function EmployeeCard({ employee, onEdit, offices }: EmployeeCard
   const officeName = offices.find(o => o.id === employee.officeId)?.name || 'N/A';
   
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 'auto',
   };
 
   const initials = employee.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-
-  const setNodeRef = (node: HTMLElement | null) => {
-    setDraggableNodeRef(node);
-    setDroppableNodeRef(node);
-  }
-
+  
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      {...listeners}
-      {...attributes}
-      className="bg-card shadow-sm hover:shadow-md transition-shadow duration-200 cursor-grab active:cursor-grabbing touch-none"
+      className="bg-card shadow-sm hover:shadow-md transition-shadow duration-200 touch-none"
     >
       <CardHeader className="flex flex-row items-center gap-4 p-3">
-        <Avatar className="h-10 w-10 bg-primary/20 text-primary font-bold">
-          <AvatarFallback>{initials}</AvatarFallback>
-        </Avatar>
+        <div {...attributes} {...listeners} className="flex-none cursor-grab active:cursor-grabbing">
+            <Avatar className="h-10 w-10 bg-primary/20 text-primary font-bold">
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+        </div>
         <div className="flex-1">
           <CardTitle className="text-base font-medium">{employee.name}</CardTitle>
           <CardDescription className="text-xs">{officeName}</CardDescription>

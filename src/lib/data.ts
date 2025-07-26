@@ -12,6 +12,7 @@ import {
   getDoc,
   deleteDoc,
   writeBatch,
+  documentId
 } from 'firebase/firestore';
 
 export type Office = {
@@ -46,7 +47,7 @@ export function slugify(text: string): string {
 }
 
 export const getOffices = async (): Promise<Office[]> => {
-    const snapshot = await getDocs(officesCollection);
+    const snapshot = await getDocs(query(officesCollection));
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
 };
 
@@ -68,26 +69,22 @@ export const getOfficeById = async (id: string): Promise<Office | undefined> => 
   return undefined;
 };
 
-
 export const getOfficeBySlug = async (slug: string): Promise<Office | undefined> => {
-  const q = query(officesCollection);
-  const snapshot = await getDocs(q);
-  const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+  const offices = await getOffices();
   return offices.find(office => slugify(office.name) === slug);
 }
 
 export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => {
+  let q;
   if (!officeSlug || officeSlug === 'general') {
-    const snapshot = await getDocs(employeesCollection);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+    q = query(employeesCollection);
+  } else {
+    const office = await getOfficeBySlug(officeSlug);
+    if (!office) {
+      return [];
+    }
+    q = query(employeesCollection, where('officeId', '==', office.id));
   }
-  
-  const office = await getOfficeBySlug(officeSlug);
-  if (!office) {
-    return [];
-  }
-  
-  const q = query(employeesCollection, where('officeId', '==', office.id));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
 };
@@ -95,15 +92,13 @@ export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => 
 export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId'>>) => {
     const employeeRef = doc(db, 'employees', employeeId);
     await updateDoc(employeeRef, updates);
-    const updatedDoc = await getDoc(employeeRef);
-    return { id: updatedDoc.id, ...updatedDoc.data() } as Employee;
-}
+};
 
 export const addEmployee = async (name: string, officeId: string) => {
   const newEmployee = {
     name,
     officeId,
-    status: 'Atrasado', // Default status
+    status: 'Atrasado',
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
   return { id: docRef.id, ...newEmployee } as Employee;
@@ -122,7 +117,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       officeId,
       status: 'Atrasado',
     };
-    const docRef = doc(employeesCollection); // Automatically generate new doc ID
+    const docRef = doc(employeesCollection);
     batch.set(docRef, newEmployee);
   });
 
@@ -133,7 +128,6 @@ export const deleteEmployee = async (employeeId: string) => {
   const employeeRef = doc(db, 'employees', employeeId);
   await deleteDoc(employeeRef);
 };
-
 
 export const bulkDeleteEmployees = async (employeeIds: string[]) => {
   if (employeeIds.length === 0) {
