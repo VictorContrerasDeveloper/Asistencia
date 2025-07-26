@@ -7,8 +7,7 @@ import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
 import AddOfficeModal from './AddOfficeModal';
-import { DndContext, type DragEndEvent } from '@dnd-kit/core';
-import { useDroppable } from '@dnd-kit/core';
+import { DndContext, type DragEndEvent, useDroppable, DragOverlay } from '@dnd-kit/core';
 import { Button } from './ui/button';
 import { PlusCircle, Users, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +16,7 @@ import { useRouter } from 'next/navigation';
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
 
 function StatusColumn({ status, employees, onEdit, officeName }: { status: AttendanceStatus, employees: Employee[], onEdit: (employee: Employee) => void, officeName?: string }) {
-  const { setNodeRef } = useDroppable({ id: status });
+  const { setNodeRef, isOver } = useDroppable({ id: status });
 
   const statusConfig = {
      Presente: {
@@ -48,8 +47,10 @@ function StatusColumn({ status, employees, onEdit, officeName }: { status: Atten
         {status === 'Presente' && officeName !== 'Panel General' ? `Presentes en ${officeName}` : config.title} ({employees.length})
       </h2>
       <div className="space-y-4">
-        {employees.map(employee => (
-          <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} />
+        {employees.map((employee, index) => (
+          <div key={employee.id} style={{ transition: 'transform 0.2s ease-in-out', transform: isOver ? `translateY(${index * 0 + 20}px)` : 'translateY(0)' }}>
+            <EmployeeCard employee={employee} onEdit={onEdit} />
+          </div>
         ))}
       </div>
     </div>
