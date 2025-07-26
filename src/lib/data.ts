@@ -20,7 +20,7 @@ export type Office = {
   name: string;
 };
 
-export type AttendanceStatus = 'Presente' | 'Atrasado' | 'Ausente';
+export type AttendanceStatus = 'Presente' | 'Ausente' | 'Licencia';
 
 export type Employee = {
   id:string;
@@ -70,7 +70,11 @@ export const getOfficeById = async (id: string): Promise<Office | undefined> => 
 };
 
 export const getOfficeBySlug = async (slug: string): Promise<Office | undefined> => {
-  const offices = await getOffices();
+  if (!slug) return undefined;
+  const q = query(officesCollection);
+  const snapshot = await getDocs(q);
+  // Manual filter by slug as Firestore doesn't support slug-based queries directly
+  const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
   return offices.find(office => slugify(office.name) === slug);
 }
 
@@ -98,7 +102,7 @@ export const addEmployee = async (name: string, officeId: string) => {
   const newEmployee = {
     name,
     officeId,
-    status: 'Atrasado',
+    status: 'Ausente',
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
   return { id: docRef.id, ...newEmployee } as Employee;
@@ -115,7 +119,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
     const newEmployee = {
       name: name.trim(),
       officeId,
-      status: 'Atrasado',
+      status: 'Ausente',
     };
     const docRef = doc(employeesCollection);
     batch.set(docRef, newEmployee);

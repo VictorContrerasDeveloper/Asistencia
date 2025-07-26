@@ -86,7 +86,7 @@ export default function BulkAddEmployeesPage() {
                   id="names"
                   value={names}
                   onChange={(e) => setNames(e.target.value)}
-                  placeholder="Juan Pérez&#10;María González&#10;Pedro Ramírez"
+                  placeholder="Ej:&#10;Juan Pérez&#10;María González&#10;Pedro Ramírez"
                   required
                   rows={10}
                 />

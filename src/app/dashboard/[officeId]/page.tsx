@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
-import { ArrowLeft, FileText } from 'lucide-react';
-import { getEmployees, getOfficeBySlug, getOffices } from '@/lib/data';
+import { ArrowLeft, FileText, Users, PlusCircle, Trash2 } from 'lucide-react';
+import { getEmployees, getOfficeBySlug, getOffices, slugify } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import { Button } from '@/components/ui/button';
 
@@ -29,7 +29,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen bg-background text-foreground">
       <header className="flex flex-col items-center justify-center p-6 md:p-8 border-b bg-card">
         <h1 className="text-3xl md:text-4xl font-bold text-card-foreground">Panel de Asistencia - {office.name}</h1>
         <p className="text-muted-foreground mt-2">Gestiona la asistencia del personal de tu oficina.</p>
@@ -40,18 +40,28 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                 Volver al Inicio
               </Button>
             </Link>
-            {officeId !== 'general' && (
-              <Link href={`/dashboard/${officeId}/report`}>
+             <Link href="/dashboard/add-employee">
+              <Button>
+                  <PlusCircle />
+                  Agregar Ejecutivo
+              </Button>
+            </Link>
+             <Link href="/dashboard/bulk-add-employees">
                 <Button>
-                  <FileText />
-                  Ver Reporte Diario
+                    <Users />
+                    Carga Masiva
                 </Button>
-              </Link>
-            )}
+            </Link>
+             <Link href="/dashboard/delete-employee">
+                <Button variant="destructive">
+                    <Trash2 />
+                    Eliminar Ejecutivo(s)
+                </Button>
+            </Link>
         </div>
       </header>
-      <main className="flex-1 overflow-auto">
-        <DashboardClient initialEmployees={initialEmployees} offices={offices} officeName={office.name} officeId={officeId} />
+      <main className="flex-1 overflow-auto p-4 md:p-8">
+        <DashboardClient initialEmployees={initialEmployees} offices={offices} officeId={officeId} />
       </main>
     </div>
   );
