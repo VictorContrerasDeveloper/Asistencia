@@ -1,10 +1,14 @@
 
 "use client";
 
-import { useMemo } from 'react';
-import { type Employee, type Office } from '@/lib/data';
+import { useMemo, useState, useEffect } from 'react';
+import { type Employee, type Office, updateOfficeStaffing } from '@/lib/data';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Users, UserCheck, UserX, Stethoscope, Building } from 'lucide-react';
+import { Users, UserCheck, UserX, Stethoscope, Building, Save } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Label } from '@/components/ui/label';
 
 type Summary = {
   total: number;
@@ -16,9 +20,53 @@ type Summary = {
 type OfficeSummary = Summary & {
   id: string;
   name: string;
+  theoreticalStaffing?: number;
 };
 
 export default function OfficeSummaryDashboard({ offices, employees }: { offices: Office[], employees: Employee[] }) {
+  const { toast } = useToast();
+  const [staffingValues, setStaffingValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const initialStaffing: Record<string, string> = {};
+    offices.forEach(office => {
+      initialStaffing[office.id] = office.theoreticalStaffing?.toString() || '';
+    });
+    setStaffingValues(initialStaffing);
+  }, [offices]);
+
+
+  const handleStaffingChange = (officeId: string, value: string) => {
+    setStaffingValues(prev => ({ ...prev, [officeId]: value }));
+  };
+
+  const handleSaveStaffing = async (officeId: string) => {
+    const value = staffingValues[officeId];
+    const numberValue = value === '' ? 0 : parseInt(value, 10);
+
+    if (isNaN(numberValue) || numberValue < 0) {
+      toast({
+        title: "Error",
+        description: "Por favor, ingresa un número válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      await updateOfficeStaffing(officeId, numberValue);
+      toast({
+        title: "¡Éxito!",
+        description: "Dotación teórica guardada correctamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo guardar la dotación teórica.",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   const globalSummary = useMemo<Summary>(() => {
     return {
@@ -39,6 +87,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
         present: officeEmployees.filter(emp => emp.status === 'Presente').length,
         absent: officeEmployees.filter(emp => emp.status === 'Ausente' && (emp.absenceReason === 'Inasistencia' || emp.absenceReason === 'Otro')).length,
         license: officeEmployees.filter(emp => emp.absenceReason === 'Licencia médica' || emp.absenceReason === 'Vacaciones').length,
+        theoreticalStaffing: office.theoreticalStaffing
       };
     }).sort((a,b) => a.name.localeCompare(b.name));
   }, [offices, employees]);
@@ -122,6 +171,25 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                                 <span className="text-yellow-700">Licencias/Vac.</span>
                                 <span className="font-semibold text-yellow-700">{summary.license}</span>
                              </div>
+                              <div className="border-t pt-3 mt-3 space-y-2">
+                                <Label htmlFor={`staffing-${summary.id}`} className="text-sm font-medium">
+                                  Dotación Teórica
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    id={`staffing-${summary.id}`}
+                                    type="number"
+                                    min="0"
+                                    placeholder="Ej: 10"
+                                    value={staffingValues[summary.id] || ''}
+                                    onChange={(e) => handleStaffingChange(summary.id, e.target.value)}
+                                    className="h-9"
+                                  />
+                                  <Button size="icon" className="h-9 w-9" onClick={() => handleSaveStaffing(summary.id)}>
+                                    <Save className="h-4 w-4"/>
+                                  </Button>
+                                </div>
+                              </div>
                         </CardContent>
                     </Card>
                 ))}
