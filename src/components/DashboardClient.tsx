@@ -57,11 +57,19 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
   }
 
   return (
-    <div className="bg-card rounded-lg">
+    <div className="bg-card rounded-lg border">
       <Table>
+        <TableHeader className="sticky top-0 z-10 bg-card">
+          <TableRow>
+            <TableHead className="w-[40%] text-primary font-bold text-lg">Ejecutivo</TableHead>
+            {STATUSES.map(status => (
+              <TableHead key={status} className="text-center text-primary font-bold text-lg">{status}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
         <TableBody>
           {sortedEmployees.map((employee) => (
-            <TableRow key={employee.id} className="grid grid-cols-[minmax(0,_2fr)_repeat(3,minmax(0,_1fr))] gap-x-4">
+            <TableRow key={employee.id}>
               <TableCell>
                 <div className="font-medium">{employee.name}</div>
               </TableCell>

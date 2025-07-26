@@ -12,9 +12,6 @@ type DashboardPageProps = {
   };
 };
 
-const STATUSES: string[] = ['Presente', 'Ausente', 'Licencia'];
-
-
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { officeId } = params;
   const offices = await getOffices();
@@ -87,15 +84,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         {officeId === 'general' ? (
           <OfficeSummaryDashboard offices={offices} employees={allEmployees} />
         ) : (
-          <>
-            <div className="grid grid-cols-[minmax(0,_2fr)_repeat(3,minmax(0,_1fr))] gap-x-4 px-4 pb-2 border-b mb-2">
-                <div className="text-primary font-bold text-lg">Ejecutivo</div>
-                {STATUSES.map(status => (
-                  <div key={status} className="text-center text-primary font-bold text-lg">{status}</div>
-                ))}
-            </div>
-            <DashboardClient initialEmployees={initialEmployees} offices={offices} officeId={officeId} />
-          </>
+          <DashboardClient initialEmployees={initialEmployees} offices={offices} officeId={officeId} />
         )}
       </main>
     </div>
