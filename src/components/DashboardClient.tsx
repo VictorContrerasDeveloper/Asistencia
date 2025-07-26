@@ -72,9 +72,6 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
             <TableRow key={employee.id}>
               <TableCell>
                 <div className="font-medium">{employee.name}</div>
-                {officeId === 'general' && (
-                  <div className="text-sm text-muted-foreground">{getOfficeName(employee.officeId)}</div>
-                )}
               </TableCell>
               <TableCell className="text-center">
                  <RadioGroup 
@@ -82,7 +79,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
                     onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
                     className="flex justify-center"
                   >
-                    <RadioGroupItem value="Presente" id={`presente-${employee.id}`} className="h-5 w-5 border-accent data-[state=checked]:border-accent" />
+                    <RadioGroupItem value="Presente" id={`presente-${employee.id}`} className="h-5 w-5" />
                   </RadioGroup>
               </TableCell>
               <TableCell className="text-center">
@@ -91,7 +88,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
                     onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
                      className="flex justify-center"
                   >
-                    <RadioGroupItem value="Ausente" id={`ausente-${employee.id}`} className="h-5 w-5 border-accent data-[state=checked]:border-accent" />
+                    <RadioGroupItem value="Ausente" id={`ausente-${employee.id}`} className="h-5 w-5" />
                  </RadioGroup>
               </TableCell>
               <TableCell className="text-center">
@@ -100,7 +97,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
                     onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
                      className="flex justify-center"
                   >
-                    <RadioGroupItem value="Licencia" id={`licencia-${employee.id}`} className="h-5 w-5 border-accent data-[state=checked]:border-accent" />
+                    <RadioGroupItem value="Licencia" id={`licencia-${employee.id}`} className="h-5 w-5" />
                  </RadioGroup>
               </TableCell>
             </TableRow>

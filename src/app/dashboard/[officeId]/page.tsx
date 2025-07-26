@@ -1,8 +1,9 @@
 
 import Link from 'next/link';
 import { ArrowLeft, FileText, Users, PlusCircle, Trash2 } from 'lucide-react';
-import { getEmployees, getOfficeBySlug, getOffices, slugify } from '@/lib/data';
+import { getEmployees, getOfficeBySlug, getOffices, slugify, Office, Employee } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
+import OfficeSummaryDashboard from '@/components/OfficeSummaryDashboard';
 import { Button } from '@/components/ui/button';
 
 type DashboardPageProps = {
@@ -27,6 +28,8 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       </div>
     );
   }
+
+  const allEmployees = officeId === 'general' ? await getEmployees() : [];
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
@@ -65,7 +68,11 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
         </div>
       </header>
       <main className="flex-1 overflow-auto p-4 md:p-8">
-        <DashboardClient initialEmployees={initialEmployees} offices={offices} officeId={officeId} />
+        {officeId === 'general' ? (
+          <OfficeSummaryDashboard offices={offices} employees={allEmployees} />
+        ) : (
+          <DashboardClient initialEmployees={initialEmployees} offices={offices} officeId={officeId} />
+        )}
       </main>
     </div>
   );
