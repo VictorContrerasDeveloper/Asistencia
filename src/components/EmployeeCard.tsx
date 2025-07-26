@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useDraggable } from '@dnd-kit/core';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,13 +16,22 @@ type EmployeeCardProps = {
 };
 
 export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform } = useDraggable({
     id: employee.id,
     data: {
       type: 'Employee',
       employee,
     }
   });
+
+  const { setNodeRef: setDroppableNodeRef } = useDroppable({
+    id: employee.id,
+    data: {
+      type: 'Employee',
+      employee,
+    }
+  });
+
 
   const [officeName, setOfficeName] = useState('Cargando...');
 
@@ -40,6 +49,11 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
   };
 
   const initials = employee.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+
+  const setNodeRef = (node: HTMLElement | null) => {
+    setDraggableNodeRef(node);
+    setDroppableNodeRef(node);
+  }
 
   return (
     <Card
@@ -75,3 +89,5 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
     </Card>
   );
 }
+
+    
