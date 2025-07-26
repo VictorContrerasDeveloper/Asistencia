@@ -54,6 +54,28 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
   };
 
   const handleRoleChange = async (employeeId: string, newRole: EmployeeRole) => {
+    const currentEmployee = employees.find(emp => emp.id === employeeId);
+    if (!currentEmployee) return;
+
+    const oldRole = currentEmployee.role;
+    if (oldRole === newRole) return;
+
+    const isChangingRequiredRole = oldRole === 'Anfitrión' || oldRole === 'Atención en Tablet';
+
+    if (isChangingRequiredRole) {
+        const employeesInOffice = employees.filter(emp => emp.officeId === currentEmployee.officeId);
+        const roleCount = employeesInOffice.filter(emp => emp.role === oldRole).length;
+
+        if (roleCount <= 1) {
+            toast({
+                title: "Cambio no permitido",
+                description: `Debe haber al menos un ejecutivo con la función "${oldRole}" en esta oficina.`,
+                variant: "destructive",
+            });
+            return; // Block the change
+        }
+    }
+    
     // Optimistic UI update
     setEmployees(currentEmployees => 
       currentEmployees.map(emp => 
