@@ -18,7 +18,9 @@ import {
 export type Office = {
   id: string;
   name: string;
-  theoreticalStaffing?: number;
+  theoreticalStaffing?: {
+    [key in EmployeeRole]?: number;
+  };
 };
 
 export type AttendanceStatus = 'Presente' | 'Ausente' | 'Atrasado';
@@ -74,7 +76,7 @@ export const getOfficeById = async (id: string): Promise<Office | undefined> => 
   return undefined;
 };
 
-export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing: number) => {
+export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing: { [key in EmployeeRole]?: number }) => {
   const officeRef = doc(db, 'offices', officeId);
   await updateDoc(officeRef, { theoreticalStaffing });
 }

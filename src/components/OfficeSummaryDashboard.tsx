@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from 'react';
-import { type Employee, type Office, updateOfficeStaffing } from '@/lib/data';
+import { type Employee, type Office, updateOfficeStaffing, EmployeeRole } from '@/lib/data';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Users, UserCheck, UserX, Stethoscope, Building, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -17,43 +17,79 @@ type Summary = {
   license: number;
 };
 
+const ROLES_ORDER: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Filtro'];
+
 type OfficeSummary = Summary & {
   id: string;
   name: string;
-  theoreticalStaffing?: number;
+  theoreticalStaffing?: {
+    [key in EmployeeRole]?: number;
+  };
+};
+
+// Defines the state structure for staffing input values
+type StaffingValues = {
+  [officeId: string]: {
+    [key in EmployeeRole]?: string;
+  };
 };
 
 export default function OfficeSummaryDashboard({ offices, employees }: { offices: Office[], employees: Employee[] }) {
   const { toast } = useToast();
-  const [staffingValues, setStaffingValues] = useState<Record<string, string>>({});
+  const [staffingValues, setStaffingValues] = useState<StaffingValues>({});
 
   useEffect(() => {
-    const initialStaffing: Record<string, string> = {};
+    const initialStaffing: StaffingValues = {};
     offices.forEach(office => {
-      initialStaffing[office.id] = office.theoreticalStaffing?.toString() || '';
+      initialStaffing[office.id] = {};
+      ROLES_ORDER.forEach(role => {
+        initialStaffing[office.id][role] = office.theoreticalStaffing?.[role]?.toString() || '';
+      });
     });
     setStaffingValues(initialStaffing);
   }, [offices]);
 
 
-  const handleStaffingChange = (officeId: string, value: string) => {
-    setStaffingValues(prev => ({ ...prev, [officeId]: value }));
+  const handleStaffingChange = (officeId: string, role: EmployeeRole, value: string) => {
+    setStaffingValues(prev => ({ 
+      ...prev, 
+      [officeId]: {
+        ...prev[officeId],
+        [role]: value,
+      }
+    }));
   };
 
   const handleSaveStaffing = async (officeId: string) => {
-    const value = staffingValues[officeId];
-    const numberValue = value === '' ? 0 : parseInt(value, 10);
+    const officeStaffing = staffingValues[officeId];
+    const newTheoreticalStaffing: { [key in EmployeeRole]?: number } = {};
+    
+    let hasError = false;
+    for (const role in officeStaffing) {
+        const value = officeStaffing[role as EmployeeRole];
+        if (value === '' || value === undefined) {
+          newTheoreticalStaffing[role as EmployeeRole] = 0;
+          continue;
+        };
+        const numberValue = parseInt(value, 10);
+        if (isNaN(numberValue) || numberValue < 0) {
+            hasError = true;
+            break;
+        }
+        newTheoreticalStaffing[role as EmployeeRole] = numberValue;
+    }
 
-    if (isNaN(numberValue) || numberValue < 0) {
+    if (hasError) {
       toast({
         title: "Error",
-        description: "Por favor, ingresa un número válido.",
+        description: "Por favor, ingresa un número válido para cada rol.",
         variant: "destructive",
       });
       return;
     }
+
     try {
-      await updateOfficeStaffing(officeId, numberValue);
+      await updateOfficeStaffing(officeId, newTheoreticalStaffing);
       toast({
         title: "¡Éxito!",
         description: "Dotación teórica guardada correctamente.",
@@ -171,23 +207,33 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                                 <span className="text-yellow-700">Licencias/Vac.</span>
                                 <span className="font-semibold text-yellow-700">{summary.license}</span>
                              </div>
-                              <div className="border-t pt-3 mt-3 space-y-2">
-                                <Label htmlFor={`staffing-${summary.id}`} className="text-sm font-medium">
-                                  Dotación Teórica
-                                </Label>
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    id={`staffing-${summary.id}`}
-                                    type="number"
-                                    min="0"
-                                    placeholder="Ej: 10"
-                                    value={staffingValues[summary.id] || ''}
-                                    onChange={(e) => handleStaffingChange(summary.id, e.target.value)}
-                                    className="h-9"
-                                  />
-                                  <Button size="icon" className="h-9 w-9" onClick={() => handleSaveStaffing(summary.id)}>
-                                    <Save className="h-4 w-4"/>
-                                  </Button>
+                             <div className="border-t pt-3 mt-3 space-y-4">
+                                <div className='flex justify-between items-center'>
+                                  <Label className="text-sm font-medium">
+                                    Dotación Teórica por Rol
+                                  </Label>
+                                   <Button size="sm" className="h-8" onClick={() => handleSaveStaffing(summary.id)}>
+                                      <Save className="h-4 w-4 mr-2"/>
+                                      Guardar
+                                    </Button>
+                                </div>
+                                <div className="space-y-2">
+                                  {ROLES_ORDER.map(role => (
+                                    <div key={role} className="flex items-center gap-2 justify-between">
+                                      <Label htmlFor={`staffing-${summary.id}-${role}`} className="text-sm text-muted-foreground w-1/3">
+                                        {role}
+                                      </Label>
+                                      <Input
+                                        id={`staffing-${summary.id}-${role}`}
+                                        type="number"
+                                        min="0"
+                                        placeholder="0"
+                                        value={staffingValues[summary.id]?.[role] || ''}
+                                        onChange={(e) => handleStaffingChange(summary.id, role, e.target.value)}
+                                        className="h-8"
+                                      />
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
                         </CardContent>
