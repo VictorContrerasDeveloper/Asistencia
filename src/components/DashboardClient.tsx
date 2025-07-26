@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
@@ -56,49 +57,25 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
   }
 
   return (
-    <div className="bg-card p-4 sm:p-6 rounded-lg shadow-md overflow-auto h-[calc(100vh-10rem)]">
+    <div className="bg-card rounded-lg">
       <Table>
-        <TableHeader className="sticky top-0 z-10 bg-card">
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[40%] text-primary font-bold text-lg">Ejecutivo</TableHead>
-            {STATUSES.map(status => (
-              <TableHead key={status} className="text-center text-primary font-bold text-lg">{status}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
         <TableBody>
           {sortedEmployees.map((employee) => (
-            <TableRow key={employee.id}>
+            <TableRow key={employee.id} className="grid grid-cols-[minmax(0,_2fr)_repeat(3,minmax(0,_1fr))] gap-x-4">
               <TableCell>
                 <div className="font-medium">{employee.name}</div>
               </TableCell>
-              <TableCell className="text-center">
-                 <RadioGroup 
-                    value={employee.status} 
-                    onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
-                    className="flex justify-center"
-                  >
-                    <RadioGroupItem value="Presente" id={`presente-${employee.id}`} className="h-5 w-5" />
-                  </RadioGroup>
-              </TableCell>
-              <TableCell className="text-center">
+              {STATUSES.map(status => (
+                <TableCell key={status} className="text-center">
                    <RadioGroup 
-                    value={employee.status} 
-                    onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
-                     className="flex justify-center"
-                  >
-                    <RadioGroupItem value="Ausente" id={`ausente-${employee.id}`} className="h-5 w-5" />
-                 </RadioGroup>
-              </TableCell>
-              <TableCell className="text-center">
-                  <RadioGroup 
-                    value={employee.status} 
-                    onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
-                     className="flex justify-center"
-                  >
-                    <RadioGroupItem value="Licencia" id={`licencia-${employee.id}`} className="h-5 w-5" />
-                 </RadioGroup>
-              </TableCell>
+                      value={employee.status} 
+                      onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
+                      className="flex justify-center"
+                    >
+                      <RadioGroupItem value={status} id={`${status}-${employee.id}`} className="h-5 w-5" />
+                   </RadioGroup>
+                </TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
