@@ -49,12 +49,14 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
   return (
     <div className="hidden md:flex items-center gap-6">
         <div className="flex items-center gap-4 border-l pl-4">
-            <div className="flex items-center gap-2 text-sm text-green-700" title="Presentes">
-                <UserCheck className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-sm font-medium" title="Presentes">
+                <UserCheck className="h-4 w-4 text-green-600" />
+                <span>Presentes:</span>
                 <span className="font-bold">{summary.present}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-red-700" title="Ausentes">
-                <UserX className="h-4 w-4" />
+            <div className="flex items-center gap-2 text-sm font-medium" title="Ausentes">
+                <UserX className="h-4 w-4 text-red-600" />
+                <span>Ausentes:</span>
                 <span className="font-bold">{summary.absent}</span>
             </div>
         </div>
@@ -65,6 +67,7 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
                  return (
                     <div key={role} className="flex items-center gap-2 text-sm text-muted-foreground" title={role}>
                         <Icon className="h-4 w-4" />
+                        <span>{role}:</span>
                         <span className="font-bold">{summary.roles[role]}</span>
                     </div>
                  )
