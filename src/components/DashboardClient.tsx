@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { type Employee, type Office, type AttendanceStatus, updateEmployee, getOfficeById, addOffice as apiAddOffice } from '@/lib/data';
+import { type Employee, type Office, type AttendanceStatus, updateEmployee, addOffice as apiAddOffice } from '@/lib/data';
 import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
@@ -21,18 +21,24 @@ function StatusColumn({
   employees, 
   onEdit, 
   officeName,
-  offices
+  offices,
+  activeId,
+  draggedOverItemId,
+  officeId
 }: { 
   status: AttendanceStatus, 
   employees: Employee[], 
   onEdit: (employee: Employee) => void, 
   officeName?: string,
-  offices: Office[]
+  offices: Office[],
+  activeId: string | null,
+  draggedOverItemId: string | null,
+  officeId: string
 }) {
   const { setNodeRef } = useDroppable({ id: status });
 
   const statusConfig = {
-     Presente: {
+    Presente: {
       title: 'Presente',
       bgColor: 'bg-green-100 dark:bg-green-900/50',
       borderColor: 'border-green-500',
@@ -49,7 +55,7 @@ function StatusColumn({
       bgColor: 'bg-red-100 dark:bg-red-900/50',
       borderColor: 'border-red-500',
       textColor: 'text-red-800 dark:text-red-200',
-    }
+    },
   };
   
   const config = statusConfig[status];
@@ -62,9 +68,21 @@ function StatusColumn({
       </h2>
        <SortableContext items={employees.map(e => e.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-4">
-            {employees.map(employee => (
-              <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} offices={offices} />
-            ))}
+            {employees.map((employee, index) => {
+               const isBeingDraggedOver = draggedOverItemId === employee.id;
+               const isBeingDragged = activeId === employee.id;
+               const card = <EmployeeCard key={employee.id} employee={employee} onEdit={onEdit} offices={offices} />;
+
+               if (isBeingDragged) {
+                 return <div key={`${employee.id}-placeholder`} className="opacity-50 ">{card}</div>
+               }
+              
+              return (
+                <div key={employee.id} style={{ transform: isBeingDraggedOver ? 'translateY(24px)' : 'translateY(0)', transition: 'transform 0.2s' }}>
+                  {card}
+                </div>
+              )
+            })}
         </div>
       </SortableContext>
     </div>
@@ -78,6 +96,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const { toast } = useToast();
   const router = useRouter();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [draggedOverItemId, setDraggedOverItemId] = useState<string | null>(null);
  
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -106,11 +125,17 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   };
   
   const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
+    const { over } = event;
+    if (over && over.data.current?.type === 'Employee') {
+      setDraggedOverItemId(over.id as string);
+    } else {
+      setDraggedOverItemId(null);
+    }
+
+    const { active } = event;
     if (!over || active.id === over.id) return;
 
     const activeEmployee = employees.find(e => e.id === active.id);
-    const overEmployee = employees.find(e => e.id === over.id);
     
     // Logic to move between columns
     if (activeEmployee && (STATUSES.includes(over.id as AttendanceStatus))) {
@@ -119,27 +144,14 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
          setEmployees(prev => prev.map(e => e.id === active.id ? { ...e, status: newStatus } : e));
       }
     }
-
-    // Logic to reorder within the same column
-    if (activeEmployee && overEmployee && activeEmployee.status === overEmployee.status) {
-        const oldIndex = employeesByStatus[activeEmployee.status].findIndex(e => e.id === active.id);
-        const newIndex = employeesByStatus[overEmployee.status].findIndex(e => e.id === over.id);
-        
-        if (oldIndex !== newIndex) {
-            setEmployees(prev => {
-                const newItems = [...prev];
-                const [movedItem] = newItems.splice(newItems.findIndex(item => item.id === active.id), 1);
-                newItems.splice(newItems.findIndex(item => item.id === over.id), 0, movedItem);
-                return newItems;
-            });
-        }
-    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
+    setDraggedOverItemId(null);
+
     if (!over) {
-        setActiveId(null);
         return;
     }
 
@@ -163,10 +175,8 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
 
     if(newStatus && employee.status !== newStatus) {
       updateEmployee(employeeId, { status: newStatus });
-       setEmployees(prev => prev.map(e => e.id === employeeId ? { ...e, status: newStatus } : e));
+       setEmployees(prev => prev.map(e => e.id === employeeId ? { ...e, status: newStatus as AttendanceStatus } : e));
     }
-    
-    setActiveId(null);
   };
 
   const handleOpenEditModal = (employee: Employee) => {
@@ -212,7 +222,10 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd} 
-      onDragCancel={() => setActiveId(null)}
+      onDragCancel={() => {
+        setActiveId(null);
+        setDraggedOverItemId(null);
+      }}
     >
       <div className="p-4 md:p-8 space-y-8">
         {officeId === 'general' && (
@@ -250,6 +263,9 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               onEdit={handleOpenEditModal}
               officeName={officeName}
               offices={offices}
+              activeId={activeId}
+              draggedOverItemId={draggedOverItemId}
+              officeId={officeId}
             />
           ))}
         </div>
