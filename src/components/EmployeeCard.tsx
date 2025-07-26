@@ -19,9 +19,8 @@ export default function EmployeeCard({ employee, onEdit }: EmployeeCardProps) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: employee.id,
     data: {
-      droppableContainer: {
-        id: employee.id
-      }
+      type: 'Employee',
+      employee,
     }
   });
 

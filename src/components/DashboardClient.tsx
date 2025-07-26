@@ -7,7 +7,7 @@ import Link from 'next/link';
 import EmployeeCard from './EmployeeCard';
 import EditOfficeModal from './EditOfficeModal';
 import AddOfficeModal from './AddOfficeModal';
-import { DndContext, type DragEndEvent, useDroppable, DragOverlay, type DragOverEvent } from '@dnd-kit/core';
+import { DndContext, type DragEndEvent, useDroppable, type DragOverEvent } from '@dnd-kit/core';
 import { Button } from './ui/button';
 import { PlusCircle, Users, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -51,7 +51,7 @@ function StatusColumn({ status, employees, onEdit, officeName, overEmployeeId }:
       <div className="space-y-4">
         {employees.map((employee, index) => {
             const isBelow = overIndex !== -1 && index >= overIndex;
-            const transform = isBelow ? 'translateY(80px)' : 'translateY(0)';
+            const transform = isBelow ? 'translateY(110px)' : 'translateY(0)';
             return (
               <div key={employee.id} style={{ transition: 'transform 0.25s ease-in-out', transform  }}>
                 <EmployeeCard employee={employee} onEdit={onEdit} />
@@ -101,26 +101,31 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   };
 
   const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event;
-    if (over) {
-      // If we are over an employee card, we get its id
-      // The id is in over.data.droppableContainer.id
-      const overId = over.data?.droppableContainer?.id as string || over.id as string;
-      const employeeOver = employees.find(e => e.id === overId);
+    const { over, active } = event;
+    if (!over) {
+        setOverEmployeeId(null);
+        return;
+    }
+    
+    // Avoid dropping on itself
+    if (active.id === over.id) {
+        setOverEmployeeId(null);
+        return;
+    }
 
-      if (employeeOver) {
-         setOverEmployeeId(employeeOver.id)
-      } else {
-        // If we are over a column but not a card
-        const isColumn = STATUSES.includes(over.id as AttendanceStatus);
-        if (isColumn && employeesByStatus[over.id as AttendanceStatus].length === 0) {
-             setOverEmployeeId(null);
-        } else if (!employeeOver) {
-            // Keep the last over employee if we are not over a column
-            const isAnotherEmployee = employees.some(e => e.id === overId);
-            if (!isAnotherEmployee) setOverEmployeeId(null);
+    // If we are over an employee card, we get its id
+    const overIsEmployee = over.data?.current?.type === 'Employee';
+    if (overIsEmployee) {
+        setOverEmployeeId(over.id as string);
+    } else {
+        // If we are over a column, but not a card
+        const overIsColumn = over.data?.current?.type === 'Column';
+        const employeeInColumn = employeesByStatus[over.id as AttendanceStatus];
+        if (overIsColumn && employeeInColumn.length === 0) {
+           setOverEmployeeId(null);
+        } else if (!overIsEmployee){
+           setOverEmployeeId(null);
         }
-      }
     }
   };
 
