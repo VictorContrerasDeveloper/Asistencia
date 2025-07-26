@@ -134,7 +134,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
         <TableHeader className="sticky top-0 z-10 bg-card">
           <TableRow>
             <TableHead className="w-[25%] text-primary font-bold text-lg">Ejecutivo</TableHead>
-            <TableHead className="w-[20%] text-primary font-bold text-lg">Función</TableHead>
+            <TableHead className="w-[20%] text-primary font-bold text-lg">Trabaja en</TableHead>
             <TableHead className="w-[15%] text-center text-primary font-bold text-lg">Presente</TableHead>
             <TableHead className="w-[15%] text-center text-primary font-bold text-lg">Ausente</TableHead>
             <TableHead className="w-[25%] text-primary font-bold text-lg">Motivo Ausencia</TableHead>
