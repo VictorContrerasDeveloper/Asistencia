@@ -20,7 +20,8 @@ export type Office = {
   name: string;
 };
 
-export type AttendanceStatus = 'Presente' | 'Ausente' | 'Licencia';
+export type AttendanceStatus = 'Presente' | 'Ausente';
+export type AbsenceReason = 'Inasistencia' | 'Licencia médica' | 'Vacaciones' | 'Otro' | null;
 export type EmployeeRole = 'Atención en Módulo' | 'Anfitrión' | 'Tablet';
 
 export type Employee = {
@@ -28,6 +29,7 @@ export type Employee = {
   name: string;
   officeId: string;
   status: AttendanceStatus;
+  absenceReason: AbsenceReason;
   role: EmployeeRole;
 };
 
@@ -95,7 +97,7 @@ export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => 
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
 };
 
-export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role'>>) => {
+export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role' | 'absenceReason'>>) => {
     const employeeRef = doc(db, 'employees', employeeId);
     await updateDoc(employeeRef, updates);
 };
@@ -105,6 +107,7 @@ export const addEmployee = async (name: string, officeId: string, role: Employee
     name,
     officeId,
     status: 'Ausente',
+    absenceReason: 'Inasistencia',
     role: role || 'Atención en Módulo',
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
@@ -123,6 +126,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       name: name.trim(),
       officeId,
       status: 'Ausente',
+      absenceReason: 'Inasistencia',
       role: 'Atención en Módulo',
     };
     const docRef = doc(employeesCollection);

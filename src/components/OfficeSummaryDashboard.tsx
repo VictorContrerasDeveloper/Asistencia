@@ -24,8 +24,8 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
     return {
       total: employees.length,
       present: employees.filter(emp => emp.status === 'Presente').length,
-      absent: employees.filter(emp => emp.status === 'Ausente').length,
-      license: employees.filter(emp => emp.status === 'Licencia').length,
+      absent: employees.filter(emp => emp.status === 'Ausente' && (emp.absenceReason === 'Inasistencia' || emp.absenceReason === 'Otro')).length,
+      license: employees.filter(emp => emp.absenceReason === 'Licencia médica' || emp.absenceReason === 'Vacaciones').length,
     };
   }, [employees]);
 
@@ -37,8 +37,8 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
         name: office.name,
         total: officeEmployees.length,
         present: officeEmployees.filter(emp => emp.status === 'Presente').length,
-        absent: officeEmployees.filter(emp => emp.status === 'Ausente').length,
-        license: officeEmployees.filter(emp => emp.status === 'Licencia').length,
+        absent: officeEmployees.filter(emp => emp.status === 'Ausente' && (emp.absenceReason === 'Inasistencia' || emp.absenceReason === 'Otro')).length,
+        license: officeEmployees.filter(emp => emp.absenceReason === 'Licencia médica' || emp.absenceReason === 'Vacaciones').length,
       };
     }).sort((a,b) => a.name.localeCompare(b.name));
   }, [offices, employees]);
@@ -86,7 +86,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                   <div className="flex items-center justify-between p-3 rounded-md bg-yellow-100/60">
                      <div className='flex items-center gap-3'>
                         <Stethoscope className="h-5 w-5 text-yellow-700" />
-                        <span className="font-medium text-yellow-800">Licencias</span>
+                        <span className="font-medium text-yellow-800">Licencias/Vac.</span>
                     </div>
                     <span className="font-bold text-2xl text-yellow-800">{globalSummary.license}</span>
                  </div>
@@ -119,7 +119,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                                 <span className="font-semibold text-red-700">{summary.absent}</span>
                              </div>
                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-yellow-700">Licencias</span>
+                                <span className="text-yellow-700">Licencias/Vac.</span>
                                 <span className="font-semibold text-yellow-700">{summary.license}</span>
                              </div>
                         </CardContent>
