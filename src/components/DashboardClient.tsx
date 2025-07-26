@@ -12,7 +12,7 @@ import { Button } from './ui/button';
 import { PlusCircle, Users, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
-import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 
 const STATUSES: AttendanceStatus[] = ['Atrasado', 'Presente', 'Ausente'];
@@ -31,12 +31,12 @@ function StatusColumn({
   onEdit: (employee: Employee) => void,
   officeName?: string,
   offices: Office[],
-  officeId: string,
+  officeId: string;
   activeId: string | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
-  const statusConfig = {
+   const statusConfig = {
     Presente: {
       title: 'Presente',
       bgColor: 'bg-green-100 dark:bg-green-900/50',
@@ -85,6 +85,18 @@ function StatusColumn({
   )
 }
 
+// Function to generate a static ID, preventing hydration errors with dnd-kit
+let idCounter = 0;
+function useStaticId() {
+  const [id, setId] = useState('');
+  useEffect(() => {
+    // This runs only on the client, ensuring consistency
+    idCounter += 1;
+    setId(`dnd-context-${idCounter}`);
+  }, []);
+  return id;
+}
+
 export default function DashboardClient({ initialEmployees, offices, officeName, officeId }: { initialEmployees: Employee[], offices: Office[], officeName: string, officeId: string }) {
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -92,6 +104,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   const { toast } = useToast();
   const router = useRouter();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const staticId = useStaticId();
  
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -123,78 +136,86 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
   };
 
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = event;
 
-    if (!over || active.id === over.id) {
+    if (!over || !active) {
         return;
     }
 
     const activeEmployee = employees.find(e => e.id === active.id);
     if (!activeEmployee) return;
 
-    let newStatus: AttendanceStatus;
-    let overId = over.id;
+    // Find the new status (from the column) and the target employee (if dropped on a card)
+    const overId = over.id as string;
+    const overIsColumn = STATUSES.includes(overId as any);
+    const overEmployee = !overIsColumn ? employees.find(e => e.id === overId) : undefined;
+    
+    const newStatus: AttendanceStatus = overIsColumn ? overId as AttendanceStatus : overEmployee!.status;
 
-    if (STATUSES.includes(overId as any)) {
-        newStatus = overId as AttendanceStatus;
-    } else {
-        const overEmployee = employees.find(e => e.id === overId);
-        if (!overEmployee) return;
-        newStatus = overEmployee.status;
+    // If status hasn't changed and it's not a reorder, do nothing
+    if (activeEmployee.status === newStatus && active.id === over.id) {
+        return;
     }
 
-    if (activeEmployee.status === newStatus) {
-         // Reordering within the same column
-        setEmployees(currentEmployees => {
-            const oldIndex = currentEmployees.findIndex(e => e.id === active.id);
-            const newIndex = currentEmployees.findIndex(e => e.id === over.id);
-            if (oldIndex !== -1 && newIndex !== -1) {
-              return arrayMove(currentEmployees, oldIndex, newIndex);
-            }
-            return currentEmployees;
+    // Persist the change to the database first
+    try {
+        await updateEmployee(active.id as string, { status: newStatus });
+    } catch (error) {
+        console.error("Failed to update employee:", error);
+        toast({
+            title: "Error",
+            description: "No se pudo actualizar el empleado.",
+            variant: "destructive",
         });
-    } else {
-        // Moving to a new column
-        setEmployees(currentEmployees => {
-            const employeeToMove = currentEmployees.find(e => e.id === active.id);
-            if (!employeeToMove) return currentEmployees;
+        return; // Stop if the DB update fails
+    }
 
-            // Update status
-            employeeToMove.status = newStatus;
+    // Update the UI state optimistically
+    setEmployees(currentEmployees => {
+        const employeeToMove = { ...activeEmployee, status: newStatus };
+        
+        // Remove the employee from its old position
+        const newEmployeeList = currentEmployees.filter(e => e.id !== active.id);
 
-            // Remove from old position
-            const filteredEmployees = currentEmployees.filter(e => e.id !== active.id);
-            
-            // Find new index in the full list
-            const overIndexInFiltered = filteredEmployees.findIndex(e => e.id === over.id);
+        // Find the index to insert the employee
+        let newIndex: number;
 
-            if (overIndexInFiltered !== -1) {
-                // Insert at the position of the card we dragged over
-                filteredEmployees.splice(overIndexInFiltered, 0, employeeToMove);
+        if (overEmployee) {
+            // Dropped on another employee card
+            newIndex = newEmployeeList.findIndex(e => e.id === overEmployee.id);
+            // Insert before the target employee
+            if (newIndex === -1) { // Should not happen, but as a fallback
+              newIndex = newEmployeeList.length;
+            }
+        } else {
+            // Dropped on a column, find the last index of an employee with the new status
+            const lastEmployeeInNewStatus = [...newEmployeeList].reverse().find(e => e.status === newStatus);
+            if (lastEmployeeInNewStatus) {
+                newIndex = newEmployeeList.findIndex(e => e.id === lastEmployeeInNewStatus.id) + 1;
             } else {
-                // Dropped on column, add to the end of that status group conceptually
-                // For simplicity, just add to the list. Visual grouping handles the rest.
-                filteredEmployees.push(employeeToMove);
+                 // If the column is empty, find the start of the next status group or end
+                const firstEmployeeOfNextStatus = newEmployeeList.find(e => STATUSES.indexOf(e.status) > STATUSES.indexOf(newStatus));
+                if(firstEmployeeOfNextStatus) {
+                    newIndex = newEmployeeList.findIndex(e => e.id === firstEmployeeOfNextStatus.id);
+                } else {
+                    newIndex = newEmployeeList.length;
+                }
             }
-            
-            return filteredEmployees;
-        });
+        }
+        
+        // Insert the employee at the new position
+        newEmployeeList.splice(newIndex, 0, employeeToMove);
 
-        // Persist the status change
-        updateEmployee(active.id as string, { status: newStatus }).catch(error => {
-            console.error("Failed to update employee:", error);
-            toast({
-                title: "Error",
-                description: "No se pudo actualizar el empleado.",
-                variant: "destructive",
-            });
-            // Revert on failure
-            setEmployees(initialEmployees);
-        });
-    }
-  };
+        return newEmployeeList;
+    });
+
+    toast({
+        title: "¡Éxito!",
+        description: `Se movió a ${activeEmployee.name} a ${newStatus}.`,
+    });
+};
 
   const handleOpenEditModal = (employee: Employee) => {
     setEditingEmployee(employee);
@@ -235,6 +256,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
 
   return (
     <DndContext
+      id={staticId}
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
