@@ -46,10 +46,12 @@ export default function EmployeeCard({ employee, onEdit, offices }: EmployeeCard
     <Card
       ref={setNodeRef}
       style={style}
-      className="bg-card shadow-sm hover:shadow-md transition-shadow duration-200 touch-none"
+      {...attributes}
+      {...listeners}
+      className="bg-card shadow-sm hover:shadow-md transition-shadow duration-200 touch-none cursor-grab active:cursor-grabbing"
     >
       <CardHeader className="flex flex-row items-center gap-4 p-3">
-        <div {...attributes} {...listeners} className="flex-none cursor-grab active:cursor-grabbing">
+        <div className="flex-none">
             <Avatar className="h-10 w-10 bg-primary/20 text-primary font-bold">
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
