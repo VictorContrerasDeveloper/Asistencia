@@ -220,7 +220,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
         onSave={handleAddOffice}
       />
        {deletingEmployee && (
-        <AlertDialog open={!!deletingEmployee} onOpenChange={() => setDeletingEmployee(null)}>
+        <AlertDialog open={!!deletingEmployee} onOpenChange={setDeletingEmployee}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
@@ -229,7 +229,7 @@ export default function DashboardClient({ initialEmployees, offices, officeName,
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={handleCloseModal}>Cancelar</AlertDialogCancel>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
               <AlertDialogAction onClick={handleDeleteEmployee}>
                 Sí, eliminar
               </AlertDialogAction>
