@@ -51,7 +51,7 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
 
   return (
     <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col items-start gap-1">
             <div className="flex items-center gap-2 font-medium" title="Presentes">
                 <UserCheck className="h-4 w-4 text-green-600" />
                 <span>Presentes:</span>
