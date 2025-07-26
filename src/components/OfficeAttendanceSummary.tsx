@@ -3,11 +3,12 @@
 
 import { useMemo } from 'react';
 import { type Employee, type EmployeeRole } from '@/lib/data';
-import { UserCheck, UserX, User, Tablet, Shield, Clipboard } from 'lucide-react';
+import { UserCheck, UserX, User, Tablet, Shield, Clipboard, Clock } from 'lucide-react';
 
 type Summary = {
   present: number;
   absent: number;
+  late: number;
   roles: Record<EmployeeRole, number>;
 };
 
@@ -39,6 +40,7 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
     return {
       present: employees.filter(emp => emp.status === 'Presente').length,
       absent: employees.filter(emp => emp.status === 'Ausente').length,
+      late: employees.filter(emp => emp.status === 'Atrasado').length,
       roles,
     };
   }, [employees]);
@@ -55,6 +57,11 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
                 <span>Presentes:</span>
                 <span className="font-bold">{summary.present}</span>
             </div>
+            <div className="flex items-center gap-2 text-sm font-medium" title="Atrasados">
+                <Clock className="h-4 w-4 text-orange-600" />
+                <span>Atrasados:</span>
+                <span className="font-bold">{summary.late}</span>
+            </div>
             <div className="flex items-center gap-2 text-sm font-medium" title="Ausentes">
                 <UserX className="h-4 w-4 text-red-600" />
                 <span>Ausentes:</span>
@@ -65,11 +72,12 @@ export default function OfficeAttendanceSummary({ employees }: { employees: Empl
         <div className="flex items-center gap-4 border-l pl-4">
             {ROLES.map(role => {
                  const Icon = roleIcons[role];
+                 const presentCount = employees.filter(e => e.role === role && (e.status === 'Presente' || e.status === 'Atrasado')).length;
                  return (
                     <div key={role} className="flex items-center gap-2 text-sm text-muted-foreground" title={role}>
                         <Icon className="h-4 w-4" />
                         <span>{role}:</span>
-                        <span className="font-bold">{summary.roles[role]}</span>
+                        <span className="font-bold">{presentCount}</span>
                     </div>
                  )
             })}

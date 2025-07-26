@@ -17,7 +17,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import OfficeAttendanceSummary from './OfficeAttendanceSummary';
 
-const STATUSES: AttendanceStatus[] = ['Presente', 'Ausente'];
 const ABSENCE_REASONS: Exclude<AbsenceReason, null>[] = ['Inasistencia', 'Licencia médica', 'Vacaciones', 'Otro'];
 const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet', 'Supervisión'];
 
@@ -66,12 +65,12 @@ export default function DashboardClient({ initialEmployees, offices, officeId, o
 
   const handleStatusChange = (employeeId: string, newStatus: AttendanceStatus) => {
     const updates: Partial<Employee> = { status: newStatus };
-    if (newStatus === 'Presente') {
+    if (newStatus === 'Presente' || newStatus === 'Atrasado') {
       updates.absenceReason = null;
     } else {
       // Default reason when switching to Ausente, if they had none
       const currentEmployee = employees.find(e => e.id === employeeId);
-      if(currentEmployee?.status === 'Presente') {
+      if(currentEmployee?.status === 'Presente' || currentEmployee?.status === 'Atrasado') {
           updates.absenceReason = 'Inasistencia';
       }
     }
@@ -127,8 +126,9 @@ export default function DashboardClient({ initialEmployees, offices, officeId, o
               <TableRow>
                 <TableHead className="w-[25%] text-primary font-bold text-lg">Personal asignado</TableHead>
                 <TableHead className="w-[20%] text-primary font-bold text-lg">Trabaja en</TableHead>
-                <TableHead className="w-[15%] text-center text-primary font-bold text-lg">Presente</TableHead>
-                <TableHead className="w-[15%] text-center text-primary font-bold text-lg">Ausente</TableHead>
+                <TableHead className="w-[10%] text-center text-primary font-bold text-lg">Presente</TableHead>
+                <TableHead className="w-[10%] text-center text-primary font-bold text-lg">Atrasado</TableHead>
+                <TableHead className="w-[10%] text-center text-primary font-bold text-lg">Ausente</TableHead>
                 <TableHead className="w-[25%] text-primary font-bold text-lg">Motivo Ausencia</TableHead>
               </TableRow>
             </TableHeader>
@@ -167,6 +167,15 @@ export default function DashboardClient({ initialEmployees, offices, officeId, o
                           onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
                           className="flex justify-center"
                         >
+                          <RadioGroupItem value="Atrasado" id={`atrasado-${employee.id}`} className="h-5 w-5" />
+                       </RadioGroup>
+                    </TableCell>
+                    <TableCell className="text-center">
+                       <RadioGroup 
+                          value={employee.status} 
+                          onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
+                          className="flex justify-center"
+                        >
                           <RadioGroupItem value="Ausente" id={`ausente-${employee.id}`} className="h-5 w-5" />
                        </RadioGroup>
                   </TableCell>
@@ -174,7 +183,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId, o
                     <Select
                       value={employee.absenceReason || ''}
                       onValueChange={(value) => handleAbsenceReasonChange(employee.id, value as AbsenceReason)}
-                      disabled={employee.status === 'Presente'}
+                      disabled={employee.status === 'Presente' || employee.status === 'Atrasado'}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccionar motivo" />

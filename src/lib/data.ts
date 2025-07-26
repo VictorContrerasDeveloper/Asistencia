@@ -20,7 +20,7 @@ export type Office = {
   name: string;
 };
 
-export type AttendanceStatus = 'Presente' | 'Ausente';
+export type AttendanceStatus = 'Presente' | 'Ausente' | 'Atrasado';
 export type AbsenceReason = 'Inasistencia' | 'Licencia médica' | 'Vacaciones' | 'Otro' | null;
 export type EmployeeRole = 'Modulo' | 'Filtro' | 'Tablet' | 'Supervisión';
 
