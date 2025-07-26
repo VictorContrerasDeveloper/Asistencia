@@ -81,7 +81,9 @@ function StatusColumn({
 
           const shouldAnimate = isOver;
 
-          if (employee.id === activeId) return null;
+          if (employee.id === activeId) {
+             return <div key={employee.id} style={{ visibility: 'hidden' }}><EmployeeCard employee={employee} onEdit={onEdit} offices={offices} /></div>
+          }
 
           return (
             <div key={employee.id} style={{ transition: 'transform 0.25s ease-in-out', transform }}>
