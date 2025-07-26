@@ -59,7 +59,7 @@ export default function DashboardClient({ initialEmployees, offices, officeId }:
   return (
     <div className="bg-card p-4 sm:p-6 rounded-lg shadow-md">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 z-10 bg-card">
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[40%] text-primary font-bold text-lg">Ejecutivo</TableHead>
             {STATUSES.map(status => (
