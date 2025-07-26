@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useMemo } from 'react';
 import { type Employee, type EmployeeRole } from '@/lib/data';
-import { UserCheck, UserX, User, Tablet, Shield, ClipboardUser } from 'lucide-react';
+import { UserCheck, UserX, User, Tablet, Shield, Clipboard } from 'lucide-react';
 
 type Summary = {
   present: number;
@@ -14,7 +13,7 @@ type Summary = {
 const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet', 'Supervisión'];
 
 const roleIcons: Record<EmployeeRole, React.ElementType> = {
-    'Modulo': ClipboardUser,
+    'Modulo': Clipboard,
     'Filtro': Shield,
     'Tablet': Tablet,
     'Supervisión': User,
