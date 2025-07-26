@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Users, PlusCircle, Trash2 } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices, slugify, Office, Employee } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import OfficeSummaryDashboard from '@/components/OfficeSummaryDashboard';
+import OfficeAttendanceSummary from '@/components/OfficeAttendanceSummary';
 import { Button } from '@/components/ui/button';
 
 type DashboardPageProps = {
@@ -47,6 +48,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             <h1 className="text-xl md:text-2xl font-bold text-card-foreground">
               {isGeneralPanel ? `Panel de Asistencia - ${office.name}` : office.name}
             </h1>
+            {!isGeneralPanel && <OfficeAttendanceSummary employees={initialEmployees} />}
          </div>
 
         <div className="flex items-center gap-2 mt-4 md:mt-0">
