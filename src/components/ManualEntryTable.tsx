@@ -64,32 +64,6 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     return grouped;
   }, [employees]);
 
-  useEffect(() => {
-    const newStaffing = { ...realStaffing };
-    let changed = false;
-    for (const officeId in absentEmployees) {
-      const officeEmployees = assignedEmployeesByOffice[officeId] || [];
-      const moduleEmployees = officeEmployees.filter(e => e.role === 'Modulo');
-      const absentModuleEmployees = (absentEmployees[officeId] || []).filter(empId =>
-        moduleEmployees.some(e => e.id === empId)
-      ).length;
-      
-      const presentModuleCount = moduleEmployees.length - absentModuleEmployees;
-
-      if (newStaffing[officeId] && newStaffing[officeId]['Modulo'] !== presentModuleCount.toString()) {
-        newStaffing[officeId] = {
-          ...newStaffing[officeId],
-          'Modulo': presentModuleCount.toString()
-        };
-        changed = true;
-      }
-    }
-    if (changed) {
-      setRealStaffing(newStaffing);
-    }
-  }, [absentEmployees, assignedEmployeesByOffice]);
-
-
   const handleAbsentChange = (officeId: string, employeeId: string, isChecked: boolean) => {
     setAbsentEmployees(prev => {
       const currentAbsences = prev[officeId] || [];
@@ -200,7 +174,6 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                             value={realStaffing[office.id]?.[role] || ''}
                             onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
                             className="h-8 w-20 mx-auto text-center"
-                            readOnly={role === 'Modulo'}
                         />
                         </TableCell>
                         <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
