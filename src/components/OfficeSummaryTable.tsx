@@ -60,7 +60,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 {roles.map(role => (
                   <React.Fragment key={role}>
                     <TableHead className="text-center">Real</TableHead>
-                    <TableHead className="text-center">Teóri.</TableHead>
+                    <TableHead className="text-center">Por Licit</TableHead>
                   </React.Fragment>
                 ))}
                  <TableHead></TableHead>
