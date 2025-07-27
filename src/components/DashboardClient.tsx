@@ -16,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import OfficeAttendanceSummary from './OfficeAttendanceSummary';
+import { Check, Clock, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const ABSENCE_REASONS: Exclude<AbsenceReason, null>[] = ['Inasistencia', 'Licencia médica', 'Vacaciones', 'Otro'];
 const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet', 'Supervisión'];
@@ -113,6 +115,8 @@ export default function DashboardClient({ initialEmployees, offices, office, off
     return offices.find(o => o.id === officeId)?.name || 'N/A';
   }
 
+  const radioItemClasses = "h-10 w-10 rounded-md border-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground";
+
   return (
     <div className="h-full flex flex-col">
        <header className="flex items-center justify-between p-4 border-b bg-card">
@@ -125,10 +129,8 @@ export default function DashboardClient({ initialEmployees, offices, office, off
             <TableHeader className="sticky top-0 z-10 bg-card">
               <TableRow>
                 <TableHead className="w-[25%] text-primary font-bold text-lg">Personal asignado</TableHead>
-                <TableHead className="w-[20%] text-primary font-bold text-lg">Trabaja en</TableHead>
-                <TableHead className="w-[10%] text-center text-primary font-bold text-lg">Presente</TableHead>
-                <TableHead className="w-[10%] text-center text-primary font-bold text-lg">Atrasado</TableHead>
-                <TableHead className="w-[10%] text-center text-primary font-bold text-lg">Ausente</TableHead>
+                <TableHead className="w-[20%] text-primary font-bold text-lg">Función</TableHead>
+                <TableHead colSpan={3} className="w-[30%] text-center text-primary font-bold text-lg">Asistencia</TableHead>
                 <TableHead className="w-[25%] text-primary font-bold text-lg">Motivo Ausencia</TableHead>
               </TableRow>
             </TableHeader>
@@ -152,31 +154,21 @@ export default function DashboardClient({ initialEmployees, offices, office, off
                         </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="text-center">
+                  <TableCell colSpan={3}>
                        <RadioGroup 
                           value={employee.status} 
                           onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
-                          className="flex justify-center"
+                          className="flex justify-center gap-4"
                         >
-                          <RadioGroupItem value="Presente" id={`presente-${employee.id}`} className="h-5 w-5" />
-                       </RadioGroup>
-                    </TableCell>
-                    <TableCell className="text-center">
-                       <RadioGroup 
-                          value={employee.status} 
-                          onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
-                          className="flex justify-center"
-                        >
-                          <RadioGroupItem value="Atrasado" id={`atrasado-${employee.id}`} className="h-5 w-5" />
-                       </RadioGroup>
-                    </TableCell>
-                    <TableCell className="text-center">
-                       <RadioGroup 
-                          value={employee.status} 
-                          onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
-                          className="flex justify-center"
-                        >
-                          <RadioGroupItem value="Ausente" id={`ausente-${employee.id}`} className="h-5 w-5" />
+                          <RadioGroupItem value="Presente" id={`presente-${employee.id}`} className={cn(radioItemClasses, 'data-[state=checked]:bg-green-600 border-green-600')}>
+                            <Check className="h-6 w-6" />
+                          </RadioGroupItem>
+                           <RadioGroupItem value="Atrasado" id={`atrasado-${employee.id}`} className={cn(radioItemClasses, 'data-[state=checked]:bg-orange-500 border-orange-500')}>
+                            <Clock className="h-6 w-6" />
+                          </RadioGroupItem>
+                           <RadioGroupItem value="Ausente" id={`ausente-${employee.id}`} className={cn(radioItemClasses, 'data-[state=checked]:bg-red-600 border-red-600')}>
+                            <X className="h-6 w-6" />
+                          </RadioGroupItem>
                        </RadioGroup>
                   </TableCell>
                   <TableCell>
@@ -210,3 +202,4 @@ export default function DashboardClient({ initialEmployees, offices, office, off
     </div>
   );
 }
+
