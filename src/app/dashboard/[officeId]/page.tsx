@@ -1,6 +1,6 @@
 
 import Link from 'next/link';
-import { ArrowLeft, FileText, Users, PlusCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileText, Users, PlusCircle, Trash2, Edit } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices, slugify, Office, Employee } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import OfficeSummaryDashboard from '@/components/OfficeSummaryDashboard';
@@ -55,12 +55,18 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           <>
              <header className="flex items-center p-4 border-b bg-card justify-center flex-col md:flex-row md:justify-between mb-8">
                {officeHeader}
-               <div className="flex items-center gap-2 mt-4 md:mt-0">
+               <div className="flex items-center gap-2 mt-4 md:mt-0 flex-wrap justify-center">
                   <Link href="/">
                     <Button variant="outline">
                       <ArrowLeft />
                       Volver al Inicio
                     </Button>
+                  </Link>
+                   <Link href="/dashboard/manual-entry">
+                      <Button variant="outline">
+                          <Edit />
+                          Ingreso Manual
+                      </Button>
                   </Link>
                   <Link href="/dashboard/add-employee">
                     <Button>

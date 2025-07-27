@@ -21,6 +21,9 @@ export type Office = {
   theoreticalStaffing?: {
     [key in EmployeeRole]?: number;
   };
+  realStaffing?: {
+    [key in EmployeeRole]?: number;
+  };
 };
 
 export type AttendanceStatus = 'Presente' | 'Ausente' | 'Atrasado';
@@ -80,6 +83,11 @@ export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing
   const officeRef = doc(db, 'offices', officeId);
   await updateDoc(officeRef, { theoreticalStaffing });
 }
+
+export const updateOfficeRealStaffing = async (officeId: string, realStaffing: { [key in EmployeeRole]?: number }) => {
+    const officeRef = doc(db, 'offices', officeId);
+    await updateDoc(officeRef, { realStaffing });
+};
 
 export const getOfficeBySlug = async (slug: string): Promise<Office | undefined> => {
   if (!slug) return undefined;
