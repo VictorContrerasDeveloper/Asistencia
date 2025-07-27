@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getOffices, slugify } from '@/lib/data';
-import { Building, Globe } from 'lucide-react';
+import { Building, Globe, FilePen } from 'lucide-react';
 
 export default async function Home() {
   const offices = await getOffices();
@@ -26,6 +26,18 @@ export default async function Home() {
                 </div>
                 <CardTitle className="text-xl font-semibold">Panel General</CardTitle>
                 <CardDescription className="mt-2">Ver todas las oficinas combinadas</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+          
+          <Link href="/dashboard/manual-entry" className="group">
+            <Card className="h-full hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <CardHeader className="flex flex-col items-center justify-center text-center p-6">
+                <div className="p-4 bg-primary/10 rounded-full mb-4">
+                  <FilePen className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl font-semibold">Ingreso Manual</CardTitle>
+                <CardDescription className="mt-2">Registrar asistencia por totales</CardDescription>
               </CardHeader>
             </Card>
           </Link>

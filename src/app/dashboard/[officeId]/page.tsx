@@ -59,14 +59,8 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                   <Link href="/">
                     <Button variant="outline">
                       <ArrowLeft />
-                      Volver al Inicio
+                      Volver a Paneles
                     </Button>
-                  </Link>
-                   <Link href="/dashboard/manual-entry">
-                      <Button variant="outline">
-                          <Edit />
-                          Ingreso Manual
-                      </Button>
                   </Link>
                   <Link href="/dashboard/add-employee">
                     <Button>
