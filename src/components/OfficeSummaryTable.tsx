@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo } from 'react';
@@ -16,6 +15,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Users } from 'lucide-react';
+import { Button } from './ui/button';
 
 type OfficeSummary = {
   id: string;
@@ -76,10 +76,10 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                     <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">
                        <Popover>
                         <PopoverTrigger asChild>
-                          <span className="cursor-pointer hover:underline flex items-center gap-2">
+                           <Button variant="link" className="p-0 h-auto text-card-foreground hover:text-primary">
                              {office.name}
-                             <Users className="h-4 w-4 text-muted-foreground" />
-                          </span>
+                             <Users className="h-4 w-4 text-muted-foreground ml-2" />
+                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-80">
                            <div className="grid gap-4">
@@ -91,7 +91,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                               </div>
                               <div className="grid gap-2">
                                   {office.employees.length > 0 ? (
-                                    <ul className="list-disc list-inside text-sm">
+                                    <ul className="list-disc list-inside text-sm max-h-48 overflow-y-auto">
                                       {office.employees.map(emp => (
                                         <li key={emp.id}>{emp.name}</li>
                                       ))}
