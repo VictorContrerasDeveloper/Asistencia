@@ -15,13 +15,6 @@ type Summary = {
 
 const ROLES_ORDER: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Filtro'];
 
-const roleIcons: Record<EmployeeRole, React.ElementType> = {
-    'Modulo': Clipboard,
-    'Filtro': Shield,
-    'Tablet': Tablet,
-    'Supervisión': User,
-}
-
 export default function OfficeAttendanceSummary({ employees, office }: { employees: Employee[], office: Office }) {
 
   const summary = useMemo<Summary>(() => {
