@@ -14,7 +14,7 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Save } from 'lucide-react';
+import { Save, Copy } from 'lucide-react';
 import React from 'react';
 
 type ManualEntryTableProps = {
@@ -53,6 +53,25 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
       }
     };
     setRealStaffing(newStaffing);
+  };
+
+  const handleCopyToReal = (office: Office) => {
+    const theoreticalValues = office.theoreticalStaffing || {};
+    const newOfficeStaffing = { ...realStaffing[office.id] };
+
+    ROLES.forEach(role => {
+      newOfficeStaffing[role] = (theoreticalValues[role] || 0).toString();
+    });
+
+    setRealStaffing(prev => ({
+      ...prev,
+      [office.id]: newOfficeStaffing,
+    }));
+
+    toast({
+      title: "Valores Copiados",
+      description: `La dotación teórica de ${office.name} ha sido copiada a la real.`,
+    });
   };
   
   const handleSave = async (officeId: string) => {
@@ -142,9 +161,9 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
                 </React.Fragment>
               ))}
                <TableCell className="text-right">
-                    <Button size="sm" className="h-8" onClick={() => handleSave(office.id)}>
-                      <Save className="h-4 w-4 mr-2"/>
-                      Guardar
+                    <Button size="sm" variant="outline" className="h-8" onClick={() => handleCopyToReal(office)}>
+                      <Copy className="h-4 w-4 mr-2"/>
+                      Copiar Teórico
                     </Button>
                   </TableCell>
             </TableRow>
@@ -154,4 +173,3 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
     </div>
   );
 }
-
