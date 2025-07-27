@@ -74,35 +74,37 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 return (
                   <TableRow key={office.id}>
                     <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">
-                       <Popover>
-                        <PopoverTrigger asChild>
-                           <Button variant="link" className="p-0 h-auto font-medium text-current hover:text-primary">
-                             {office.name}
-                             <Users className="h-4 w-4 text-muted-foreground ml-2" />
-                           </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                           <div className="grid gap-4">
-                              <div className="space-y-2">
-                                <h4 className="font-medium leading-none">Personal Asignado</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Lista de ejecutivos en la oficina {office.name}.
-                                </p>
-                              </div>
-                              <div className="grid gap-2">
-                                  {office.employees.length > 0 ? (
-                                    <ul className="list-disc list-inside text-sm max-h-48 overflow-y-auto">
-                                      {office.employees.map(emp => (
-                                        <li key={emp.id}>{emp.name}</li>
-                                      ))}
-                                    </ul>
-                                  ) : (
-                                    <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
-                                  )}
-                              </div>
-                            </div>
-                        </PopoverContent>
-                       </Popover>
+                       <div className="flex items-center gap-2">
+                        <span>{office.name}</span>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                               <Button variant="ghost" size="icon" className="h-6 w-6">
+                                 <Users className="h-4 w-4 text-muted-foreground" />
+                               </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                               <div className="grid gap-4">
+                                  <div className="space-y-2">
+                                    <h4 className="font-medium leading-none">Personal Asignado</h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      Lista de ejecutivos en la oficina {office.name}.
+                                    </p>
+                                  </div>
+                                  <div className="grid gap-2">
+                                      {office.employees.length > 0 ? (
+                                        <ul className="list-disc list-inside text-sm max-h-48 overflow-y-auto">
+                                          {office.employees.map(emp => (
+                                            <li key={emp.id}>{emp.name}</li>
+                                          ))}
+                                        </ul>
+                                      ) : (
+                                        <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
+                                      )}
+                                  </div>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                       </div>
                     </TableCell>
                     {roles.map(role => {
                       const realCount = getRoleSummary(office.employees, role);
