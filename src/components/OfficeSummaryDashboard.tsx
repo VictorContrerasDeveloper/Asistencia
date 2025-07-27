@@ -11,7 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import OfficeSummaryTable from './OfficeSummaryTable';
 
-const ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Tablet', 'Anfitrión'];
+const TABLE_ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Tablet', 'Anfitrión'];
+const STAFFING_ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Tablet', 'Anfitrión', 'Supervisión'];
+
 
 type OfficeSummary = {
   id: string;
@@ -36,7 +38,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
     const initialStaffing: StaffingValues = {};
     offices.forEach(office => {
       initialStaffing[office.id] = {};
-      ROLES_ORDER.forEach(role => {
+      STAFFING_ROLES_ORDER.forEach(role => {
         initialStaffing[office.id][role] = office.theoreticalStaffing?.[role]?.toString() || '';
       });
     });
@@ -119,7 +121,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
 
   return (
     <div className="space-y-8">
-       <OfficeSummaryTable offices={officeSummaries} roles={ROLES_ORDER} />
+       <OfficeSummaryTable offices={officeSummaries} roles={TABLE_ROLES_ORDER} />
         
         <div>
             <h2 className="text-2xl font-bold mb-4 text-center">Dotación Teórica por Oficina</h2>
@@ -141,7 +143,7 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
                                     </Button>
                                 </div>
                                 <div className="space-y-2">
-                                  {ROLES_ORDER.map(role => (
+                                  {STAFFING_ROLES_ORDER.map(role => (
                                     <div key={role} className="flex items-center gap-2 justify-between">
                                       <Label htmlFor={`staffing-${summary.id}-${role}`} className="text-sm text-muted-foreground w-1/3">
                                         {role}
