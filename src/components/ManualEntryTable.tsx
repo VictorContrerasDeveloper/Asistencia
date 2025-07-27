@@ -32,8 +32,7 @@ type RealStaffingValues = {
 export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
-  const [isSaving, setIsSaving] = useState<{[key: string]: boolean}>({});
-
+  
   useEffect(() => {
     const initialStaffing: RealStaffingValues = {};
     offices.forEach(office => {
@@ -46,61 +45,40 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
   }, [offices]);
 
   const handleStaffingChange = (officeId: string, role: EmployeeRole, value: string) => {
-    setRealStaffing(prev => ({
-      ...prev,
+    const newStaffing = {
+      ...realStaffing,
       [officeId]: {
-        ...prev[officeId],
+        ...realStaffing[officeId],
         [role]: value,
       }
-    }));
-  };
-
-  const handleSave = async (officeId: string) => {
-     setIsSaving(prev => ({...prev, [officeId]: true}));
-    const officeStaffing = realStaffing[officeId];
+    };
+    setRealStaffing(newStaffing);
+    
+    // Autosave on change
+    const officeStaffing = newStaffing[officeId];
     const newRealStaffing: { [key in EmployeeRole]?: number } = {};
     
     let hasError = false;
-    for (const role in officeStaffing) {
-        const value = officeStaffing[role as EmployeeRole];
-        if (value === '' || value === undefined) {
-          newRealStaffing[role as EmployeeRole] = 0;
+    for (const r in ROLES) {
+        const currentRole = ROLES[r as any];
+        const aValue = officeStaffing[currentRole];
+        if (aValue === '' || aValue === undefined) {
+          newRealStaffing[currentRole] = 0;
           continue;
         };
-        const numberValue = parseInt(value, 10);
+        const numberValue = parseInt(aValue, 10);
         if (isNaN(numberValue) || numberValue < 0) {
             hasError = true;
             break;
         }
-        newRealStaffing[role as EmployeeRole] = numberValue;
+        newRealStaffing[currentRole] = numberValue;
     }
 
-    if (hasError) {
-      toast({
-        title: "Error de validación",
-        description: "Por favor, ingresa solo números positivos en los campos.",
-        variant: "destructive",
-      });
-      setIsSaving(prev => ({...prev, [officeId]: false}));
-      return;
-    }
-
-    try {
-      await updateOfficeRealStaffing(officeId, newRealStaffing);
-      toast({
-        title: "¡Guardado!",
-        description: `La dotación para la oficina ha sido actualizada.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error al guardar",
-        description: "Ocurrió un problema al intentar guardar los datos.",
-        variant: "destructive",
-      });
-    } finally {
-        setIsSaving(prev => ({...prev, [officeId]: false}));
+    if (!hasError) {
+      updateOfficeRealStaffing(officeId, newRealStaffing);
     }
   };
+
 
   return (
     <div className="overflow-x-auto">
@@ -111,7 +89,6 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
             {ROLES.map(role => (
               <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
             ))}
-            <TableHead className="text-right font-bold text-primary">Acciones</TableHead>
           </TableRow>
           <TableRow>
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
@@ -121,7 +98,6 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
                 <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary">Teori.</TableHead>
               </React.Fragment>
             ))}
-             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -137,17 +113,21 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
                         placeholder="0"
                         value={realStaffing[office.id]?.[role] || ''}
                         onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
+                        onBlur={(e) => {
+                             if (e.target.value === '' || parseInt(e.target.value, 10) < 0 || isNaN(parseInt(e.target.value, 10))) {
+                                toast({
+                                    title: "Error de validación",
+                                    description: "Ingresa solo números positivos.",
+                                    variant: "destructive",
+                                });
+                             }
+                        }}
                         className="h-8 w-20 mx-auto text-center"
                       />
                     </TableCell>
                     <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                 </React.Fragment>
               ))}
-              <TableCell className="text-right">
-                <Button size="sm" onClick={() => handleSave(office.id)} disabled={isSaving[office.id]}>
-                  {isSaving[office.id] ? 'Guardando...' : <><Save className="h-4 w-4 mr-2"/> Guardar</>}
-                </Button>
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>
