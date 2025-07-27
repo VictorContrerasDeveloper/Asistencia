@@ -49,18 +49,18 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 bg-card">Oficina Comercial</TableHead>
+                <TableHead className="sticky left-0 bg-card border-r">Oficina Comercial</TableHead>
                 {roles.map(role => (
-                  <TableHead key={role} colSpan={2} className="text-center">{role}</TableHead>
+                  <TableHead key={role} colSpan={2} className="text-center border-r">{role}</TableHead>
                 ))}
                 <TableHead className="text-center">Atrasos</TableHead>
               </TableRow>
               <TableRow>
-                <TableHead className="sticky left-0 bg-card"></TableHead>
+                <TableHead className="sticky left-0 bg-card border-r"></TableHead>
                 {roles.map(role => (
                   <React.Fragment key={role}>
                     <TableHead className="text-center">Real</TableHead>
-                    <TableHead className="text-center">Por Licit</TableHead>
+                    <TableHead className="text-center border-r">Por Licit</TableHead>
                   </React.Fragment>
                 ))}
                  <TableHead></TableHead>
@@ -71,7 +71,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 const lateEmployees = getLateEmployees(office.employees);
                 return (
                   <TableRow key={office.id}>
-                    <TableCell className="font-medium sticky left-0 bg-card">{office.name}</TableCell>
+                    <TableCell className="font-medium sticky left-0 bg-card border-r">{office.name}</TableCell>
                     {roles.map(role => {
                       const realCount = getRoleSummary(office.employees, role);
                       const theoreticalCount = office.theoreticalStaffing?.[role] || 0;
@@ -81,7 +81,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                           <TableCell className={cn("text-center font-bold", isDeficit ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800")}>
                             {realCount}
                           </TableCell>
-                          <TableCell className="text-center">{theoreticalCount}</TableCell>
+                          <TableCell className="text-center border-r">{theoreticalCount}</TableCell>
                         </React.Fragment>
                       );
                     })}
