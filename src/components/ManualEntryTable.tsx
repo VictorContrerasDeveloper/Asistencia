@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { type EmployeeRole, type Office, updateOfficeRealStaffing } from '@/lib/data';
+import { type EmployeeRole, type Office, updateOfficeRealStaffing, type Employee } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -14,11 +14,13 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Copy } from 'lucide-react';
+import { Users } from 'lucide-react';
 import React from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 type ManualEntryTableProps = {
   offices: Office[];
+  employees: Employee[];
 };
 
 const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
@@ -29,7 +31,7 @@ type RealStaffingValues = {
   };
 };
 
-export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
+export default function ManualEntryTable({ offices, employees }: ManualEntryTableProps) {
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
   
@@ -53,25 +55,6 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
       }
     };
     setRealStaffing(newStaffing);
-  };
-
-  const handleCopyToReal = (office: Office) => {
-    const theoreticalValues = office.theoreticalStaffing || {};
-    const newOfficeStaffing = { ...realStaffing[office.id] };
-
-    ROLES.forEach(role => {
-      newOfficeStaffing[role] = (theoreticalValues[role] || 0).toString();
-    });
-
-    setRealStaffing(prev => ({
-      ...prev,
-      [office.id]: newOfficeStaffing,
-    }));
-
-    toast({
-      title: "Valores Copiados",
-      description: `La dotación teórica de ${office.name} ha sido copiada a la real.`,
-    });
   };
   
   const handleSave = async (officeId: string) => {
@@ -118,6 +101,9 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
     }
   };
 
+  const getAssignedEmployees = (officeId: string) => {
+    return employees.filter(emp => emp.officeId === officeId);
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -142,32 +128,60 @@ export default function ManualEntryTable({ offices }: ManualEntryTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {offices.map(office => (
-            <TableRow key={office.id}>
-              <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">{office.name}</TableCell>
-              {ROLES.map(role => (
-                 <React.Fragment key={role}>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        value={realStaffing[office.id]?.[role] || ''}
-                        onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
-                        className="h-8 w-20 mx-auto text-center"
-                      />
-                    </TableCell>
-                    <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
-                </React.Fragment>
-              ))}
-               <TableCell className="text-right">
-                    <Button size="sm" variant="outline" className="h-8" onClick={() => handleCopyToReal(office)}>
-                      <Copy className="h-4 w-4 mr-2"/>
-                      Copiar Teórico
-                    </Button>
-                  </TableCell>
-            </TableRow>
-          ))}
+          {offices.map(office => {
+            const assignedEmployees = getAssignedEmployees(office.id);
+            return (
+                <TableRow key={office.id}>
+                <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">{office.name}</TableCell>
+                {ROLES.map(role => (
+                    <React.Fragment key={role}>
+                        <TableCell>
+                        <Input
+                            type="number"
+                            min="0"
+                            placeholder="0"
+                            value={realStaffing[office.id]?.[role] || ''}
+                            onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
+                            className="h-8 w-20 mx-auto text-center"
+                        />
+                        </TableCell>
+                        <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
+                    </React.Fragment>
+                ))}
+                <TableCell className="text-right">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button size="sm" variant="outline" className="h-8">
+                                <Users className="h-4 w-4 mr-2"/>
+                                Ver Personal
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <div className="grid gap-4">
+                                <div className="space-y-2">
+                                <h4 className="font-medium leading-none">Personal Asignado</h4>
+                                <p className="text-sm text-muted-foreground">
+                                    Lista de ejecutivos en la oficina {office.name}.
+                                </p>
+                                </div>
+                                <div className="grid gap-2">
+                                    {assignedEmployees.length > 0 ? (
+                                    <ul className="list-disc list-inside text-sm max-h-48 overflow-y-auto">
+                                        {assignedEmployees.map(emp => (
+                                        <li key={emp.id}>{emp.name}</li>
+                                        ))}
+                                    </ul>
+                                    ) : (
+                                    <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                </TableCell>
+                </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

@@ -6,20 +6,26 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { getOffices, Office } from '@/lib/data';
+import { getOffices, Office, getEmployees, Employee } from '@/lib/data';
 import ManualEntryTable from '@/components/ManualEntryTable';
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOffices = async () => {
-      const fetchedOffices = await getOffices();
+    const fetchData = async () => {
+      setLoading(true);
+      const [fetchedOffices, fetchedEmployees] = await Promise.all([
+        getOffices(),
+        getEmployees(), // Fetch all employees
+      ]);
       setOffices(fetchedOffices);
+      setEmployees(fetchedEmployees);
       setLoading(false);
     }
-    fetchOffices();
+    fetchData();
   }, []);
 
   return (
@@ -44,9 +50,9 @@ export default function ManualEntryPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p>Cargando oficinas...</p>
+              <p>Cargando datos...</p>
             ) : (
-              <ManualEntryTable offices={offices} />
+              <ManualEntryTable offices={offices} employees={employees} />
             )}
           </CardContent>
         </Card>
