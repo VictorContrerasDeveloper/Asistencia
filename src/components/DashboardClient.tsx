@@ -130,7 +130,9 @@ export default function DashboardClient({ initialEmployees, offices, office, off
               <TableRow>
                 <TableHead className="w-[25%] text-primary font-bold text-lg">Personal asignado</TableHead>
                 <TableHead className="w-[20%] text-primary font-bold text-lg">Función</TableHead>
-                <TableHead colSpan={3} className="w-[30%] text-center text-primary font-bold text-lg">Asistencia</TableHead>
+                <TableHead className="text-center text-primary font-bold text-lg">Presente</TableHead>
+                <TableHead className="text-center text-primary font-bold text-lg">Atrasado</TableHead>
+                <TableHead className="text-center text-primary font-bold text-lg">Ausente</TableHead>
                 <TableHead className="w-[25%] text-primary font-bold text-lg">Motivo Ausencia</TableHead>
               </TableRow>
             </TableHeader>
@@ -160,24 +162,15 @@ export default function DashboardClient({ initialEmployees, offices, office, off
                           onValueChange={(value) => handleStatusChange(employee.id, value as AttendanceStatus)}
                           className="flex justify-around items-center"
                         >
-                          <div className="flex flex-col items-center gap-1">
-                            <Label htmlFor={`presente-${employee.id}`}>Presente</Label>
                             <RadioGroupItem value="Presente" id={`presente-${employee.id}`} className={cn(radioItemClasses, 'data-[state=checked]:bg-green-600 border-green-600')}>
                               <Check className="h-6 w-6" />
                             </RadioGroupItem>
-                          </div>
-                          <div className="flex flex-col items-center gap-1">
-                            <Label htmlFor={`atrasado-${employee.id}`}>Atrasado</Label>
                             <RadioGroupItem value="Atrasado" id={`atrasado-${employee.id}`} className={cn(radioItemClasses, 'data-[state=checked]:bg-orange-500 border-orange-500')}>
                               <Clock className="h-6 w-6" />
                             </RadioGroupItem>
-                          </div>
-                          <div className="flex flex-col items-center gap-1">
-                            <Label htmlFor={`ausente-${employee.id}`}>Ausente</Label>
                             <RadioGroupItem value="Ausente" id={`ausente-${employee.id}`} className={cn(radioItemClasses, 'data-[state=checked]:bg-red-600 border-red-600')}>
                               <X className="h-6 w-6" />
                             </RadioGroupItem>
-                          </div>
                        </RadioGroup>
                   </TableCell>
                   <TableCell>
