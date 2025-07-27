@@ -76,7 +76,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                     <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">
                        <Popover>
                         <PopoverTrigger asChild>
-                           <Button variant="link" className="p-0 h-auto text-card-foreground hover:text-primary">
+                           <Button variant="link" className="p-0 h-auto font-medium text-current hover:text-primary">
                              {office.name}
                              <Users className="h-4 w-4 text-muted-foreground ml-2" />
                            </Button>
