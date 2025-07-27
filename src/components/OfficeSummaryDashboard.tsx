@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import OfficeSummaryTable from './OfficeSummaryTable';
 
-const ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
+const ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Tablet', 'Anfitrión'];
 
 type OfficeSummary = {
   id: string;
