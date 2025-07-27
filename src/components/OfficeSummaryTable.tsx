@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo } from 'react';
-import { type Employee, type EmployeeRole, type Office } from '@/lib/data';
+import { type Employee, type EmployeeRole } from '@/lib/data';
 import {
   Table,
   TableBody,
