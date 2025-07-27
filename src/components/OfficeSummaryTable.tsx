@@ -78,7 +78,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                       const isDeficit = realCount < theoreticalCount;
                       return (
                         <React.Fragment key={role}>
-                          <TableCell className={cn("text-center font-bold", isDeficit ? "bg-red-200 text-red-800" : "")}>
+                          <TableCell className={cn("text-center font-bold", isDeficit ? "bg-red-600 text-white" : "")}>
                             {realCount}
                           </TableCell>
                           <TableCell className="text-center border-r-2 border-muted-foreground">{theoreticalCount}</TableCell>
