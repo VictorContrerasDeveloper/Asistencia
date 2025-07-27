@@ -25,7 +25,7 @@ export type Office = {
 
 export type AttendanceStatus = 'Presente' | 'Ausente' | 'Atrasado';
 export type AbsenceReason = 'Inasistencia' | 'Licencia médica' | 'Vacaciones' | 'Otro' | null;
-export type EmployeeRole = 'Modulo' | 'Filtro' | 'Tablet' | 'Supervisión';
+export type EmployeeRole = 'Modulo' | 'Anfitrión' | 'Tablet' | 'Supervisión';
 
 export type Employee = {
   id:string;

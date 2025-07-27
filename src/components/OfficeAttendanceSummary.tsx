@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { type Employee, type EmployeeRole, type Office } from '@/lib/data';
-import { UserCheck, UserX, User, Tablet, Shield, Clipboard, Clock } from 'lucide-react';
+import { UserCheck, UserX, Clock } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 type Summary = {
@@ -13,7 +13,7 @@ type Summary = {
   roles: Record<EmployeeRole, number>;
 };
 
-const ROLES_ORDER: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Filtro'];
+const ROLES_ORDER: EmployeeRole[] = ['Supervisión', 'Modulo', 'Anfitrión', 'Tablet'];
 
 export default function OfficeAttendanceSummary({ employees, office }: { employees: Employee[], office: Office }) {
 
@@ -21,8 +21,8 @@ export default function OfficeAttendanceSummary({ employees, office }: { employe
     const roles: Record<EmployeeRole, number> = {
       'Supervisión': 0,
       'Modulo': 0,
+      'Anfitrión': 0,
       'Tablet': 0,
-      'Filtro': 0,
     };
     
     employees.forEach(emp => {

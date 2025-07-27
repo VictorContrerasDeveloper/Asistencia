@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import OfficeAttendanceSummary from './OfficeAttendanceSummary';
 
 const ABSENCE_REASONS: Exclude<AbsenceReason, null>[] = ['Inasistencia', 'Licencia médica', 'Vacaciones', 'Otro'];
-const ROLES: EmployeeRole[] = ['Modulo', 'Filtro', 'Tablet', 'Supervisión'];
+const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet', 'Supervisión'];
 
 type DashboardClientProps = {
   initialEmployees: Employee[];
@@ -87,7 +87,7 @@ export default function DashboardClient({ initialEmployees, offices, office, off
     if (!currentEmployee || currentEmployee.role === newRole) return;
 
     const oldRole = currentEmployee.role;
-    const isChangingRequiredRole = oldRole === 'Filtro' || oldRole === 'Tablet' || oldRole === 'Supervisión';
+    const isChangingRequiredRole = oldRole === 'Anfitrión' || oldRole === 'Tablet' || oldRole === 'Supervisión';
 
     if (isChangingRequiredRole) {
         const employeesInOffice = employees.filter(emp => emp.officeId === currentEmployee.officeId);

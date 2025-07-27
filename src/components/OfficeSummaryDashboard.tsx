@@ -4,31 +4,24 @@
 import { useMemo, useState, useEffect } from 'react';
 import { type Employee, type Office, updateOfficeStaffing, EmployeeRole } from '@/lib/data';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Users, UserCheck, UserX, Stethoscope, Building, Save, Clock } from 'lucide-react';
+import { Users, Save } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
+import OfficeSummaryTable from './OfficeSummaryTable';
 
-type Summary = {
-  total: number;
-  present: number;
-  late: number;
-  absent: number;
-  license: number;
-};
+const ROLES_ORDER: EmployeeRole[] = ['Supervisión', 'Modulo', 'Anfitrión', 'Tablet'];
 
-const ROLES_ORDER: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Filtro'];
-
-type OfficeSummary = Summary & {
+type OfficeSummary = {
   id: string;
   name: string;
+  employees: Employee[];
   theoreticalStaffing?: {
     [key in EmployeeRole]?: number;
   };
 };
 
-// Defines the state structure for staffing input values
 type StaffingValues = {
   [officeId: string]: {
     [key in EmployeeRole]?: string;
@@ -104,29 +97,13 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
     }
   };
 
-
-  const globalSummary = useMemo<Summary>(() => {
-    return {
-      total: employees.length,
-      present: employees.filter(emp => emp.status === 'Presente').length,
-      late: employees.filter(emp => emp.status === 'Atrasado').length,
-      absent: employees.filter(emp => emp.status === 'Ausente' && (emp.absenceReason === 'Inasistencia' || emp.absenceReason === 'Otro')).length,
-      license: employees.filter(emp => emp.absenceReason === 'Licencia médica' || emp.absenceReason === 'Vacaciones').length,
-    };
-  }, [employees]);
-
   const officeSummaries = useMemo<OfficeSummary[]>(() => {
     return offices.map(office => {
       const officeEmployees = employees.filter(emp => emp.officeId === office.id);
-      
       return {
         id: office.id,
         name: office.name,
-        total: officeEmployees.length,
-        present: officeEmployees.filter(emp => emp.status === 'Presente').length,
-        late: officeEmployees.filter(emp => emp.status === 'Atrasado').length,
-        absent: officeEmployees.filter(emp => emp.status === 'Ausente' && (emp.absenceReason === 'Inasistencia' || emp.absenceReason === 'Otro')).length,
-        license: officeEmployees.filter(emp => emp.absenceReason === 'Licencia médica' || emp.absenceReason === 'Vacaciones').length,
+        employees: officeEmployees,
         theoreticalStaffing: office.theoreticalStaffing
       };
     }).sort((a,b) => a.name.localeCompare(b.name));
@@ -142,90 +119,17 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
 
   return (
     <div className="space-y-8">
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-bold text-primary">Resumen General de Asistencia</CardTitle>
-               <div className="p-3 bg-primary/10 rounded-full">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-4">
-               <div className="flex items-center justify-between p-3 rounded-md bg-muted/50">
-                  <div className='flex items-center gap-3'>
-                    <Users className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-medium">Total Personal</span>
-                  </div>
-                  <span className="font-bold text-lg">{globalSummary.total}</span>
-              </div>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="flex flex-col gap-2 p-3 rounded-md bg-gray-100/60">
-                    <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <UserCheck className="h-4 w-4 text-green-700" />
-                          <span className="font-medium text-green-800">Presentes</span>
-                        </div>
-                        <span className="font-bold text-lg text-green-800">{globalSummary.present}</span>
-                    </div>
-                     <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <Clock className="h-4 w-4 text-orange-700" />
-                          <span className="font-medium text-orange-800">Atrasados</span>
-                        </div>
-                        <span className="font-bold text-lg text-orange-800">{globalSummary.late}</span>
-                    </div>
-                 </div>
-                  <div className="flex flex-col gap-2 p-3 rounded-md bg-gray-100/60">
-                     <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <UserX className="h-4 w-4 text-red-700" />
-                          <span className="font-medium text-red-800">Ausentes</span>
-                        </div>
-                        <span className="font-bold text-lg text-red-800">{globalSummary.absent}</span>
-                    </div>
-                     <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-2'>
-                          <Stethoscope className="h-4 w-4 text-yellow-700" />
-                          <span className="font-medium text-yellow-800">Licencias/Vac.</span>
-                        </div>
-                        <span className="font-bold text-lg text-yellow-800">{globalSummary.license}</span>
-                    </div>
-                 </div>
-              </div>
-            </CardContent>
-          </Card>
+       <OfficeSummaryTable offices={officeSummaries} roles={ROLES_ORDER} />
         
         <div>
-            <h2 className="text-2xl font-bold mb-4 text-center">Detalle por Oficina</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center">Dotación Teórica por Oficina</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {officeSummaries.map(summary => (
                     <Card key={summary.id}>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                              <CardTitle className="text-base font-semibold">{summary.name}</CardTitle>
-                             <div className="p-2 bg-accent/10 rounded-full">
-                                <Building className="h-5 w-5 text-accent" />
-                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                             <div className="flex items-center justify-between text-sm pt-2">
-                                <span className="text-muted-foreground">Total</span>
-                                <span className="font-semibold">{summary.total}</span>
-                             </div>
-                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-green-700">Presentes</span>
-                                <span className="font-semibold text-green-700">{summary.present}</span>
-                             </div>
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-orange-700">Atrasados</span>
-                                <span className="font-semibold text-orange-700">{summary.late}</span>
-                             </div>
-                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-red-700">Ausentes</span>
-                                <span className="font-semibold text-red-700">{summary.absent}</span>
-                             </div>
-                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-yellow-700">Licencias/Vac.</span>
-                                <span className="font-semibold text-yellow-700">{summary.license}</span>
-                             </div>
                              <div className="border-t pt-3 mt-3 space-y-4">
                                 <div className='flex justify-between items-center'>
                                   <Label className="text-sm font-medium">
