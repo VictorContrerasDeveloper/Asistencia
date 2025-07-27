@@ -14,6 +14,8 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Users } from 'lucide-react';
 
 type OfficeSummary = {
   id: string;
@@ -71,7 +73,37 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 const lateEmployees = getLateEmployees(office.employees);
                 return (
                   <TableRow key={office.id}>
-                    <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">{office.name}</TableCell>
+                    <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">
+                       <Popover>
+                        <PopoverTrigger asChild>
+                          <span className="cursor-pointer hover:underline flex items-center gap-2">
+                             {office.name}
+                             <Users className="h-4 w-4 text-muted-foreground" />
+                          </span>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                           <div className="grid gap-4">
+                              <div className="space-y-2">
+                                <h4 className="font-medium leading-none">Personal Asignado</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  Lista de ejecutivos en la oficina {office.name}.
+                                </p>
+                              </div>
+                              <div className="grid gap-2">
+                                  {office.employees.length > 0 ? (
+                                    <ul className="list-disc list-inside text-sm">
+                                      {office.employees.map(emp => (
+                                        <li key={emp.id}>{emp.name}</li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
+                                  )}
+                              </div>
+                            </div>
+                        </PopoverContent>
+                       </Popover>
+                    </TableCell>
                     {roles.map(role => {
                       const realCount = getRoleSummary(office.employees, role);
                       const theoreticalCount = office.theoreticalStaffing?.[role] || 0;
