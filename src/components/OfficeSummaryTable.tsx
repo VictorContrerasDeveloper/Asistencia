@@ -49,14 +49,14 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 bg-card border-r-2">Oficina Comercial</TableHead>
+                <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground">Oficina Comercial</TableHead>
                 {roles.map(role => (
                   <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground">{role}</TableHead>
                 ))}
                 <TableHead className="text-center">Atrasos</TableHead>
               </TableRow>
               <TableRow>
-                <TableHead className="sticky left-0 bg-card border-r-2"></TableHead>
+                <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
                 {roles.map(role => (
                   <React.Fragment key={role}>
                     <TableHead className="text-center">Real</TableHead>
@@ -71,7 +71,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 const lateEmployees = getLateEmployees(office.employees);
                 return (
                   <TableRow key={office.id}>
-                    <TableCell className="font-medium sticky left-0 bg-card border-r-2">{office.name}</TableCell>
+                    <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">{office.name}</TableCell>
                     {roles.map(role => {
                       const realCount = getRoleSummary(office.employees, role);
                       const theoreticalCount = office.theoreticalStaffing?.[role] || 0;
