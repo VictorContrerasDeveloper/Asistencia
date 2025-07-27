@@ -51,7 +51,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
               <TableRow>
                 <TableHead className="sticky left-0 bg-card border-r-2">Oficina Comercial</TableHead>
                 {roles.map(role => (
-                  <TableHead key={role} colSpan={2} className="text-center border-r-2">{role}</TableHead>
+                  <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground">{role}</TableHead>
                 ))}
                 <TableHead className="text-center">Atrasos</TableHead>
               </TableRow>
@@ -60,7 +60,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 {roles.map(role => (
                   <React.Fragment key={role}>
                     <TableHead className="text-center">Real</TableHead>
-                    <TableHead className="text-center border-r-2">Por Licit</TableHead>
+                    <TableHead className="text-center border-r-2 border-muted-foreground">Por Licit</TableHead>
                   </React.Fragment>
                 ))}
                  <TableHead></TableHead>
@@ -81,7 +81,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                           <TableCell className={cn("text-center font-bold", isDeficit ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800")}>
                             {realCount}
                           </TableCell>
-                          <TableCell className="text-center border-r-2">{theoreticalCount}</TableCell>
+                          <TableCell className="text-center border-r-2 border-muted-foreground">{theoreticalCount}</TableCell>
                         </React.Fragment>
                       );
                     })}
