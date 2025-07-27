@@ -49,18 +49,18 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground">Oficina Comercial</TableHead>
+                <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground font-bold text-primary">Oficina Comercial</TableHead>
                 {roles.map(role => (
-                  <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground">{role}</TableHead>
+                  <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
                 ))}
-                <TableHead className="text-center">Atrasos</TableHead>
+                <TableHead className="text-center font-bold text-primary">Atrasos</TableHead>
               </TableRow>
               <TableRow>
                 <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
                 {roles.map(role => (
-                  <React.Fragment key={role}>
-                    <TableHead className="text-center">Real</TableHead>
-                    <TableHead className="text-center border-r-2 border-muted-foreground">Por Licit</TableHead>
+                  <React.Fragment key={`${role}-sub`}>
+                    <TableHead className="text-center font-bold text-primary">Real</TableHead>
+                    <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary">Por Licit</TableHead>
                   </React.Fragment>
                 ))}
                  <TableHead></TableHead>
