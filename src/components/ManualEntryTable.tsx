@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { type EmployeeRole, type Office, updateOfficeRealStaffing, type Employee } from '@/lib/data';
 import {
   Table,
@@ -17,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Users } from 'lucide-react';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Checkbox } from './ui/checkbox';
+import { Label } from './ui/label';
 
 type ManualEntryTableProps = {
   offices: Office[];
@@ -34,17 +35,73 @@ type RealStaffingValues = {
 export default function ManualEntryTable({ offices, employees }: ManualEntryTableProps) {
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
-  
+  const [absentEmployees, setAbsentEmployees] = useState<{ [officeId: string]: string[] }>({});
+
   useEffect(() => {
     const initialStaffing: RealStaffingValues = {};
+    const initialAbsences: { [officeId: string]: string[] } = {};
+
     offices.forEach(office => {
       initialStaffing[office.id] = {};
       ROLES.forEach(role => {
         initialStaffing[office.id][role] = office.realStaffing?.[role]?.toString() || '';
       });
+      initialAbsences[office.id] = [];
     });
+
     setRealStaffing(initialStaffing);
+    setAbsentEmployees(initialAbsences);
   }, [offices]);
+  
+  const assignedEmployeesByOffice = useMemo(() => {
+    const grouped: { [officeId: string]: Employee[] } = {};
+    for (const emp of employees) {
+      if (!grouped[emp.officeId]) {
+        grouped[emp.officeId] = [];
+      }
+      grouped[emp.officeId].push(emp);
+    }
+    return grouped;
+  }, [employees]);
+
+  useEffect(() => {
+    const newStaffing = { ...realStaffing };
+    let changed = false;
+    for (const officeId in absentEmployees) {
+      const officeEmployees = assignedEmployeesByOffice[officeId] || [];
+      const moduleEmployees = officeEmployees.filter(e => e.role === 'Modulo');
+      const absentModuleEmployees = (absentEmployees[officeId] || []).filter(empId =>
+        moduleEmployees.some(e => e.id === empId)
+      ).length;
+      
+      const presentModuleCount = moduleEmployees.length - absentModuleEmployees;
+
+      if (newStaffing[officeId] && newStaffing[officeId]['Modulo'] !== presentModuleCount.toString()) {
+        newStaffing[officeId] = {
+          ...newStaffing[officeId],
+          'Modulo': presentModuleCount.toString()
+        };
+        changed = true;
+      }
+    }
+    if (changed) {
+      setRealStaffing(newStaffing);
+    }
+  }, [absentEmployees, assignedEmployeesByOffice]);
+
+
+  const handleAbsentChange = (officeId: string, employeeId: string, isChecked: boolean) => {
+    setAbsentEmployees(prev => {
+      const currentAbsences = prev[officeId] || [];
+      let newAbsences;
+      if (isChecked) {
+        newAbsences = [...currentAbsences, employeeId];
+      } else {
+        newAbsences = currentAbsences.filter(id => id !== employeeId);
+      }
+      return { ...prev, [officeId]: newAbsences };
+    });
+  };
 
   const handleStaffingChange = (officeId: string, role: EmployeeRole, value: string) => {
     const newStaffing = {
@@ -143,6 +200,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                             value={realStaffing[office.id]?.[role] || ''}
                             onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
                             className="h-8 w-20 mx-auto text-center"
+                            readOnly={role === 'Modulo'}
                         />
                         </TableCell>
                         <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
@@ -161,16 +219,23 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 <div className="space-y-2">
                                 <h4 className="font-medium leading-none">Personal Asignado</h4>
                                 <p className="text-sm text-muted-foreground">
-                                    Lista de ejecutivos en la oficina {office.name}.
+                                    Selecciona el personal ausente en la oficina {office.name}.
                                 </p>
                                 </div>
                                 <div className="grid gap-2">
                                     {assignedEmployees.length > 0 ? (
-                                    <ul className="list-disc list-inside text-sm max-h-48 overflow-y-auto">
+                                    <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                                         {assignedEmployees.map(emp => (
-                                        <li key={emp.id}>{emp.name}</li>
+                                          <div key={emp.id} className="flex items-center space-x-2">
+                                              <Checkbox 
+                                                  id={`absent-${office.id}-${emp.id}`}
+                                                  checked={(absentEmployees[office.id] || []).includes(emp.id)}
+                                                  onCheckedChange={(checked) => handleAbsentChange(office.id, emp.id, !!checked)}
+                                              />
+                                              <Label htmlFor={`absent-${office.id}-${emp.id}`} className="flex-1 cursor-pointer">{emp.name}</Label>
+                                          </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                     ) : (
                                     <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
                                     )}
