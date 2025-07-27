@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 type OfficeSummary = {
   id: string;
@@ -57,10 +58,10 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
               <TableRow>
                 <TableHead className="sticky left-0 bg-card"></TableHead>
                 {roles.map(role => (
-                  <>
-                    <TableHead key={`${role}-real`} className="text-center">Real</TableHead>
-                    <TableHead key={`${role}-teorico`} className="text-center">Teóri.</TableHead>
-                  </>
+                  <React.Fragment key={role}>
+                    <TableHead className="text-center">Real</TableHead>
+                    <TableHead className="text-center">Teóri.</TableHead>
+                  </React.Fragment>
                 ))}
                  <TableHead></TableHead>
               </TableRow>
@@ -76,12 +77,12 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                       const theoreticalCount = office.theoreticalStaffing?.[role] || 0;
                       const isDeficit = realCount < theoreticalCount;
                       return (
-                        <>
-                          <TableCell key={`${role}-real-val`} className={cn("text-center font-bold", isDeficit ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800")}>
+                        <React.Fragment key={role}>
+                          <TableCell className={cn("text-center font-bold", isDeficit ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800")}>
                             {realCount}
                           </TableCell>
-                          <TableCell key={`${role}-teorico-val`} className="text-center">{theoreticalCount}</TableCell>
-                        </>
+                          <TableCell className="text-center">{theoreticalCount}</TableCell>
+                        </React.Fragment>
                       );
                     })}
                     <TableCell className="text-center">{lateEmployees || '-'}</TableCell>
