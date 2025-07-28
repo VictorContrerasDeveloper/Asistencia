@@ -13,7 +13,7 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users } from 'lucide-react';
+import { Users, Save } from 'lucide-react';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Checkbox } from './ui/checkbox';
@@ -133,7 +133,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
   };
 
   const getAssignedEmployees = (officeId: string) => {
-    return employees.filter(emp => emp.officeId === officeId);
+    return employees.filter(emp => emp.officeId === officeId).sort((a,b) => a.name.localeCompare(b.name));
   };
 
   return (
@@ -145,7 +145,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
             {ROLES.map(role => (
               <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
             ))}
-            <TableHead className="text-right font-bold text-primary">Acciones</TableHead>
+            <TableHead className="text-center font-bold text-primary">Acciones</TableHead>
           </TableRow>
           <TableRow>
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
@@ -179,43 +179,49 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                         <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                     </React.Fragment>
                 ))}
-                <TableCell className="text-right">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button size="sm" variant="outline" className="h-8">
-                                <Users className="h-4 w-4 mr-2"/>
-                                Ver Personal
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                            <div className="grid gap-4">
-                                <div className="space-y-2">
-                                <h4 className="font-medium leading-none">Personal Asignado</h4>
-                                <p className="text-sm text-muted-foreground">
-                                    Selecciona el personal ausente en la oficina {office.name}.
-                                </p>
-                                </div>
+                <TableCell className="text-center">
+                    <div className="flex justify-center items-center gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button size="sm" variant="outline" className="h-8">
+                                    <Users className="h-4 w-4 mr-2"/>
+                                    Ver Personal
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
                                 <div className="grid gap-2">
-                                    {assignedEmployees.length > 0 ? (
-                                    <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                                        {assignedEmployees.map(emp => (
-                                          <div key={emp.id} className="flex items-center space-x-2">
-                                              <Checkbox 
-                                                  id={`absent-${office.id}-${emp.id}`}
-                                                  checked={(absentEmployees[office.id] || []).includes(emp.id)}
-                                                  onCheckedChange={(checked) => handleAbsentChange(office.id, emp.id, !!checked)}
-                                              />
-                                              <Label htmlFor={`absent-${office.id}-${emp.id}`} className="flex-1 cursor-pointer">{emp.name}</Label>
-                                          </div>
-                                        ))}
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-semibold leading-none">Personal Asignado</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Marca el personal ausente en {office.name}.
+                                        </p>
                                     </div>
-                                    ) : (
-                                    <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
-                                    )}
+                                    <div className="grid gap-2">
+                                        {assignedEmployees.length > 0 ? (
+                                        <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                                            {assignedEmployees.map(emp => (
+                                            <div key={emp.id} className="flex items-center space-x-2">
+                                                <Checkbox 
+                                                    id={`absent-${office.id}-${emp.id}`}
+                                                    checked={(absentEmployees[office.id] || []).includes(emp.id)}
+                                                    onCheckedChange={(checked) => handleAbsentChange(office.id, emp.id, !!checked)}
+                                                />
+                                                <Label htmlFor={`absent-${office.id}-${emp.id}`} className="flex-1 cursor-pointer">{emp.name}</Label>
+                                            </div>
+                                            ))}
+                                        </div>
+                                        ) : (
+                                        <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
+                            </PopoverContent>
+                        </Popover>
+                        <Button size="sm" className="h-8" onClick={() => handleSave(office.id)}>
+                            <Save className="h-4 w-4 mr-2" />
+                            Guardar
+                        </Button>
+                    </div>
                 </TableCell>
                 </TableRow>
             );
