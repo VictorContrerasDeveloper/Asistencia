@@ -59,16 +59,16 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
             <TableHeader className="bg-primary text-primary-foreground">
                <TableRow className="border-0 h-auto">
                   <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r`}>Oficina Comercial</TableHead>
-                  {roles.map(role => (
-                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary border-r border-l p-1 py-0`}>{role}</TableHead>
+                  {roles.map((role, index) => (
+                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto ${index < roles.length -1 ? "border-r border-primary" : ""}`}>{role}</TableHead>
                   ))}
-                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary p-1 py-0`}>Atrasos</TableHead>
+                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-primary`}>Atrasos</TableHead>
               </TableRow>
               <TableRow className="border-0 h-auto">
                   {roles.map(role => (
                     <React.Fragment key={role}>
-                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary border-r p-1 py-0`}>Real</TableHead>
-                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary border-r p-1 py-0`}>Por Licit</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto`}>Real</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto border-r border-primary`}>Por Licit</TableHead>
                     </React.Fragment>
                   ))}
               </TableRow>
