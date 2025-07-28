@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo } from 'react';
@@ -77,7 +78,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                        <div className="flex items-center gap-2">
                         <span>{office.name}</span>
                         <Popover>
-                            <PopoverTrigger>
+                            <PopoverTrigger asChild>
                                <Button variant="ghost" size="icon" className="h-6 w-6">
                                  <Users className="h-4 w-4 text-muted-foreground" />
                                </Button>
