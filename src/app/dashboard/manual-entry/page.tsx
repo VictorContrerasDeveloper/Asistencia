@@ -90,6 +90,14 @@ export default function ManualEntryPage() {
         input.parentNode?.insertBefore(span, input.nextSibling);
     });
 
+    // Hide the add button
+    const addButton = absenceTable.querySelector('button');
+    let addButtonOriginalDisplay = '';
+    if(addButton) {
+        addButtonOriginalDisplay = addButton.style.display;
+        addButton.style.display = 'none';
+    }
+
 
     try {
       const summaryCanvas = await html2canvas(summaryTable, { scale: 2 });
@@ -125,6 +133,10 @@ export default function ManualEntryPage() {
                 span.parentNode?.removeChild(span);
             }
         });
+        // Restore add button
+        if(addButton) {
+            addButton.style.display = addButtonOriginalDisplay;
+        }
         setIsGeneratingImage(false);
     }
   }
