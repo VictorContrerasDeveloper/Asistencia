@@ -274,7 +274,7 @@ export default function ManualEntryPage() {
                 <CardHeader className="flex flex-row items-center justify-center p-4">
                   <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
+                <CardContent>
                   {loading ? (
                     <div className="space-y-2 p-6">
                       <Skeleton className="h-10 w-full" />
@@ -317,7 +317,7 @@ export default function ManualEntryPage() {
                     <CardHeader className="flex flex-row items-center justify-center p-4 text-center">
                         <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
                     </CardHeader>
-                    <CardContent className="">
+                    <CardContent>
                         {loading ? (
                         <div className="p-6">
                             <Skeleton className="h-40 w-full" />
