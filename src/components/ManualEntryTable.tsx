@@ -164,9 +164,9 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
-              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r border-primary`}>Oficina Comercial</TableHead>
+              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle h-auto border-r border-primary py-0 p-1`}>Oficina Comercial</TableHead>
               {ROLES.map((role) => (
-                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto p-1`}>{role}</TableHead>
+                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto p-1 border-r border-primary`}>{role}</TableHead>
               ))}
               <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-r border-primary`}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto`}>Ausentes</TableHead>
@@ -237,6 +237,10 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                 </TableCell>
                 {ROLES.map((role, roleIndex) => {
                     const refIndex = officeIndex * ROLES.length + roleIndex;
+                    const realValue = realStaffing[office.id]?.[role] || '';
+                    const theoreticalValue = office.theoreticalStaffing?.[role] || 0;
+                    const isDeficit = realValue !== '' && parseInt(realValue, 10) < theoreticalValue;
+
                     return (
                         <React.Fragment key={role}>
                             <TableCell className="p-0 border-r border-primary">
@@ -245,14 +249,17 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 type="number"
                                 min="0"
                                 placeholder="0"
-                                value={realStaffing[office.id]?.[role] || ''}
+                                value={realValue}
                                 onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
                                 onFocus={(e) => e.target.select()}
                                 onKeyDown={(e) => handleKeyDown(e, refIndex)}
-                                className="h-7 w-12 mx-auto text-center"
+                                className={cn(
+                                    "h-7 w-12 mx-auto text-center",
+                                    isDeficit && "bg-red-600 text-white"
+                                )}
                             />
                             </TableCell>
-                            <TableCell className="text-center p-0 border-r border-primary">{office.theoreticalStaffing?.[role] || 0}</TableCell>
+                            <TableCell className="text-center p-0 border-r border-primary">{theoreticalValue}</TableCell>
                         </React.Fragment>
                     )
                 })}
