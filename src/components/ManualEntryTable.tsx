@@ -131,10 +131,10 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
 
     try {
         await updateOfficeRealStaffing(officeId, { [role]: numberValue });
-        toast({
+        /* toast({
             title: "¡Guardado!",
             description: `Se actualizó la dotación para ${role}.`
-        })
+        }) */
     } catch(error) {
         toast({
             title: "Error",
@@ -193,18 +193,18 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
-              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary-foreground font-bold text-primary-foreground text-center align-middle h-auto p-1 border-r border-primary`}>Oficina Comercial</TableHead>
+              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary-foreground font-bold text-primary-foreground text-center align-middle h-auto p-1 border-r`}>Oficina Comercial</TableHead>
               {ROLES.map((role) => (
-                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto p-1 border-r border-primary`}>{role}</TableHead>
+                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto p-1`}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-r border-primary`}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-r`}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto`}>Ausentes</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
               {ROLES.map((role, index) => (
                 <React.Fragment key={role}>
                     <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 p-1`}>Real</TableHead>
-                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 border-r border-primary p-1`}>Teóri.</TableHead>
+                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 border-r p-1`}>Teóri.</TableHead>
                 </React.Fragment>
               ))}
           </TableRow>
@@ -214,7 +214,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
             const assignedEmployees = getAssignedEmployees(office.id);
             return (
                 <TableRow key={office.id}>
-                <TableCell className={`font-medium sticky left-0 bg-card border-r border-primary p-1`}>
+                <TableCell className={`font-medium sticky left-0 bg-card border-r p-1`}>
                     <div className="flex items-center gap-2">
                         <span>{office.name}</span>
                         <Popover>
@@ -272,7 +272,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
 
                     return (
                         <React.Fragment key={role}>
-                            <TableCell className="p-0 border-r border-primary">
+                            <TableCell className="p-0 border-r">
                             <Input
                                 ref={el => {inputRefs.current[refIndex] = el}}
                                 type="number"
@@ -289,11 +289,11 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 )}
                             />
                             </TableCell>
-                            <TableCell className="text-center p-0 border-r border-primary">{theoreticalValue}</TableCell>
+                            <TableCell className="text-center p-1 border-r">{theoreticalValue}</TableCell>
                         </React.Fragment>
                     )
                 })}
-                 <TableCell className={`text-center text-xs p-1 border-r border-primary`}>
+                 <TableCell className={`text-center text-xs p-1 border-r`}>
                     {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
                   <TableCell className={`text-center text-xs p-1`}>
