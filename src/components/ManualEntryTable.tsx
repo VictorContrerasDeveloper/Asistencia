@@ -149,7 +149,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
           <TableRow>
-            <TableHead className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground ${tableHeadClasses}`}>Oficina Comercial</TableHead>
+            <TableHead className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center ${tableHeadClasses}`}>Oficina Comercial</TableHead>
             {ROLES.map(role => (
               <TableHead key={role} colSpan={2} className={`text-center border-r-2 border-muted-foreground font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>{role}</TableHead>
             ))}

@@ -56,7 +56,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
           <Table>
             <TableHeader className="bg-primary text-primary-foreground">
               <TableRow>
-                <TableHead className="sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground">Oficina Comercial</TableHead>
+                <TableHead className="sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center">Oficina Comercial</TableHead>
                 {roles.map(role => (
                   <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary-foreground">{role}</TableHead>
                 ))}
