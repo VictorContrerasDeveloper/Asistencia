@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shuffle, Shield, Tablet, Navigation, UserPlus } from 'lucide-react';
+import { ArrowLeft, Shuffle, Shield, Tablet, Navigation, UserPlus, ConciergeBell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { getEmployees, getOffices, Office, Employee, EmployeeRole } from '@/lib/data';
+import { getEmployees, getOffices, Office, Employee, EmployeeRole, AbsenceReason } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import TransferEmployeeModal from '@/components/TransferEmployeeModal';
 import AddEmployeeModal from '@/components/AddEmployeeModal';
@@ -17,6 +17,9 @@ const ROLE_ORDER: Record<EmployeeRole, number> = {
     'Tablet': 3,
     'Anfitrión': 4,
 };
+
+const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
+
 
 const DesktopIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg 
@@ -66,9 +69,21 @@ export default function TransferEmployeePage() {
 
   const officeMap = useMemo(() => new Map(offices.map(o => [o.id, o.name])), [offices]);
 
-  const employeesByOffice = useMemo(() => {
-    if (loading) return {};
-    return employees.reduce((acc, employee) => {
+  const { activeEmployeesByOffice, prolongedAbsenceEmployees } = useMemo(() => {
+    if (loading) return { activeEmployeesByOffice: {}, prolongedAbsenceEmployees: [] };
+
+    const prolongedAbsences: Employee[] = [];
+    const activeEmployees = [];
+
+    for (const employee of employees) {
+      if (PROLONGED_ABSENCE_REASONS.includes(employee.absenceReason)) {
+        prolongedAbsences.push(employee);
+      } else {
+        activeEmployees.push(employee);
+      }
+    }
+
+    const activeGrouped = activeEmployees.reduce((acc, employee) => {
       const officeName = officeMap.get(employee.officeId) || 'Sin Oficina';
       if (!acc[officeName]) {
         acc[officeName] = [];
@@ -76,6 +91,11 @@ export default function TransferEmployeePage() {
       acc[officeName].push(employee);
       return acc;
     }, {} as Record<string, Employee[]>);
+
+    return { 
+      activeEmployeesByOffice: activeGrouped, 
+      prolongedAbsenceEmployees: prolongedAbsences 
+    };
   }, [employees, officeMap, loading]);
 
 
@@ -102,9 +122,9 @@ export default function TransferEmployeePage() {
               </Button>
             </Link>
             <div className='flex flex-col'>
-                <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Trasladar Personal</h1>
+                <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Modificar Dotación</h1>
                 <p className="text-sm text-muted-foreground">
-                    Haz clic en el icono de traslado para reasignar un ejecutivo a una nueva oficina.
+                    Haz clic en el icono de traslado para reasignar un ejecutivo a una nueva oficina o cambiar su rol.
                 </p>
             </div>
           </div>
@@ -129,13 +149,14 @@ export default function TransferEmployeePage() {
                         </Card>
                     ))
                 ) : (
-                  Object.keys(employeesByOffice).sort().map(officeName => (
+                  <>
+                  {Object.keys(activeEmployeesByOffice).sort().map(officeName => (
                     <Card key={officeName} className="flex flex-col">
                       <CardHeader className="p-3">
-                        <CardTitle className="text-base">{officeName} ({employeesByOffice[officeName].length})</CardTitle>
+                        <CardTitle className="text-base">{officeName} ({activeEmployeesByOffice[officeName].length})</CardTitle>
                       </CardHeader>
                       <CardContent className="p-3 pt-0 overflow-y-auto">
-                        {employeesByOffice[officeName]
+                        {activeEmployeesByOffice[officeName]
                           .sort((a, b) => {
                             const roleA = ROLE_ORDER[a.role] || 99;
                             const roleB = ROLE_ORDER[b.role] || 99;
@@ -160,7 +181,34 @@ export default function TransferEmployeePage() {
                           })}
                       </CardContent>
                     </Card>
-                  ))
+                  ))}
+
+                  {prolongedAbsenceEmployees.length > 0 && (
+                     <Card className="flex flex-col bg-muted/30">
+                        <CardHeader className="p-3">
+                          <CardTitle className="text-base">Ausencias Prolongadas ({prolongedAbsenceEmployees.length})</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-3 pt-0 overflow-y-auto">
+                          {prolongedAbsenceEmployees
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map(employee => {
+                              const Icon = RoleIcons[employee.role] || Navigation;
+                              return (
+                                  <div key={employee.id} className="flex items-center justify-between py-0.5 px-1 rounded-md hover:bg-muted/50">
+                                      <div className="flex items-center gap-2">
+                                          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                                          <div className='flex flex-col'>
+                                            <p className="font-medium text-sm">{employee.name}</p>
+                                            <p className='text-xs text-muted-foreground italic'>({employee.absenceReason}) - {officeMap.get(employee.officeId) || 'N/A'}</p>
+                                          </div>
+                                      </div>
+                                  </div>
+                              )
+                            })}
+                        </CardContent>
+                      </Card>
+                  )}
+                  </>
                 )}
                 
                 {!loading && employees.length === 0 && (
