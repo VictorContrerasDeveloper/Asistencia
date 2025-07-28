@@ -148,16 +148,21 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     <div className="overflow-x-auto">
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
+           <TableRow>
+              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center align-middle ${tableHeadClasses}`}>Oficina Comercial</TableHead>
+              {ROLES.map(role => (
+                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground p-1 border-r-2 border-muted-foreground ${tableHeadClasses}`}>{role}</TableHead>
+              ))}
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground border-r-2 border-muted-foreground align-middle ${tableHeadClasses}`}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle ${tableHeadClasses}`}>Ausentes</TableHead>
+          </TableRow>
           <TableRow>
-            <TableHead className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center ${tableHeadClasses}`}>Oficina Comercial</TableHead>
-            {ROLES.map(role => (
-               <React.Fragment key={role}>
-                <TableHead className={`text-center font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>{role} Real</TableHead>
-                <TableHead className={`text-center border-r-2 border-muted-foreground font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>{role} Teóri.</TableHead>
-              </React.Fragment>
-            ))}
-            <TableHead className={`text-center font-bold text-primary-foreground border-r-2 border-muted-foreground ${tableHeadClasses}`}>Atrasos</TableHead>
-            <TableHead className={`text-center font-bold text-primary-foreground ${tableHeadClasses}`}>Ausentes</TableHead>
+              {ROLES.map(role => (
+                <React.Fragment key={role}>
+                    <TableHead className={`text-center font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>Real</TableHead>
+                    <TableHead className={`text-center border-r-2 border-muted-foreground font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>Teóri.</TableHead>
+                </React.Fragment>
+              ))}
           </TableRow>
         </TableHeader>
         <TableBody>

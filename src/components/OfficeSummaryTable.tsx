@@ -55,15 +55,20 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-primary text-primary-foreground">
+               <TableRow>
+                  <TableHead rowSpan={2} className="sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center align-middle">Oficina Comercial</TableHead>
+                  {roles.map(role => (
+                    <TableHead key={role} colSpan={2} className="text-center font-bold text-primary-foreground p-1 border-r-2 border-muted-foreground">{role}</TableHead>
+                  ))}
+                  <TableHead rowSpan={2} className="text-center font-bold text-primary-foreground align-middle">Atrasos</TableHead>
+              </TableRow>
               <TableRow>
-                <TableHead className="sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center">Oficina Comercial</TableHead>
-                 {roles.map(role => (
-                  <React.Fragment key={role}>
-                    <TableHead className="text-center font-bold text-primary-foreground">{role} Real</TableHead>
-                    <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary-foreground">{role} Por Licit</TableHead>
-                  </React.Fragment>
-                ))}
-                <TableHead className="text-center font-bold text-primary-foreground">Atrasos</TableHead>
+                  {roles.map(role => (
+                    <React.Fragment key={role}>
+                      <TableHead className="text-center font-bold text-primary-foreground">Real</TableHead>
+                      <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary-foreground">Por Licit</TableHead>
+                    </React.Fragment>
+                  ))}
               </TableRow>
             </TableHeader>
             <TableBody>
