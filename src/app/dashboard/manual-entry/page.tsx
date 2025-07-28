@@ -46,8 +46,8 @@ export default function ManualEntryPage() {
       <main className="flex-1 p-4 md:p-8 space-y-8">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-center">Resumen dotacion Of. Com. Helpbank</CardTitle>
+            <CardDescription className="text-center">
               Ingresa la cantidad de personal presente para cada rol en las oficinas.
             </CardDescription>
           </CardHeader>
