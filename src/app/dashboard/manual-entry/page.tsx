@@ -88,7 +88,7 @@ export default function ManualEntryPage() {
     }
 
     const inputs = summaryTable.querySelectorAll('input[type="number"]');
-    const originalValues: { el: HTMLTableCellElement, originalContent: string, originalClasses: string }[] = [];
+    const originalValues: { el: HTMLTableCellElement, originalContent: string, originalPadding: string }[] = [];
 
     const elementsToHide = summaryTable.querySelectorAll('.exclude-from-image');
     elementsToHide.forEach(el => {
@@ -101,15 +101,19 @@ export default function ManualEntryPage() {
       const cell = inputEl.parentElement as HTMLTableCellElement;
       
       if (cell) {
-        originalValues.push({ el: cell, originalContent: cell.innerHTML, originalClasses: cell.className });
-        
-        const value = inputEl.value || '0';
-        cell.innerHTML = `<span>${value}</span>`;
-        cell.className = 'p-0 h-full flex items-center justify-center';
+        originalValues.push({ el: cell, originalContent: cell.innerHTML, originalPadding: cell.style.padding });
 
-        if (inputEl.className.includes('bg-red-600')) {
-          cell.classList.add('bg-red-600', 'text-white');
-        }
+        const value = inputEl.value || '0';
+        const isDeficit = inputEl.className.includes('bg-red-600');
+        
+        const centeredContent = `
+          <div class="w-full h-full flex items-center justify-center ${isDeficit ? 'bg-red-600 text-white' : ''}">
+            ${value}
+          </div>
+        `;
+
+        cell.innerHTML = centeredContent;
+        cell.style.padding = '0';
       }
     });
 
@@ -125,7 +129,7 @@ export default function ManualEntryPage() {
     } finally {
         originalValues.forEach(item => {
           item.el.innerHTML = item.originalContent;
-          item.el.className = item.originalClasses;
+          item.el.style.padding = item.originalPadding;
         });
         elementsToHide.forEach(el => {
           const htmlEl = el as HTMLElement;
@@ -183,8 +187,8 @@ export default function ManualEntryPage() {
           </div>
         </header>
         <main className="flex-1 p-4 md:p-8 space-y-8">
-            <Card className="w-full overflow-hidden">
-              <div id="manual-entry-summary">
+            <Card id="manual-entry-summary" className="w-full overflow-hidden">
+              <div>
                 <CardHeader className="flex flex-row items-center justify-between p-4">
                   <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
                 </CardHeader>
@@ -207,8 +211,8 @@ export default function ManualEntryPage() {
               </CardFooter>
             </Card>
 
-            <Card className="w-full overflow-hidden">
-                <div id="prolonged-absence-summary">
+            <Card id="prolonged-absence-summary" className="w-full overflow-hidden">
+                <div>
                     <CardHeader className="relative flex flex-row items-center justify-center p-4 text-center">
                         <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
                         <div className="absolute right-4 flex items-center gap-2 exclude-from-image">
