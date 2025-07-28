@@ -84,10 +84,6 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
         absenceReason: null,
         absenceEndDate: '',
       });
-      toast({
-        title: "¡Éxito!",
-        description: "El empleado ha sido reintegrado.",
-      });
     } catch (error) {
       // Revert on failure
       setEmployees(originalEmployees);
