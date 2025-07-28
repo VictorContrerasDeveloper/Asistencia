@@ -173,9 +173,6 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 <div className="grid gap-1">
                                     <div className="space-y-1">
                                         <p className="text-sm font-semibold leading-none">Personal Asignado</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Selecciona el estado de asistencia de cada ejecutivo.
-                                        </p>
                                     </div>
                                     <div className="grid gap-2">
                                         {assignedEmployees.length > 0 ? (
