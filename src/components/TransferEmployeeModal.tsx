@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Employee, Office, updateEmployee } from '@/lib/data';
+import { Employee, Office, updateEmployee, EmployeeRole } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 
 type TransferEmployeeModalProps = {
@@ -24,6 +24,8 @@ type TransferEmployeeModalProps = {
   offices: Office[];
 };
 
+const ROLES: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Anfitrión'];
+
 export default function TransferEmployeeModal({ 
     isOpen, 
     onClose, 
@@ -33,29 +35,46 @@ export default function TransferEmployeeModal({
 }: TransferEmployeeModalProps) {
   const { toast } = useToast();
   const [newOfficeId, setNewOfficeId] = useState(employee.officeId);
+  const [newRole, setNewRole] = useState<EmployeeRole>(employee.role);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setNewOfficeId(employee.officeId);
+      setNewRole(employee.role);
+    }
+  }, [isOpen, employee]);
+
 
   const currentOfficeName = useMemo(() => {
     return offices.find(o => o.id === employee.officeId)?.name || 'N/A';
   }, [employee, offices]);
 
   const handleSave = async () => {
-    if (newOfficeId === employee.officeId) {
+    if (newOfficeId === employee.officeId && newRole === employee.role) {
         onClose();
         return;
     }
     setIsSaving(true);
     try {
-        await updateEmployee(employee.id, { officeId: newOfficeId });
+        const updates: Partial<Employee> = {};
+        if (newOfficeId !== employee.officeId) {
+            updates.officeId = newOfficeId;
+        }
+        if (newRole !== employee.role) {
+            updates.role = newRole;
+        }
+
+        await updateEmployee(employee.id, updates);
         toast({
-            title: "Traslado exitoso",
-            description: `${employee.name} ha sido trasladado/a a la nueva oficina.`,
+            title: "Actualización exitosa",
+            description: `${employee.name} ha sido actualizado/a.`,
         });
         onSuccess();
     } catch (error) {
         toast({
             title: "Error",
-            description: "No se pudo completar el traslado.",
+            description: "No se pudo completar la actualización.",
             variant: "destructive"
         });
     } finally {
@@ -67,9 +86,9 @@ export default function TransferEmployeeModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Trasladar a {employee.name}</DialogTitle>
+          <DialogTitle>Modificar a {employee.name}</DialogTitle>
           <DialogDescription>
-            Selecciona la nueva oficina para este ejecutivo.
+            Selecciona la nueva oficina y/o el nuevo rol para este ejecutivo.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-4">
@@ -92,11 +111,26 @@ export default function TransferEmployeeModal({
                 </SelectContent>
              </Select>
           </div>
+          <div className="space-y-2">
+             <Label htmlFor="new-role">Nuevo Rol</Label>
+             <Select value={newRole} onValueChange={(value) => setNewRole(value as EmployeeRole)}>
+                <SelectTrigger id="new-role">
+                    <SelectValue placeholder="Selecciona un rol" />
+                </SelectTrigger>
+                <SelectContent>
+                    {ROLES.map((role) => (
+                        <SelectItem key={role} value={role}>
+                            {role}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+             </Select>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancelar</Button>
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Guardando...' : 'Confirmar Traslado'}
+            {isSaving ? 'Guardando...' : 'Confirmar Cambios'}
           </Button>
         </DialogFooter>
       </DialogContent>
