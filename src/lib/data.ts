@@ -37,6 +37,7 @@ export type Employee = {
   status: AttendanceStatus;
   absenceReason: AbsenceReason;
   role: EmployeeRole;
+  absenceEndDate?: string;
 };
 
 const db = getFirestore(app);
@@ -112,7 +113,7 @@ export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => 
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
 };
 
-export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role' | 'absenceReason' | 'name'>>) => {
+export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role' | 'absenceReason' | 'name' | 'absenceEndDate'>>) => {
     const employeeRef = doc(db, 'employees', employeeId);
     await updateDoc(employeeRef, updates);
 };
