@@ -11,32 +11,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
-import { CalendarIcon, PlusCircle, UserCheck } from 'lucide-react';
+import { CalendarIcon, UserCheck } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import AddAbsenceModal from './AddAbsenceModal';
 import { formatInTimeZone } from 'date-fns-tz';
 
 type ProlongedAbsenceTableProps = {
   employees: Employee[];
   offices: Office[];
-  onAbsenceAdded: (employee: Employee) => void;
   onEmployeeReinstated: (employeeId: string) => void;
-  id?: string;
 };
 
 const PROLONGED_ABSENCE_REASONS: (string | null)[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
-const ProlongedAbsenceTable = forwardRef<HTMLDivElement, ProlongedAbsenceTableProps>(
-  ({ employees, offices, onAbsenceAdded, onEmployeeReinstated, id }, ref) => {
+const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: ProlongedAbsenceTableProps) => {
     const { toast } = useToast();
-    const [isModalOpen, setIsModalOpen] = useState(false);
     
     const officeMap = useMemo(() => {
       return new Map(offices.map(office => [office.id, office.name]));
@@ -106,119 +100,73 @@ const ProlongedAbsenceTable = forwardRef<HTMLDivElement, ProlongedAbsenceTablePr
       }
     };
 
-    const handleAbsenceAddedOptimistic = (updatedEmployee: Employee) => {
-        onAbsenceAdded(updatedEmployee);
-        setIsModalOpen(false);
-    };
 
-    if (absentEmployees.length === 0 && !isModalOpen) {
+    if (absentEmployees.length === 0) {
       return (
-       <Card id={id} ref={ref}>
-        <CardHeader className="flex flex-row items-center justify-between p-4">
-          <div className="flex-1"></div>
-          <CardTitle className="text-base font-semibold text-center flex-1">Ausencias Prolongadas</CardTitle>
-          <div className="flex-1 flex justify-end">
-              <Button size="sm" onClick={() => setIsModalOpen(true)} className="exclude-from-image">
-                  <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
-                  Agregar
-              </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
           <p className="text-sm text-muted-foreground p-4 text-center">No hay personal con ausencias prolongadas para mostrar.</p>
-          <AddAbsenceModal 
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              onAbsenceAdded={handleAbsenceAddedOptimistic}
-              allEmployees={employees}
-          />
-        </CardContent>
-      </Card>
       )
     }
 
     return (
-      <>
-      <Card id={id} ref={ref}>
-         <CardHeader className="flex flex-row items-center justify-between p-4">
-          <div className="flex-1"></div>
-          <CardTitle className="text-base font-semibold text-center flex-1">Ausencias Prolongadas</CardTitle>
-          <div className="flex-1 flex justify-end">
-              <Button size="sm" onClick={() => setIsModalOpen(true)} className="exclude-from-image">
-                  <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
-                  Agregar
-              </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto border-t">
-            <Table>
-              <TableHeader className="bg-primary">
-                <TableRow>
-                  <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Nombre</TableHead>
-                  <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Motivo</TableHead>
-                  <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Fecha Término</TableHead>
-                  <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Última Oficina Asignada</TableHead>
-                  <TableHead className="font-bold text-primary-foreground text-right text-sm px-2 py-1 exclude-from-image">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {absentEmployees.map(employee => {
-                  const selectedDate = employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined;
-                  return (
-                      <TableRow key={employee.id}>
-                      <TableCell className="font-medium p-1 text-xs">{employee.name}</TableCell>
-                      <TableCell className="p-1 text-xs">{employee.absenceReason}</TableCell>
-                      <TableCell className="p-1 text-xs">
-                          <Popover>
-                              <PopoverTrigger asChild>
-                                  <Button
-                                  variant={"outline"}
-                                  size="sm"
-                                  className={cn(
-                                      "w-[160px] justify-start text-left font-normal h-7 text-xs px-2",
-                                      !selectedDate && "text-muted-foreground"
-                                  )}
-                                  >
-                                  <CalendarIcon className="mr-1.5 h-3 w-3" />
-                                  {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
-                                  </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                  mode="single"
-                                  selected={selectedDate}
-                                  onSelect={(date) => handleDateChange(employee.id, date)}
-                                  initialFocus
-                                  locale={es}
-                                  />
-                              </PopoverContent>
-                          </Popover>
-                      </TableCell>
-                      <TableCell className="p-1 text-xs">{employee.officeName}</TableCell>
-                      <TableCell className="p-1 text-right exclude-from-image">
-                        <Button variant="ghost" size="sm" onClick={() => handleReinstate(employee.id)} title="Reintegrar empleado" className="h-7 w-7 p-0">
-                          <UserCheck className="h-4 w-4 text-green-600" />
-                        </Button>
-                      </TableCell>
-                      </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-      <AddAbsenceModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAbsenceAdded={handleAbsenceAddedOptimistic}
-          allEmployees={employees}
-      />
-      </>
+      <div className="overflow-x-auto border-t">
+        <Table>
+          <TableHeader className="bg-primary">
+            <TableRow>
+              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Nombre</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Motivo</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Fecha Término</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Última Oficina Asignada</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-right text-sm px-2 py-1 exclude-from-image">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {absentEmployees.map(employee => {
+              const selectedDate = employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined;
+              return (
+                  <TableRow key={employee.id}>
+                  <TableCell className="font-medium p-1 text-xs">{employee.name}</TableCell>
+                  <TableCell className="p-1 text-xs">{employee.absenceReason}</TableCell>
+                  <TableCell className="p-1 text-xs">
+                      <Popover>
+                          <PopoverTrigger asChild>
+                              <Button
+                              variant={"outline"}
+                              size="sm"
+                              className={cn(
+                                  "w-[160px] justify-start text-left font-normal h-7 text-xs px-2",
+                                  !selectedDate && "text-muted-foreground"
+                              )}
+                              >
+                              <CalendarIcon className="mr-1.5 h-3 w-3" />
+                              {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                              </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                              mode="single"
+                              selected={selectedDate}
+                              onSelect={(date) => handleDateChange(employee.id, date)}
+                              initialFocus
+                              locale={es}
+                              />
+                          </PopoverContent>
+                      </Popover>
+                  </TableCell>
+                  <TableCell className="p-1 text-xs">{employee.officeName}</TableCell>
+                  <TableCell className="p-1 text-right exclude-from-image">
+                    <Button variant="ghost" size="sm" onClick={() => handleReinstate(employee.id)} title="Reintegrar empleado" className="h-7 w-7 p-0">
+                      <UserCheck className="h-4 w-4 text-green-600" />
+                    </Button>
+                  </TableCell>
+                  </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
     );
-  }
-)
+}
+
 
 ProlongedAbsenceTable.displayName = "ProlongedAbsenceTable";
 

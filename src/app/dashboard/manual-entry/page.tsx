@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera } from 'lucide-react';
+import { ArrowLeft, Camera, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee } from '@/lib/data';
@@ -12,12 +12,15 @@ import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
 import { Skeleton } from '@/components/ui/skeleton';
 import html2canvas from 'html2canvas';
 import { useToast } from '@/hooks/use-toast';
+import AddAbsenceModal from '@/components/AddAbsenceModal';
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -35,12 +38,6 @@ export default function ManualEntryPage() {
     fetchData();
   }, []);
 
-   const handleEmployeeUpdate = (updatedEmployee: Employee) => {
-    setEmployees(prev => 
-      prev.map(emp => emp.id === updatedEmployee.id ? updatedEmployee : emp)
-    );
-  };
-
   const handleEmployeeReinstated = (reinstatedEmployeeId: string) => {
      setEmployees(prev => 
       prev.map(emp => emp.id === reinstatedEmployeeId ? { ...emp, status: 'Presente', absenceReason: null, absenceEndDate: undefined } : emp)
@@ -57,6 +54,7 @@ export default function ManualEntryPage() {
       }
       return [...prev, newOrUpdatedEmployee];
     });
+    setIsModalOpen(false);
   }
 
   const copyCanvasToClipboard = async (canvas: HTMLCanvasElement) => {
@@ -81,26 +79,18 @@ export default function ManualEntryPage() {
       }, 'image/png');
   }
 
-  const handleGenerateCombinedImage = async () => {
-    setIsGeneratingImage(true);
-
-    const imageContainer = document.getElementById('image-capture-container');
-    if (!imageContainer) {
-        setIsGeneratingImage(false);
+  const handleGenerateSummaryImage = async () => {
+    setIsGeneratingSummary(true);
+    const summaryTable = document.getElementById('manual-entry-summary');
+    if (!summaryTable) {
+        setIsGeneratingSummary(false);
         return;
     }
     
-    // --- Prepare elements for capture ---
-    const summaryTable = document.getElementById('manual-entry-summary');
-    const absenceTable = document.getElementById('prolonged-absence-summary');
-    
-    const inputs = summaryTable?.querySelectorAll('input[type="number"]') || [];
-    const elementsToHide = absenceTable?.querySelectorAll('.exclude-from-image') || [];
-    
+    const inputs = summaryTable.querySelectorAll('input[type="number"]');
     const originalDisplays: { el: HTMLElement, display: string}[] = [];
     const createdSpans: HTMLElement[] = [];
 
-    // Replace inputs in summary table
     inputs.forEach((input) => {
         const inputEl = input as HTMLInputElement;
         const span = document.createElement('span');
@@ -117,59 +107,76 @@ export default function ManualEntryPage() {
         createdSpans.push(span);
     });
 
-    // Hide elements in absence table
+    try {
+      const canvas = await html2canvas(summaryTable, { scale: 2 });
+      await copyCanvasToClipboard(canvas);
+    } catch (error) {
+       toast({
+          title: "Error",
+          description: "No se pudo generar la imagen del resumen.",
+          variant: "destructive"
+      });
+    } finally {
+        createdSpans.forEach(span => span.parentNode?.removeChild(span));
+        originalDisplays.forEach(item => item.el.style.display = item.display);
+        setIsGeneratingSummary(false);
+    }
+  };
+
+  const handleGenerateAbsenceImage = async () => {
+    setIsGeneratingAbsence(true);
+    const absenceTable = document.getElementById('prolonged-absence-summary');
+     if (!absenceTable) {
+        setIsGeneratingAbsence(false);
+        return;
+    }
+    
+    const elementsToHide = absenceTable.querySelectorAll('.exclude-from-image');
+    const originalDisplays: { el: HTMLElement, display: string}[] = [];
+    
     elementsToHide.forEach(el => {
         const htmlEl = el as HTMLElement;
         originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
         htmlEl.style.display = 'none';
     });
 
-    // --- Capture ---
     try {
-      const canvas = await html2canvas(imageContainer, { scale: 2 });
+      const canvas = await html2canvas(absenceTable, { scale: 2 });
       await copyCanvasToClipboard(canvas);
     } catch (error) {
        toast({
           title: "Error",
-          description: "No se pudo generar la imagen.",
+          description: "No se pudo generar la imagen de ausencias.",
           variant: "destructive"
       });
     } finally {
-        // --- Cleanup ---
-        createdSpans.forEach(span => {
-            span.parentNode?.removeChild(span);
-        });
-        originalDisplays.forEach(item => {
-            item.el.style.display = item.display;
-        })
-        setIsGeneratingImage(false);
+        originalDisplays.forEach(item => item.el.style.display = item.display);
+        setIsGeneratingAbsence(false);
     }
-  }
+  };
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <header className="flex items-center justify-between p-4 border-b bg-card">
-        <div className="flex items-center gap-4">
-          <Link href="/">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
-        </div>
-        <div className="flex items-center gap-2">
-            <Button onClick={handleGenerateCombinedImage} disabled={isGeneratingImage}>
-                <Camera className="mr-2 h-4 w-4" />
-                Copiar Resumen
-            </Button>
-        </div>
-      </header>
-      <main className="flex-1 p-4 md:p-8 space-y-8">
-        <div id="image-capture-container" className="space-y-8">
+    <>
+      <div className="flex flex-col min-h-screen bg-background">
+        <header className="flex items-center justify-between p-4 border-b bg-card">
+          <div className="flex items-center gap-4">
+            <Link href="/">
+              <Button variant="outline" size="icon">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
+          </div>
+        </header>
+        <main className="flex-1 p-4 md:p-8 space-y-8">
             <Card id="manual-entry-summary" className="w-full">
-              <CardHeader>
-                <CardTitle className="text-center">Resumen dotacion Of. Com. Helpbank</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between p-4">
+                <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
+                <Button size="sm" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary}>
+                  <Camera className="mr-2 h-4 w-4" />
+                  Copiar Resumen
+                </Button>
               </CardHeader>
               <CardContent>
                 {loading ? (
@@ -184,19 +191,40 @@ export default function ManualEntryPage() {
               </CardContent>
             </Card>
 
-            {loading ? (
-              <Skeleton className="h-40 w-full" />
-            ) : (
-              <ProlongedAbsenceTable 
-                id="prolonged-absence-summary"
-                offices={offices} 
-                employees={employees}
-                onAbsenceAdded={handleAbsenceAdded}
-                onEmployeeReinstated={handleEmployeeReinstated}
-               />
-            )}
-        </div>
-      </main>
-    </div>
+            <Card id="prolonged-absence-summary" className="w-full">
+               <CardHeader className="flex flex-row items-center justify-between p-4">
+                 <CardTitle>Ausencias Prolongadas</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" onClick={() => setIsModalOpen(true)} className="exclude-from-image">
+                        <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
+                        Agregar
+                    </Button>
+                     <Button size="sm" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence}>
+                        <Camera className="mr-2 h-4 w-4" />
+                        Copiar Ausencias
+                    </Button>
+                  </div>
+              </CardHeader>
+               <CardContent className="p-0">
+                {loading ? (
+                  <Skeleton className="h-40 w-full" />
+                ) : (
+                  <ProlongedAbsenceTable 
+                    offices={offices} 
+                    employees={employees}
+                    onEmployeeReinstated={handleEmployeeReinstated}
+                  />
+                )}
+               </CardContent>
+            </Card>
+        </main>
+      </div>
+       <AddAbsenceModal 
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onAbsenceAdded={handleAbsenceAdded}
+          allEmployees={employees}
+      />
+    </>
   );
 }
