@@ -151,21 +151,13 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
           <TableRow>
             <TableHead className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center ${tableHeadClasses}`}>Oficina Comercial</TableHead>
             {ROLES.map(role => (
-              <TableHead key={role} colSpan={2} className={`text-center border-r-2 border-muted-foreground font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>{role}</TableHead>
+               <React.Fragment key={role}>
+                <TableHead className={`text-center font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>{role} Real</TableHead>
+                <TableHead className={`text-center border-r-2 border-muted-foreground font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>{role} Teóri.</TableHead>
+              </React.Fragment>
             ))}
             <TableHead className={`text-center font-bold text-primary-foreground border-r-2 border-muted-foreground ${tableHeadClasses}`}>Atrasos</TableHead>
             <TableHead className={`text-center font-bold text-primary-foreground ${tableHeadClasses}`}>Ausentes</TableHead>
-          </TableRow>
-          <TableRow>
-            <TableHead className={`sticky left-0 bg-primary border-r-2 border-muted-foreground ${tableHeadClasses}`}></TableHead>
-            {ROLES.map(role => (
-              <React.Fragment key={`${role}-sub`}>
-                <TableHead className="text-center font-bold text-primary-foreground p-0">Real</TableHead>
-                <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary-foreground p-0">Teori.</TableHead>
-              </React.Fragment>
-            ))}
-            <TableHead className={`border-r-2 border-muted-foreground ${tableHeadClasses}`}></TableHead>
-            <TableHead className={tableHeadClasses}></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
