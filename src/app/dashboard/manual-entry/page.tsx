@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon, Trash2, Eraser } from 'lucide-react';
+import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon, Trash2, Eraser, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary, deleteDailySummary } from '@/lib/data';
@@ -13,6 +13,7 @@ import DailySummaryTable from '@/components/DailySummaryTable';
 import { Skeleton } from '@/components/ui/skeleton';
 import html2canvas from 'html2canvas';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
+import TransferEmployeeModal from '@/components/TransferEmployeeModal';
 import { useToast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -38,28 +39,29 @@ export default function ManualEntryPage() {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
   const [isSavingDay, setIsSavingDay] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
   const manualEntryTableRef = React.useRef<{ getSummaryData: () => any; clearRealStaffing: () => void; }>(null);
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
 
+  const fetchData = async () => {
+    setLoading(true);
+    const [fetchedOffices, fetchedEmployees, fetchedSummaries] = await Promise.all([
+      getOffices(),
+      getEmployees(),
+      getDailySummaries(),
+    ]);
+    const filteredOffices = fetchedOffices.filter(office => !office.name.toLowerCase().includes('movil'));
+    setOffices(filteredOffices);
+    setEmployees(fetchedEmployees);
+    setDailySummaries(fetchedSummaries);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const [fetchedOffices, fetchedEmployees, fetchedSummaries] = await Promise.all([
-        getOffices(),
-        getEmployees(),
-        getDailySummaries(),
-      ]);
-      const filteredOffices = fetchedOffices.filter(office => !office.name.toLowerCase().includes('movil'));
-      setOffices(filteredOffices);
-      setEmployees(fetchedEmployees);
-      setDailySummaries(fetchedSummaries);
-      setLoading(false);
-    }
     fetchData();
   }, []);
 
@@ -79,7 +81,20 @@ export default function ManualEntryPage() {
       }
       return [...prev, newOrUpdatedEmployee];
     });
-    setIsModalOpen(false);
+    setIsAbsenceModalOpen(false);
+  }
+
+  const handleEmployeeTransferred = (transferredEmployee: Employee) => {
+    setEmployees(prev => {
+        const index = prev.findIndex(e => e.id === transferredEmployee.id);
+        if (index !== -1) {
+            const newEmployees = [...prev];
+            newEmployees[index] = transferredEmployee;
+            return newEmployees;
+        }
+        return [...prev, transferredEmployee];
+    });
+    fetchData(); // Refetch all data to ensure consistency
   }
 
   const copyCanvasToClipboard = async (canvas: HTMLCanvasElement) => {
@@ -260,6 +275,10 @@ export default function ManualEntryPage() {
                 />
               </PopoverContent>
             </Popover>
+            <Button onClick={() => setIsTransferModalOpen(true)} variant="outline">
+                <Shuffle className="mr-2 h-4 w-4" />
+                Trasladar Personal
+            </Button>
             <Button onClick={handleSaveDay} disabled={isSavingDay}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSavingDay ? 'Guardando...' : 'Guardar Día'}
@@ -299,7 +318,7 @@ export default function ManualEntryPage() {
                     <CardHeader className="relative flex flex-row items-center justify-center p-4 text-center">
                         <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
                         <div className="absolute right-4 flex items-center gap-2 exclude-from-image">
-                            <Button size="sm" onClick={() => setIsModalOpen(true)}>
+                            <Button size="sm" onClick={() => setIsAbsenceModalOpen(true)}>
                                 <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
                                 Agregar
                             </Button>
@@ -340,10 +359,17 @@ export default function ManualEntryPage() {
         </main>
       </div>
        <AddAbsenceModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isAbsenceModalOpen}
+          onClose={() => setIsAbsenceModalOpen(false)}
           onAbsenceAdded={handleAbsenceAdded}
           allEmployees={employees}
+      />
+       <TransferEmployeeModal
+          isOpen={isTransferModalOpen}
+          onClose={() => setIsTransferModalOpen(false)}
+          onEmployeeTransferred={handleEmployeeTransferred}
+          allEmployees={employees}
+          allOffices={offices}
       />
        <AlertDialog open={!!summaryToDelete} onOpenChange={(isOpen) => !isOpen && setSummaryToDelete(null)}>
           <AlertDialogContent>
