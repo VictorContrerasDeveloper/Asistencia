@@ -121,14 +121,22 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
         .filter(([, s]) => s === status)
         .map(([id]) => id);
     
-    if(employeeIds.length === 0) return "-";
-
-    const separator = ' / ';
-
-    return employees
+    const names = employees
         .filter(emp => employeeIds.includes(emp.id))
-        .map(emp => emp.name)
-        .join(separator);
+        .map(emp => emp.name);
+
+    if(names.length === 0) return "-";
+    
+    return (
+      <span className="inline-flex items-center flex-wrap justify-center">
+        {names.map((name, index) => (
+          <React.Fragment key={name}>
+            <span>{name}</span>
+            {index < names.length - 1 && <span className="font-extrabold text-base mx-1">/</span>}
+          </React.Fragment>
+        ))}
+      </span>
+    );
   }
 
 
