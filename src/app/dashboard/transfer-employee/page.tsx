@@ -3,12 +3,13 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shuffle, Shield, Tablet, User, Navigation, UserPlus } from 'lucide-react';
+import { ArrowLeft, Shuffle, Shield, Tablet, Navigation, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getEmployees, getOffices, Office, Employee, EmployeeRole } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import TransferEmployeeModal from '@/components/TransferEmployeeModal';
+import AddEmployeeModal from '@/components/AddEmployeeModal';
 
 const ROLE_ORDER: Record<EmployeeRole, number> = {
     'Supervisión': 1,
@@ -44,7 +45,8 @@ export default function TransferEmployeePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [offices, setOffices] = useState<Office[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
   const fetchData = async () => {
@@ -77,13 +79,14 @@ export default function TransferEmployeePage() {
   }, [employees, officeMap, loading]);
 
 
-  const handleOpenModal = (employee: Employee) => {
+  const handleOpenTransferModal = (employee: Employee) => {
     setSelectedEmployee(employee);
-    setIsModalOpen(true);
+    setIsTransferModalOpen(true);
   };
   
-  const handleTransferSuccess = async () => {
-    setIsModalOpen(false);
+  const handleSuccess = async () => {
+    setIsTransferModalOpen(false);
+    setIsAddModalOpen(false);
     setSelectedEmployee(null);
     await fetchData(); // Refresh data
   }
@@ -105,12 +108,10 @@ export default function TransferEmployeePage() {
                 </p>
             </div>
           </div>
-           <Link href="/dashboard/add-employee">
-              <Button>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Agregar Personal
-              </Button>
-            </Link>
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Agregar Personal
+            </Button>
         </header>
         <main className="flex-1 p-4 md:p-6">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
@@ -144,14 +145,14 @@ export default function TransferEmployeePage() {
                             return a.name.localeCompare(b.name);
                           })
                           .map(employee => {
-                            const Icon = RoleIcons[employee.role] || User;
+                            const Icon = RoleIcons[employee.role] || Navigation;
                             return (
                                 <div key={employee.id} className="flex items-center justify-between py-0 px-1 rounded-md hover:bg-muted/50">
                                     <div className="flex items-center gap-2">
                                         <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                                         <p className="font-medium text-sm">{employee.name}</p>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenModal(employee)}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenTransferModal(employee)}>
                                         <Shuffle className="h-4 w-4 text-primary" />
                                     </Button>
                                 </div>
@@ -172,13 +173,18 @@ export default function TransferEmployeePage() {
       </div>
       {selectedEmployee && (
         <TransferEmployeeModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={isTransferModalOpen}
+          onClose={() => setIsTransferModalOpen(false)}
           employee={selectedEmployee}
           offices={offices}
-          onSuccess={handleTransferSuccess}
+          onSuccess={handleSuccess}
         />
       )}
+      <AddEmployeeModal 
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSuccess={handleSuccess}
+      />
     </>
   );
 }

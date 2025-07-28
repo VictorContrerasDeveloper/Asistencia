@@ -9,6 +9,7 @@ import DashboardClient from '@/components/DashboardClient';
 import OfficeSummaryDashboard from '@/components/OfficeSummaryDashboard';
 import { Button } from '@/components/ui/button';
 import BulkUpdateNamesModal from '@/components/BulkUpdateNamesModal';
+import AddEmployeeModal from './AddEmployeeModal';
 
 type DashboardPageClientProps = {
   officeId: string;
@@ -28,16 +29,15 @@ export default function DashboardPageClient({
     isGeneralPanel 
 }: DashboardPageClientProps) {
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
+  const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [employees, setEmployees] = useState(isGeneralPanel ? allEmployeesProp : initialEmployeesProp);
   const [offices] = useState<Office[]>(officesProp);
 
   const refetchAllData = async () => {
-     const [allEmployeesData, officesData] = await Promise.all([
+     const [allEmployeesData] = await Promise.all([
        getEmployees(),
-       // getOffices() // In case offices can change, but it's unlikely
      ]);
      setEmployees(allEmployeesData);
-     // setOffices(officesData);
   }
 
   const officeHeader = (
@@ -56,6 +56,7 @@ export default function DashboardPageClient({
   )
 
   return (
+    <>
     <div className="flex flex-col h-screen bg-background text-foreground">
        <main className="flex-1 overflow-auto p-4 md:p-8">
         {isGeneralPanel ? (
@@ -69,12 +70,10 @@ export default function DashboardPageClient({
                       Volver a Paneles
                     </Button>
                   </Link>
-                  <Link href="/dashboard/add-employee">
-                    <Button>
-                        <PlusCircle />
-                        Agregar Personal
-                    </Button>
-                  </Link>
+                  <Button onClick={() => setAddModalOpen(true)}>
+                      <PlusCircle />
+                      Agregar Personal
+                  </Button>
                   <Link href="/dashboard/bulk-add-employees">
                       <Button>
                           <Users />
@@ -94,11 +93,7 @@ export default function DashboardPageClient({
                </div>
             </header>
             <OfficeSummaryDashboard offices={offices} employees={employees} />
-            <BulkUpdateNamesModal 
-              isOpen={isUpdateModalOpen}
-              onClose={() => setUpdateModalOpen(false)}
-              onSuccess={refetchAllData}
-            />
+            
           </>
         ) : (
           <DashboardClient 
@@ -110,6 +105,17 @@ export default function DashboardPageClient({
         )}
       </main>
     </div>
+    <BulkUpdateNamesModal 
+      isOpen={isUpdateModalOpen}
+      onClose={() => setUpdateModalOpen(false)}
+      onSuccess={refetchAllData}
+    />
+    <AddEmployeeModal
+        isOpen={isAddModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSuccess={refetchAllData}
+    />
+    </>
   );
 }
 
