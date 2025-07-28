@@ -258,18 +258,18 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
-              <TableHead rowSpan={2} className={'sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle h-auto p-0 border-r border-primary'}>Oficina Comercial</TableHead>
+              <TableHead rowSpan={2} className={'sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle h-auto p-2 border-r border-primary'}>Oficina Comercial</TableHead>
               {ROLES.map((role) => (
-                <TableHead key={role} colSpan={2} className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto p-1 border-r border-primary'}>{role}</TableHead>
+                <TableHead key={role} colSpan={2} className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-1 h-auto px-2 border-r border-primary'}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-r border-primary'}>Atrasos</TableHead>
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto'}>Ausentes</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-1 h-auto px-2 border-r border-primary'}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-1 h-auto px-2'}>Ausentes</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
               {ROLES.map((role, index) => (
                 <React.Fragment key={role}>
-                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 p-1'}>Real</TableHead>
-                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 p-1 border-r border-primary'}>Teóri.</TableHead>
+                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-1 h-auto w-16 px-2'}>Real</TableHead>
+                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-1 h-auto w-16 px-2 border-r border-primary'}>Teóri.</TableHead>
                 </React.Fragment>
               ))}
           </TableRow>
@@ -282,7 +282,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
             return (
                 <TableRow key={office.id}>
-                <TableCell className={'font-medium sticky left-0 bg-card p-1 border-r border-primary'}>
+                <TableCell className={'font-medium sticky left-0 bg-card p-2 border-r border-primary'}>
                     <div className="flex items-center gap-2">
                         <span>{office.name}</span>
                         <Popover>
@@ -361,7 +361,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
                     return (
                         <React.Fragment key={role}>
-                            <TableCell className="p-0">
+                            <TableCell className="p-1">
                             <Input
                                 ref={el => {inputRefs.current[refIndex] = el}}
                                 type="number"
@@ -373,7 +373,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                                 onKeyDown={(e) => handleKeyDown(e, refIndex)}
                                 onBlur={() => handleSaveStaffing(office.id, role)}
                                 className={cn(
-                                    "h-7 w-12 mx-auto text-center border-0 rounded-md",
+                                    "h-8 w-14 mx-auto text-center border-0 rounded-md font-bold text-base",
                                     isDeficit && "bg-red-600 text-white"
                                 )}
                             />
@@ -382,10 +382,10 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                         </React.Fragment>
                     )
                 })}
-                 <TableCell className={'text-center text-xs p-1 border-r border-primary'}>
+                 <TableCell className={'text-center text-xs p-2 border-r border-primary'}>
                     {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
-                  <TableCell className={'text-center text-xs p-1'}>
+                  <TableCell className={'text-center text-xs p-2'}>
                     {getEmployeeNamesByStatus(office.id, 'Ausente')}
                   </TableCell>
                 </TableRow>
