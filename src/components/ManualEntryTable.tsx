@@ -147,19 +147,19 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     <div className="overflow-x-auto">
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
-           <TableRow className="border-0">
-              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b border-primary font-bold text-primary-foreground text-center align-middle px-2 py-0`}>Oficina Comercial</TableHead>
+           <TableRow className="border-0 h-auto">
+              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary-foreground font-bold text-primary-foreground text-center align-middle px-2 py-0 border-r border-primary`}>Oficina Comercial</TableHead>
               {ROLES.map(role => (
-                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary-foreground border-r border-l px-2 py-0`}>{role}</TableHead>
+                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary-foreground border-r border-l border-primary px-2 py-0`}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b border-primary-foreground px-2 py-0`}>Atrasos</TableHead>
-              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b border-primary-foreground px-2 py-0`}>Ausentes</TableHead>
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary-foreground px-2 py-0`}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary-foreground px-2 py-0`}>Ausentes</TableHead>
           </TableRow>
-          <TableRow className="border-0">
+          <TableRow className="border-0 h-auto">
               {ROLES.map(role => (
                 <React.Fragment key={role}>
-                    <TableHead className={`text-center font-bold text-primary-foreground border-b border-primary-foreground border-r px-2 py-0`}>Real</TableHead>
-                    <TableHead className={`text-center font-bold text-primary-foreground border-b border-primary-foreground border-r px-2 py-0`}>Teóri.</TableHead>
+                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary-foreground border-r border-primary px-2 py-0`}>Real</TableHead>
+                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary-foreground border-r border-primary px-2 py-0`}>Teóri.</TableHead>
                 </React.Fragment>
               ))}
           </TableRow>
