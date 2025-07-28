@@ -95,13 +95,13 @@ export default function TransferEmployeePage() {
                     ))
                 ) : (
                   Object.keys(employeesByOffice).sort().map(officeName => (
-                    <div key={officeName} className="py-2">
-                      <h3 className="font-semibold text-primary px-2 pb-2">{officeName}</h3>
-                      <div className="space-y-1">
+                    <div key={officeName}>
+                      <h3 className="font-semibold text-primary px-2 pt-2 pb-1">{officeName}</h3>
+                      <div className="space-y-0.5">
                         {employeesByOffice[officeName].sort((a,b) => a.name.localeCompare(b.name)).map(employee => (
-                          <div key={employee.id} className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                              <p className="font-medium text-sm">{employee.name}</p>
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenModal(employee)}>
+                          <div key={employee.id} className="flex items-center justify-between p-0.5 rounded-md hover:bg-muted/50">
+                              <p className="font-medium text-sm pl-1.5">{employee.name}</p>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenModal(employee)}>
                                   <Shuffle className="h-4 w-4 text-primary" />
                               </Button>
                           </div>
