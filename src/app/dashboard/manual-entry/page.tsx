@@ -260,10 +260,6 @@ export default function ManualEntryPage() {
                 />
               </PopoverContent>
             </Popover>
-            <Button onClick={handleClearRealStaffing} variant="outline">
-                <Eraser className="mr-2 h-4 w-4" />
-                Limpiar Ingresos
-            </Button>
             <Button onClick={handleSaveDay} disabled={isSavingDay}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSavingDay ? 'Guardando...' : 'Guardar Día'}
@@ -288,8 +284,11 @@ export default function ManualEntryPage() {
                   )}
                 </CardContent>
               </div>
-               <CardFooter className="flex justify-end p-2 exclude-from-image bg-card">
-                  <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary}>
+               <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
+                  <Button size="icon" variant="ghost" onClick={handleClearRealStaffing} title="Limpiar Ingresos">
+                    <Eraser className="h-5 w-5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary} title="Copiar Imagen del Resumen">
                     <Camera className="h-5 w-5" />
                   </Button>
               </CardFooter>
@@ -319,7 +318,7 @@ export default function ManualEntryPage() {
                     </CardContent>
                 </div>
                 <CardFooter className="flex justify-end p-2 exclude-from-image bg-card">
-                     <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence}>
+                     <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence} title="Copiar Imagen de Ausencias">
                         <Camera className="h-5 w-5" />
                     </Button>
                 </CardFooter>
