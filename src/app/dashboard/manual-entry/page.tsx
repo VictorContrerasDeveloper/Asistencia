@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee } from '@/lib/data';
 import ManualEntryTable from '@/components/ManualEntryTable';
+import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -21,6 +22,7 @@ export default function ManualEntryPage() {
         getOffices(),
         getEmployees(), // Fetch all employees
       ]);
+      fetchedOffices.sort((a, b) => a.name.localeCompare(b.name));
       setOffices(fetchedOffices);
       setEmployees(fetchedEmployees);
       setLoading(false);
@@ -40,7 +42,7 @@ export default function ManualEntryPage() {
           <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
         </div>
       </header>
-      <main className="flex-1 p-4 md:p-8">
+      <main className="flex-1 p-4 md:p-8 space-y-8">
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Ejecutivas SI presentes en oficina</CardTitle>
@@ -56,6 +58,13 @@ export default function ManualEntryPage() {
             )}
           </CardContent>
         </Card>
+
+        {loading ? (
+          <p>Cargando ausencias...</p>
+        ) : (
+          <ProlongedAbsenceTable offices={offices} employees={employees} />
+        )}
+
       </main>
     </div>
   );
