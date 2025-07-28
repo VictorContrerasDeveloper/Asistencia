@@ -134,9 +134,9 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
                 const selectedDate = dates[employee.id] || (employee.absenceEndDate ? new Date(employee.absenceEndDate) : undefined)
                 return (
                     <TableRow key={employee.id}>
-                    <TableCell className="font-medium">{employee.name}</TableCell>
-                    <TableCell>{employee.absenceReason}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium p-2">{employee.name}</TableCell>
+                    <TableCell className="p-2">{employee.absenceReason}</TableCell>
+                    <TableCell className="p-2">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
@@ -161,7 +161,7 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
                             </PopoverContent>
                         </Popover>
                     </TableCell>
-                    <TableCell>{employee.officeName}</TableCell>
+                    <TableCell className="p-2">{employee.officeName}</TableCell>
                     </TableRow>
                 )
               })}
