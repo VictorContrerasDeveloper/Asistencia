@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
 import { CalendarIcon, UserCheck } from 'lucide-react';
 import { Calendar } from './ui/calendar';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -113,7 +113,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
           </TableHeader>
           <TableBody>
             {absentEmployees.map(employee => {
-              const selectedDate = employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined;
+              const selectedDate = employee.absenceEndDate ? new Date(employee.absenceEndDate) : undefined;
               return (
                   <TableRow key={employee.id}>
                   <TableCell className="font-medium p-2 text-xs">{employee.name}</TableCell>
