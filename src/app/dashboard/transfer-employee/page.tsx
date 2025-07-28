@@ -99,7 +99,7 @@ export default function TransferEmployeePage() {
                       </CardHeader>
                       <CardContent className="p-3 pt-0 overflow-y-auto">
                         {employeesByOffice[officeName].sort((a,b) => a.name.localeCompare(b.name)).map(employee => (
-                          <div key={employee.id} className="flex items-center justify-between py-0.5 px-1 rounded-md hover:bg-muted/50">
+                          <div key={employee.id} className="flex items-center justify-between py-0 px-1 rounded-md hover:bg-muted/50">
                               <p className="font-medium text-sm">{employee.name}</p>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenModal(employee)}>
                                   <Shuffle className="h-4 w-4 text-primary" />
