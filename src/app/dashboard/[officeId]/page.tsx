@@ -1,11 +1,15 @@
 
+"use client";
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { ArrowLeft, FileText, Users, PlusCircle, Trash2, Edit } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices, slugify, Office, Employee } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import OfficeSummaryDashboard from '@/components/OfficeSummaryDashboard';
 import OfficeAttendanceSummary from '@/components/OfficeAttendanceSummary';
 import { Button } from '@/components/ui/button';
+import BulkUpdateNamesModal from '@/components/BulkUpdateNamesModal';
 
 type DashboardPageProps = {
   params: {
@@ -13,11 +17,59 @@ type DashboardPageProps = {
   };
 };
 
-export default async function DashboardPage({ params }: DashboardPageProps) {
+// This page now needs to be a client component to handle modal state
+export default function DashboardPageWrapper({ params }: DashboardPageProps) {
+  // We will fetch data in a client component and pass it down.
+  // This is a common pattern for pages that need both server-side data fetching
+  // and client-side interactivity.
+  return <DashboardPage params={params} />;
+}
+
+
+function DashboardPage({ params }: DashboardPageProps) {
   const { officeId } = params;
-  const offices = await getOffices();
-  const office = officeId === 'general' ? { name: 'Panel General', id: 'general' } : await getOfficeBySlug(officeId);
-  const initialEmployees = await getEmployees(officeId);
+  const [offices, setOffices] = useState<Office[]>([]);
+  const [office, setOffice] = useState<Office | {name: string, id: string} | null>(null);
+  const [initialEmployees, setInitialEmployees] = useState<Employee[]>([]);
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
+
+  useState(() => {
+    async function fetchData() {
+      setLoading(true);
+      const officesData = await getOffices();
+      setOffices(officesData);
+      
+      const officeData = officeId === 'general' ? { name: 'Panel General', id: 'general' } : await getOfficeBySlug(officeId);
+      setOffice(officeData);
+
+      if (officeId === 'general') {
+        const allEmployeesData = await getEmployees();
+        setAllEmployees(allEmployeesData);
+        setInitialEmployees([]);
+      } else {
+        const initialEmployeesData = await getEmployees(officeId);
+        setInitialEmployees(initialEmployeesData);
+        setAllEmployees([]);
+      }
+      setLoading(false);
+    }
+    fetchData();
+  });
+
+  const refetchAllEmployees = async () => {
+     const allEmployeesData = await getEmployees();
+     setAllEmployees(allEmployeesData);
+  }
+
+  if (loading) {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen">
+            <h1 className="text-2xl font-bold mb-4">Cargando...</h1>
+        </div>
+    );
+  }
 
   if (!office) {
     return (
@@ -30,7 +82,6 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     );
   }
 
-  const allEmployees = officeId === 'general' ? await getEmployees() : [];
   const isGeneralPanel = officeId === 'general';
 
   const officeHeader = (
@@ -74,12 +125,10 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                           Carga Masiva
                       </Button>
                   </Link>
-                  <Link href="/dashboard/bulk-update-names">
-                      <Button variant="secondary">
-                          <Edit />
-                          Actualizar Nombres
-                      </Button>
-                  </Link>
+                   <Button variant="secondary" onClick={() => setUpdateModalOpen(true)}>
+                      <Edit />
+                      Actualizar Nombres
+                  </Button>
                   <Link href="/dashboard/delete-employee">
                       <Button variant="destructive">
                           <Trash2 />
@@ -89,6 +138,11 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                </div>
             </header>
             <OfficeSummaryDashboard offices={offices} employees={allEmployees} />
+            <BulkUpdateNamesModal 
+              isOpen={isUpdateModalOpen}
+              onClose={() => setUpdateModalOpen(false)}
+              onSuccess={refetchAllEmployees}
+            />
           </>
         ) : (
           <DashboardClient 
