@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -271,11 +270,11 @@ export default function ManualEntryPage() {
         </header>
         <main className="flex-1 p-4 md:p-8 space-y-8">
             <Card id="manual-entry-summary" className="w-full overflow-hidden">
-              <div>
+              <div className="border-b">
                 <CardHeader className="flex flex-row items-center justify-center p-4">
                   <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
                   {loading ? (
                     <div className="space-y-2 p-6">
                       <Skeleton className="h-10 w-full" />
@@ -314,17 +313,11 @@ export default function ManualEntryPage() {
             </Card>
 
             <Card id="prolonged-absence-summary" className="w-full overflow-hidden">
-                <div>
-                    <CardHeader className="relative flex flex-row items-center justify-center p-4 text-center">
+                <div className="border-b">
+                    <CardHeader className="flex flex-row items-center justify-center p-4 text-center">
                         <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
-                        <div className="absolute right-4 flex items-center gap-2 exclude-from-image">
-                            <Button size="sm" onClick={() => setIsAbsenceModalOpen(true)}>
-                                <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
-                                Agregar
-                            </Button>
-                        </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="">
                         {loading ? (
                         <div className="p-6">
                             <Skeleton className="h-40 w-full" />
@@ -338,7 +331,10 @@ export default function ManualEntryPage() {
                         )}
                     </CardContent>
                 </div>
-                <CardFooter className="flex justify-end p-2 exclude-from-image bg-card">
+                <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
+                     <Button size="icon" variant="ghost" onClick={() => setIsAbsenceModalOpen(true)} title="Agregar Ausencia">
+                        <PlusCircle className="h-5 w-5" />
+                    </Button>
                      <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence} title="Copiar Imagen de Ausencias">
                         <Camera className="h-5 w-5" />
                     </Button>
