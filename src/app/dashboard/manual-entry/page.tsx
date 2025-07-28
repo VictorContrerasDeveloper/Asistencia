@@ -189,10 +189,6 @@ export default function ManualEntryPage() {
         await saveDailySummary(selectedDate, summaryData);
         const fetchedSummaries = await getDailySummaries();
         setDailySummaries(fetchedSummaries);
-        toast({
-          title: "¡Éxito!",
-          description: "El resumen del día ha sido guardado correctamente."
-        });
       } catch (error) {
          toast({
           title: "Error",
