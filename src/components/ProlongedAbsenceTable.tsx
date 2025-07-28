@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo, useState, useCallback, forwardRef } from 'react';
@@ -125,10 +124,11 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
                               variant={"outline"}
                               size="sm"
                               className={cn(
-                                  "w-[160px] justify-center font-normal h-7 text-xs px-1",
+                                  "w-[150px] justify-start text-left font-normal h-7 text-xs px-2 gap-1",
                                   !selectedDate && "text-muted-foreground"
                               )}
                               >
+                              <CalendarIcon className="h-3.5 w-3.5" />
                               {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
                               </Button>
                           </PopoverTrigger>
