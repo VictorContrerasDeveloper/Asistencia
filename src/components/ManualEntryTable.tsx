@@ -77,6 +77,15 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
             offices.forEach(office => {
                 const lateEmployees = getEmployeeNamesByStatus(office.id, 'Atrasado');
                 const absentEmployees = getEmployeeNamesByStatus(office.id, 'Ausente');
+                
+                const lateText = lateEmployees === "-" ? "" : 
+                  (React.isValidElement(lateEmployees) && lateEmployees.props.children) ? 
+                  (Array.isArray(lateEmployees.props.children) ? lateEmployees.props.children.filter((c: any) => typeof c === 'string' || (c && c.props && typeof c.props.children === 'string')).map((c:any) => typeof c === 'string' ? c : c.props.children).join(' / ') : lateEmployees.props.children) : '';
+
+                const absentText = absentEmployees === "-" ? "" : 
+                  (React.isValidElement(absentEmployees) && absentEmployees.props.children) ?
+                  (Array.isArray(absentEmployees.props.children) ? absentEmployees.props.children.filter((c: any) => typeof c === 'string' || (c && c.props && typeof c.props.children === 'string')).map((c:any) => typeof c === 'string' ? c : c.props.children).join(' / ') : absentEmployees.props.children) : '';
+
                 summaryData[office.id] = {
                     name: office.name,
                     realStaffing: {
@@ -84,8 +93,8 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                         Anfitrión: parseInt(realStaffing[office.id]?.Anfitrión || '0', 10),
                         Tablet: parseInt(realStaffing[office.id]?.Tablet || '0', 10),
                     },
-                    late: lateEmployees === "-" ? "" : lateEmployees.props.children.filter((c: any) => typeof c === 'string').join(' / '),
-                    absent: absentEmployees === "-" ? "" : absentEmployees.props.children.filter((c: any) => typeof c === 'string').join(' / '),
+                    late: lateText,
+                    absent: absentText,
                 };
             });
             return summaryData;
