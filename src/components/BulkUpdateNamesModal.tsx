@@ -90,14 +90,14 @@ export default function BulkUpdateNamesModal({ isOpen, onClose, onSuccess }: Bul
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl grid-rows-[auto,1fr,auto]">
+      <DialogContent className="max-w-xl">
         <DialogHeader>
           <DialogTitle>Actualización Masiva de Nombres</DialogTitle>
           <DialogDescription>
             Usa el formato: <code className="font-mono text-sm bg-muted p-1 rounded">Nombre Actual > Nombre Nuevo</code> por cada línea.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid md:grid-cols-2 gap-8 py-4 overflow-hidden">
+        <div className="py-4">
           <div className="flex flex-col gap-4">
               <Label htmlFor="nameUpdates">Nombres a Actualizar</Label>
               <Textarea
@@ -106,19 +106,9 @@ export default function BulkUpdateNamesModal({ isOpen, onClose, onSuccess }: Bul
                 onChange={(e) => setNameUpdates(e.target.value)}
                 placeholder="Ej:&#10;Juan Pérez > Juan Pérez González&#10;Maria Gonzalez > María de los Ángeles González"
                 required
-                className="h-full"
+                className="h-80"
               />
           </div>
-           <div className="flex flex-col gap-4">
-            <Label>Personal Actual</Label>
-              <ScrollArea className="h-full max-h-[400px] w-full rounded-md border p-4">
-                <ul className="space-y-1">
-                  {employees.map(employee => (
-                    <li key={employee.id} className="text-sm">{employee.name}</li>
-                  ))}
-                </ul>
-              </ScrollArea>
-           </div>
         </div>
         <Alert>
             <Terminal className="h-4 w-4" />
