@@ -52,7 +52,6 @@ export type DailySummary = {
       realStaffing: {
         [key in EmployeeRole]?: number;
       };
-      late: string;
       absent: string;
     };
   };

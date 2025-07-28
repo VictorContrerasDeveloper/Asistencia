@@ -57,7 +57,6 @@ export default function DailySummaryTable({ summaries }: DailySummaryTableProps)
                         {ROLES.map(role => (
                             <TableHead key={role} className="text-center font-bold text-primary">{role}</TableHead>
                         ))}
-                        <TableHead className="font-bold text-primary">Atrasos</TableHead>
                         <TableHead className="font-bold text-primary">Ausentes</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -70,7 +69,6 @@ export default function DailySummaryTable({ summaries }: DailySummaryTableProps)
                                     {officeData.realStaffing[role] || 0}
                                 </TableCell>
                             ))}
-                            <TableCell className="text-xs">{officeData.late || '-'}</TableCell>
                              <TableCell className="text-xs">{officeData.absent || '-'}</TableCell>
                         </TableRow>
                     ))}
