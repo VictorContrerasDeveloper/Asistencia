@@ -78,3 +78,24 @@ Por defecto, tu proyecto de Firebase está en el **Plan Spark**, que es un plan 
 Solo tendrías que pagar si decides cambiar tu proyecto al **Plan Blaze (pago por uso)** y *además* superas las cuotas gratuitas. El Plan Blaze sigue teniendo las mismas cuotas gratuitas que el Plan Spark, pero te permite excederlas si tu aplicación crece mucho.
 
 **En resumen:** Para una aplicación como "Attendance Hero", con una cantidad normal de oficinas y empleados, **es muy probable que tu uso se mantenga dentro del plan gratuito de Firebase de forma indefinida**. No se te cobrará nada a menos que actualices manualmente tu proyecto al plan de pago y tu aplicación reciba un tráfico o un volumen de datos masivo.
+
+---
+
+## Diferencia: Firebase Hosting vs. Cloud Storage
+
+Es una duda muy común. Aquí te explicamos la diferencia de forma sencilla con una analogía.
+
+Imagina que estás construyendo una tienda en línea:
+
+*   **Firebase Hosting** es como el **local de la tienda**. Es el espacio donde construyes tu tienda, pones los estantes, las luces y la vitrina. Es lo que los clientes visitan. En términos de tu aplicación, **Hosting** es donde se alojan los archivos que la hacen funcionar (HTML, CSS, JavaScript). Cuando publicas tu app con `firebase apphosting:deploy`, estás subiendo los archivos de tu aplicación a Hosting para que la gente pueda visitarla en una URL.
+    *   **Uso en nuestra app**: La usamos para servir la aplicación de "Attendance Hero" a los usuarios.
+
+*   **Cloud Storage for Firebase** es como la **bodega o el almacén** de tu tienda. No es la tienda en sí, sino el lugar donde guardas los productos que vendes, como cajas de zapatos o ropa. En términos de tu aplicación, **Storage** se usa para que los *usuarios* de la app suban, almacenen y descarguen archivos, como fotos de perfil, videos, PDFs, etc.
+    *   **Uso en nuestra app**: Actualmente *no* la estamos usando, porque nuestra aplicación no necesita que los usuarios suban ningún tipo de archivo.
+
+### Resumen Rápido
+
+| Servicio | Analogía | ¿Para qué sirve? | ¿Lo usamos en esta app? |
+| :--- | :--- | :--- | :--- |
+| **Firebase Hosting** | El local de la tienda | Para alojar y servir los archivos de tu aplicación web (el "motor" de la app). | **Sí**, para que puedas visitar y usar "Attendance Hero". |
+| **Cloud Storage** | La bodega de la tienda | Para almacenar y gestionar archivos subidos por los usuarios (fotos, videos, etc.). | **No**, porque la app no tiene esa funcionalidad. |
