@@ -17,7 +17,8 @@ import { Users } from 'lucide-react';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Label } from './ui/label';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Checkbox } from './ui/checkbox';
+
 
 type ManualEntryTableProps = {
   offices: Office[];
@@ -56,11 +57,14 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
         initialStaffing[office.id][role] = office.realStaffing?.[role]?.toString() || '';
       });
       initialAttendance[office.id] = {};
+       (employees.filter(e => e.officeId === office.id)).forEach(emp => {
+        initialAttendance[office.id][emp.id] = 'Presente';
+      });
     });
-
+    
     setRealStaffing(initialStaffing);
     setAttendance(initialAttendance);
-  }, [offices]);
+  }, [offices, employees]);
   
   const assignedEmployeesByOffice = useMemo(() => {
     const grouped: { [officeId: string]: Employee[] } = {};
@@ -75,15 +79,28 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     return grouped;
   }, [employees]);
 
-  const handleAttendanceChange = (officeId: string, employeeId: string, status: AttendanceStatus) => {
-    setAttendance(prev => ({
-        ...prev,
-        [officeId]: {
-            ...prev[officeId],
-            [employeeId]: status,
+  const handleAttendanceChange = (officeId: string, employeeId: string, newStatus: AttendanceStatus, isChecked: boolean) => {
+    setAttendance(prev => {
+        const currentStatus = prev[officeId]?.[employeeId] || 'Presente';
+        let finalStatus: AttendanceStatus;
+
+        if (isChecked) {
+            finalStatus = newStatus;
+        } else {
+            // If unchecking, they become present
+            finalStatus = 'Presente';
         }
-    }));
+
+        return {
+            ...prev,
+            [officeId]: {
+                ...prev[officeId],
+                [employeeId]: finalStatus,
+            }
+        };
+    });
   };
+
 
   const handleStaffingChange = (officeId: string, role: EmployeeRole, value: string) => {
     const newStaffing = {
@@ -166,25 +183,24 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                             {assignedEmployees.map(emp => (
                                             <div key={emp.id} className="flex items-center justify-between">
                                                 <Label htmlFor={`attendance-${office.id}-${emp.id}`} className="flex-1 cursor-pointer">{emp.name}</Label>
-                                                 <RadioGroup
-                                                    id={`attendance-${office.id}-${emp.id}`}
-                                                    value={attendance[office.id]?.[emp.id] || 'Presente'}
-                                                    onValueChange={(value) => handleAttendanceChange(office.id, emp.id, value as AttendanceStatus)}
-                                                    className="flex items-center space-x-2"
-                                                >
-                                                    <div className="flex items-center space-x-1">
-                                                        <RadioGroupItem value="Presente" id={`presente-${office.id}-${emp.id}`} />
-                                                        <Label htmlFor={`presente-${office.id}-${emp.id}`} className="text-xs">P</Label>
-                                                    </div>
-                                                    <div className="flex items-center space-x-1">
-                                                        <RadioGroupItem value="Atrasado" id={`atrasado-${office.id}-${emp.id}`} />
+                                                 <div className="flex items-center space-x-4">
+                                                    <div className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id={`atrasado-${office.id}-${emp.id}`}
+                                                            checked={attendance[office.id]?.[emp.id] === 'Atrasado'}
+                                                            onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Atrasado', !!checked)}
+                                                        />
                                                         <Label htmlFor={`atrasado-${office.id}-${emp.id}`} className="text-xs">T</Label>
                                                     </div>
-                                                    <div className="flex items-center space-x-1">
-                                                        <RadioGroupItem value="Ausente" id={`ausente-${office.id}-${emp.id}`} />
+                                                    <div className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id={`ausente-${office.id}-${emp.id}`}
+                                                            checked={attendance[office.id]?.[emp.id] === 'Ausente'}
+                                                            onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Ausente', !!checked)}
+                                                        />
                                                         <Label htmlFor={`ausente-${office.id}-${emp.id}`} className="text-xs">A</Label>
                                                     </div>
-                                                </RadioGroup>
+                                                 </div>
                                             </div>
                                             ))}
                                         </div>
