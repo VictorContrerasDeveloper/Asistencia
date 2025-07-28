@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing } from '@/lib/data';
+import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -27,6 +27,7 @@ type ManualEntryTableProps = {
 };
 
 const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
+const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
 type RealStaffingValues = {
   [officeId: string]: {
@@ -139,13 +140,20 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
   };
   
   const getEmployeeNamesByStatus = (officeId: string, status: AttendanceStatus) => {
-     const employeeIds = Object.entries(attendance[officeId] || {})
+     const employeeIdsWithStatus = Object.entries(attendance[officeId] || {})
         .filter(([, s]) => s === status)
         .map(([id]) => id);
-    
-    const names = employees
-        .filter(emp => employeeIds.includes(emp.id))
-        .map(emp => emp.name);
+
+    const filteredEmployees = employees
+        .filter(emp => employeeIdsWithStatus.includes(emp.id))
+        .filter(emp => {
+            if (status === 'Ausente') {
+                return !PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason);
+            }
+            return true;
+        });
+
+    const names = filteredEmployees.map(emp => emp.name);
 
     if(names.length === 0) return "-";
     
