@@ -245,7 +245,7 @@ export default function ManualEntryPage() {
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "w-[280px] justify-start text-left font-normal",
+                    "justify-start text-left font-normal",
                     !selectedDate && "text-muted-foreground"
                   )}
                 >
@@ -317,7 +317,7 @@ export default function ManualEntryPage() {
                     <CardHeader className="flex flex-row items-center justify-center p-4 text-center">
                         <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-0">
                         {loading ? (
                         <div className="p-6">
                             <Skeleton className="h-40 w-full" />
