@@ -75,28 +75,31 @@ export default function ManualEntryPage() {
         return;
     }
 
-    // Temporarily replace inputs with spans for html2canvas
+    // --- Prepare tables for capturing ---
+
+    // 1. Temporarily replace inputs with spans for html2canvas
     const inputs = summaryTable.querySelectorAll('input[type="number"]');
-    const originalDisplays: string[] = [];
-    inputs.forEach((input, index) => {
+    const originalDisplays: { el: HTMLElement, display: string}[] = [];
+    inputs.forEach((input) => {
+        const inputEl = input as HTMLInputElement;
         const span = document.createElement('span');
-        span.textContent = (input as HTMLInputElement).value || '0';
-        span.className = input.className.replace('w-12', 'w-full block').replace('h-7', 'h-full'); // copy styles
-        if (input.className.includes('bg-red-600')) {
+        span.textContent = inputEl.value || '0';
+        span.className = inputEl.className.replace('w-12', 'w-full block').replace('h-7', 'h-full'); 
+        if (inputEl.className.includes('bg-red-600')) {
              span.classList.add('bg-red-600', 'text-white');
         }
-        originalDisplays[index] = input.style.display;
-        input.style.display = 'none';
-        input.parentNode?.insertBefore(span, input.nextSibling);
+        originalDisplays.push({el: inputEl, display: inputEl.style.display });
+        inputEl.style.display = 'none';
+        inputEl.parentNode?.insertBefore(span, inputEl.nextSibling);
     });
 
-    // Hide the add button
-    const addButton = absenceTable.querySelector('button');
-    let addButtonOriginalDisplay = '';
-    if(addButton) {
-        addButtonOriginalDisplay = addButton.style.display;
-        addButton.style.display = 'none';
-    }
+    // 2. Hide elements not meant for the image
+    const elementsToHide = absenceTable.querySelectorAll('.exclude-from-image');
+    elementsToHide.forEach(el => {
+        const htmlEl = el as HTMLElement;
+        originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
+        htmlEl.style.display = 'none';
+    })
 
 
     try {
@@ -125,18 +128,21 @@ export default function ManualEntryPage() {
       console.error("Error generating image:", error);
       toast({ title: "Error", description: "No se pudo generar la imagen.", variant: "destructive" });
     } finally {
-        // Restore inputs
-        inputs.forEach((input, index) => {
-            input.style.display = originalDisplays[index] || '';
+        // --- Restore original elements ---
+        
+        // 1. Restore inputs
+        inputs.forEach((input) => {
             const span = input.nextSibling;
             if (span && span.nodeName === 'SPAN') {
                 span.parentNode?.removeChild(span);
             }
         });
-        // Restore add button
-        if(addButton) {
-            addButton.style.display = addButtonOriginalDisplay;
-        }
+
+        // 2. Restore all hidden elements
+        originalDisplays.forEach(item => {
+            item.el.style.display = item.display;
+        })
+        
         setIsGeneratingImage(false);
     }
   }

@@ -118,7 +118,7 @@ const ProlongedAbsenceTable = forwardRef<HTMLDivElement, ProlongedAbsenceTablePr
           <div className="flex-1"></div>
           <CardTitle className="text-base font-semibold text-center flex-1">Ausencias Prolongadas</CardTitle>
           <div className="flex-1 flex justify-end">
-              <Button size="sm" onClick={() => setIsModalOpen(true)}>
+              <Button size="sm" onClick={() => setIsModalOpen(true)} className="exclude-from-image">
                   <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
                   Agregar
               </Button>
@@ -144,7 +144,7 @@ const ProlongedAbsenceTable = forwardRef<HTMLDivElement, ProlongedAbsenceTablePr
           <div className="flex-1"></div>
           <CardTitle className="text-base font-semibold text-center flex-1">Ausencias Prolongadas</CardTitle>
           <div className="flex-1 flex justify-end">
-              <Button size="sm" onClick={() => setIsModalOpen(true)}>
+              <Button size="sm" onClick={() => setIsModalOpen(true)} className="exclude-from-image">
                   <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
                   Agregar
               </Button>
@@ -159,7 +159,7 @@ const ProlongedAbsenceTable = forwardRef<HTMLDivElement, ProlongedAbsenceTablePr
                   <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Motivo</TableHead>
                   <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Fecha Término</TableHead>
                   <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Última Oficina Asignada</TableHead>
-                  <TableHead className="font-bold text-primary-foreground text-right text-sm px-2 py-1">Acciones</TableHead>
+                  <TableHead className="font-bold text-primary-foreground text-right text-sm px-2 py-1 exclude-from-image">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -196,7 +196,7 @@ const ProlongedAbsenceTable = forwardRef<HTMLDivElement, ProlongedAbsenceTablePr
                           </Popover>
                       </TableCell>
                       <TableCell className="p-1 text-xs">{employee.officeName}</TableCell>
-                      <TableCell className="p-1 text-right">
+                      <TableCell className="p-1 text-right exclude-from-image">
                         <Button variant="ghost" size="sm" onClick={() => handleReinstate(employee.id)} title="Reintegrar empleado" className="h-7 w-7 p-0">
                           <UserCheck className="h-4 w-4 text-green-600" />
                         </Button>
