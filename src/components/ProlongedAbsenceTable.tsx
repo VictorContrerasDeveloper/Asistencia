@@ -103,11 +103,11 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
         <Table>
           <TableHeader className="bg-primary">
             <TableRow>
-              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Nombre</TableHead>
-              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Motivo</TableHead>
-              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Fecha Término</TableHead>
-              <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Última Oficina Asignada</TableHead>
-              <TableHead className="font-bold text-primary-foreground text-right text-sm px-2 py-1 exclude-from-image">Acciones</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-sm p-2">Nombre</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-sm p-2">Motivo</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-sm p-2">Fecha Término</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-sm p-2">Última Oficina Asignada</TableHead>
+              <TableHead className="font-bold text-primary-foreground text-right text-sm p-2 exclude-from-image">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -115,9 +115,9 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
               const selectedDate = employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined;
               return (
                   <TableRow key={employee.id}>
-                  <TableCell className="font-medium p-1 text-xs">{employee.name}</TableCell>
-                  <TableCell className="p-1 text-xs">{employee.absenceReason}</TableCell>
-                  <TableCell className="p-1 text-xs">
+                  <TableCell className="font-medium p-2 text-xs">{employee.name}</TableCell>
+                  <TableCell className="p-2 text-xs">{employee.absenceReason}</TableCell>
+                  <TableCell className="p-2 text-xs">
                       <Popover>
                           <PopoverTrigger asChild>
                               <Button
@@ -143,8 +143,8 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
                           </PopoverContent>
                       </Popover>
                   </TableCell>
-                  <TableCell className="p-1 text-xs">{employee.officeName}</TableCell>
-                  <TableCell className="p-1 text-right exclude-from-image">
+                  <TableCell className="p-2 text-xs">{employee.officeName}</TableCell>
+                  <TableCell className="p-2 text-right exclude-from-image">
                     <Button variant="ghost" size="sm" onClick={() => handleReinstate(employee.id)} title="Reintegrar empleado" className="h-7 w-7 p-0">
                       <UserCheck className="h-4 w-4 text-green-600" />
                     </Button>
