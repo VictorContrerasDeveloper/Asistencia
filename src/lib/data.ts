@@ -107,6 +107,20 @@ export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing
   await updateDoc(officeRef, { theoreticalStaffing });
 }
 
+export const clearAllRealStaffing = async (officeIds: string[]) => {
+    const batch = writeBatch(db);
+    const clearedStaffing = {
+        Modulo: 0,
+        Anfitrión: 0,
+        Tablet: 0,
+    };
+    officeIds.forEach(id => {
+        const officeRef = doc(db, 'offices', id);
+        batch.update(officeRef, { realStaffing: clearedStaffing });
+    });
+    await batch.commit();
+}
+
 export const updateOfficeRealStaffing = async (officeId: string, realStaffing: { [key in EmployeeRole]?: number }) => {
     const officeRef = doc(db, 'offices', officeId);
     
@@ -279,3 +293,5 @@ export const deleteDailySummary = async (summaryId: string) => {
   const summaryRef = doc(db, 'dailySummaries', summaryId);
   await deleteDoc(summaryRef);
 };
+
+    

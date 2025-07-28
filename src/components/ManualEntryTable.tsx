@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
-import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason, updateEmployee } from '@/lib/data';
+import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason, updateEmployee, clearAllRealStaffing } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -59,7 +59,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
       initialStaffing[office.id] = {};
       ROLES.forEach(role => {
         const realValue = office.realStaffing?.[role];
-        initialStaffing[office.id][role] = realValue !== undefined ? realValue.toString() : '';
+        initialStaffing[office.id][role] = realValue !== undefined && realValue !== 0 ? realValue.toString() : '';
       });
       initialAttendance[office.id] = {};
        (employees.filter(e => e.officeId === office.id)).forEach(emp => {
@@ -99,15 +99,27 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
             });
             return summaryData;
         },
-        clearRealStaffing: () => {
-            const clearedStaffing: RealStaffingValues = {};
-             offices.forEach(office => {
-                clearedStaffing[office.id] = {};
-                ROLES.forEach(role => {
-                    clearedStaffing[office.id][role] = '';
+        clearRealStaffing: async () => {
+            try {
+                const officeIds = offices.map(o => o.id);
+                await clearAllRealStaffing(officeIds);
+                
+                const clearedStaffing: RealStaffingValues = {};
+                offices.forEach(office => {
+                    clearedStaffing[office.id] = {};
+                    ROLES.forEach(role => {
+                        clearedStaffing[office.id][role] = '';
+                    });
                 });
-            });
-            setRealStaffing(clearedStaffing);
+                setRealStaffing(clearedStaffing);
+
+            } catch (error) {
+                 toast({
+                    title: "Error",
+                    description: "No se pudo limpiar la dotación en la base de datos.",
+                    variant: "destructive",
+                });
+            }
         }
     }));
   
@@ -387,3 +399,5 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
 ManualEntryTable.displayName = 'ManualEntryTable';
 export default ManualEntryTable;
+
+    
