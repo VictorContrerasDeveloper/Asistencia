@@ -19,14 +19,17 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Button } from './ui/button';
+import { Trash2 } from 'lucide-react';
 
 type DailySummaryTableProps = {
   summaries: DailySummary[];
+  onDelete: (summaryId: string) => void;
 };
 
 const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
 
-export default function DailySummaryTable({ summaries }: DailySummaryTableProps) {
+export default function DailySummaryTable({ summaries, onDelete }: DailySummaryTableProps) {
   
   const sortedSummaries = useMemo(() => {
     return summaries.sort((a, b) => b.date.toMillis() - a.date.toMillis());
@@ -58,6 +61,7 @@ export default function DailySummaryTable({ summaries }: DailySummaryTableProps)
                             <TableHead key={role} className="text-center font-bold text-primary">{role}</TableHead>
                         ))}
                         <TableHead className="font-bold text-primary">Ausentes</TableHead>
+                        <TableHead className="font-bold text-primary text-right">Acciones</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -70,8 +74,16 @@ export default function DailySummaryTable({ summaries }: DailySummaryTableProps)
                                 </TableCell>
                             ))}
                              <TableCell className="text-xs">{officeData.absent || '-'}</TableCell>
+                             <TableCell></TableCell>
                         </TableRow>
                     ))}
+                    <TableRow>
+                        <TableCell colSpan={ROLES.length + 3} className="text-right py-2 pr-4">
+                             <Button variant="ghost" size="icon" onClick={() => onDelete(summary.id)} className="h-8 w-8">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        </TableCell>
+                    </TableRow>
                 </TableBody>
             </Table>
           </AccordionContent>

@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary } from '@/lib/data';
+import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary, deleteDailySummary } from '@/lib/data';
 import ManualEntryTable from '@/components/ManualEntryTable';
 import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
 import DailySummaryTable from '@/components/DailySummaryTable';
@@ -19,6 +19,16 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -33,6 +43,7 @@ export default function ManualEntryPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
   const manualEntryTableRef = React.useRef<{ getSummaryData: () => any }>(null);
+  const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -194,6 +205,27 @@ export default function ManualEntryPage() {
     }
   };
 
+  const handleDeleteSummary = async () => {
+    if (!summaryToDelete) return;
+
+    try {
+      await deleteDailySummary(summaryToDelete);
+      setDailySummaries(prev => prev.filter(s => s.id !== summaryToDelete));
+      toast({
+        title: "¡Éxito!",
+        description: "El resumen ha sido eliminado."
+      });
+    } catch (error) {
+       toast({
+        title: "Error",
+        description: "No se pudo eliminar el resumen.",
+        variant: "destructive"
+      });
+    } finally {
+      setSummaryToDelete(null);
+    }
+  };
+
 
   return (
     <>
@@ -299,7 +331,7 @@ export default function ManualEntryPage() {
                 {loading ? (
                   <Skeleton className="h-40 w-full" />
                 ) : (
-                  <DailySummaryTable summaries={dailySummaries} />
+                  <DailySummaryTable summaries={dailySummaries} onDelete={setSummaryToDelete} />
                 )}
               </CardContent>
             </Card>
@@ -312,6 +344,22 @@ export default function ManualEntryPage() {
           onAbsenceAdded={handleAbsenceAdded}
           allEmployees={employees}
       />
+       <AlertDialog open={!!summaryToDelete} onOpenChange={(isOpen) => !isOpen && setSummaryToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás seguro de eliminar este resumen?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Se eliminará permanentemente el registro del día.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setSummaryToDelete(null)}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteSummary}>
+                Sí, eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
     </>
   );
 }
