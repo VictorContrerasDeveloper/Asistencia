@@ -123,7 +123,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     
     if(employeeIds.length === 0) return "-";
 
-    const separator = status === 'Atrasado' ? ' / ' : ', ';
+    const separator = ' / ';
 
     return employees
         .filter(emp => employeeIds.includes(emp.id))
