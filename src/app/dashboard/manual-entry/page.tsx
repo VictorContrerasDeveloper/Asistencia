@@ -204,9 +204,9 @@ export default function ManualEntryPage() {
 
             <Card className="w-full overflow-hidden">
                 <div id="prolonged-absence-summary">
-                    <CardHeader className="flex flex-row items-center justify-between p-4">
-                        <CardTitle>Ausencias Prolongadas</CardTitle>
-                        <div className="flex items-center gap-2 exclude-from-image">
+                    <CardHeader className="relative flex flex-row items-center justify-center p-4 text-center">
+                        <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
+                        <div className="absolute right-4 flex items-center gap-2 exclude-from-image">
                             <Button size="sm" onClick={() => setIsModalOpen(true)}>
                                 <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
                                 Agregar
