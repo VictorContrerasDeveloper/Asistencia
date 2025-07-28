@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { type EmployeeRole, type Office, type Employee, AttendanceStatus } from '@/lib/data';
 import {
   Table,
@@ -48,6 +48,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
   const [attendance, setAttendance] = useState<OfficeAttendanceState>({});
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const initialStaffing: RealStaffingValues = {};
@@ -66,6 +67,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     
     setRealStaffing(initialStaffing);
     setAttendance(initialAttendance);
+    inputRefs.current = new Array(offices.length * ROLES.length);
   }, [offices, employees]);
   
   const assignedEmployeesByOffice = useMemo(() => {
@@ -140,6 +142,20 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     );
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, currentIndex: number) => {
+      if(e.key === 'Enter') {
+          e.preventDefault();
+          const nextIndex = currentIndex + 1;
+          if(nextIndex < inputRefs.current.length) {
+              const nextInput = inputRefs.current[nextIndex];
+              if(nextInput) {
+                  nextInput.focus();
+                  nextInput.select();
+              }
+          }
+      }
+  }
+
   const tableCellClasses = "py-1 px-2";
 
 
@@ -152,7 +168,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
               {ROLES.map((role) => (
                 <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto p-1`}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-primary border-r`}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-r border-primary`}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto`}>Ausentes</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
@@ -165,7 +181,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
           </TableRow>
         </TableHeader>
         <TableBody>
-          {offices.map(office => {
+          {offices.map((office, officeIndex) => {
             const assignedEmployees = getAssignedEmployees(office.id);
             return (
                 <TableRow key={office.id}>
@@ -219,22 +235,27 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                         </Popover>
                     </div>
                 </TableCell>
-                {ROLES.map(role => (
-                    <React.Fragment key={role}>
-                        <TableCell className="p-0">
-                        <Input
-                            type="number"
-                            min="0"
-                            placeholder="0"
-                            value={realStaffing[office.id]?.[role] || ''}
-                            onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
-                            onFocus={(e) => e.target.select()}
-                            className="h-7 w-12 mx-auto text-center"
-                        />
-                        </TableCell>
-                        <TableCell className="text-center p-0 border-r border-primary">{office.theoreticalStaffing?.[role] || 0}</TableCell>
-                    </React.Fragment>
-                ))}
+                {ROLES.map((role, roleIndex) => {
+                    const refIndex = officeIndex * ROLES.length + roleIndex;
+                    return (
+                        <React.Fragment key={role}>
+                            <TableCell className="p-0 border-r border-primary">
+                            <Input
+                                ref={el => {inputRefs.current[refIndex] = el}}
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={realStaffing[office.id]?.[role] || ''}
+                                onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
+                                onFocus={(e) => e.target.select()}
+                                onKeyDown={(e) => handleKeyDown(e, refIndex)}
+                                className="h-7 w-12 mx-auto text-center"
+                            />
+                            </TableCell>
+                            <TableCell className="text-center p-0 border-r border-primary">{office.theoreticalStaffing?.[role] || 0}</TableCell>
+                        </React.Fragment>
+                    )
+                })}
                  <TableCell className={`text-center text-xs p-1 border-r border-primary`}>
                     {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
