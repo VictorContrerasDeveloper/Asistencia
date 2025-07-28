@@ -144,22 +144,22 @@ export default function TransferEmployeePage() {
                         Object.keys(employeesByOffice).sort().map(officeName => (
                             <React.Fragment key={officeName}>
                                 <TableRow className="bg-muted/50 hover:bg-muted/50">
-                                    <TableCell colSpan={3} className="font-semibold text-primary">
+                                    <TableCell colSpan={3} className="font-semibold text-primary py-2">
                                         {officeName}
                                     </TableCell>
                                 </TableRow>
                                 {employeesByOffice[officeName].map((employee) => {
                                     const currentOfficeId = pendingChanges[employee.id] || employee.officeId;
                                     return (
-                                        <TableRow key={employee.id}>
-                                            <TableCell></TableCell>
-                                            <TableCell className="font-medium">{employee.name}</TableCell>
-                                            <TableCell>
+                                        <TableRow key={employee.id} className="h-12">
+                                            <TableCell className="py-0"></TableCell>
+                                            <TableCell className="font-medium py-0">{employee.name}</TableCell>
+                                            <TableCell className="py-0">
                                                 <Select
                                                     value={currentOfficeId}
                                                     onValueChange={(newOfficeId) => handleOfficeChange(employee.id, newOfficeId)}
                                                 >
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className="h-9">
                                                         <SelectValue placeholder="Seleccionar nueva oficina" />
                                                     </SelectTrigger>
                                                     <SelectContent>
