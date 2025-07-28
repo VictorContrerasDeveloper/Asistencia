@@ -29,6 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -287,12 +288,20 @@ export default function ManualEntryPage() {
                 </CardContent>
               </div>
                <CardFooter className="flex justify-between items-center p-2 exclude-from-image bg-card">
-                  <Link href="/dashboard/transfer-employee">
-                    <Button variant="outline" size="sm">
-                        <Shuffle className="mr-2 h-4 w-4" />
-                        Trasladar Personal
-                    </Button>
-                  </Link>
+                 <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                         <Link href="/dashboard/transfer-employee">
+                          <Button variant="ghost" size="icon">
+                              <Shuffle className="h-5 w-5" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Modificar asignación de dotacion</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   <div className="flex items-center gap-2">
                     <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)} title="Limpiar Ingresos">
                       <Eraser className="h-5 w-5" />
