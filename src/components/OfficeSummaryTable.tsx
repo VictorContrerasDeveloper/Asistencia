@@ -46,6 +46,8 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
       return offices.filter(office => !office.name.toLowerCase().includes('movil'));
   }, [offices]);
 
+  const tableHeadClasses = "py-1 px-2";
+
   return (
     <Card>
       <CardHeader>
@@ -56,17 +58,17 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
           <Table>
             <TableHeader className="bg-primary text-primary-foreground">
                <TableRow>
-                  <TableHead rowSpan={2} className="sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center align-middle">Oficina Comercial</TableHead>
+                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center align-middle ${tableHeadClasses}`}>Oficina Comercial</TableHead>
                   {roles.map(role => (
-                    <TableHead key={role} colSpan={2} className="text-center font-bold text-primary-foreground p-1 border-r-2 border-muted-foreground">{role}</TableHead>
+                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground p-1 ${tableHeadClasses}`}>{role}</TableHead>
                   ))}
-                  <TableHead rowSpan={2} className="text-center font-bold text-primary-foreground align-middle">Atrasos</TableHead>
+                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle ${tableHeadClasses}`}>Atrasos</TableHead>
               </TableRow>
               <TableRow>
                   {roles.map(role => (
                     <React.Fragment key={role}>
-                      <TableHead className="text-center font-bold text-primary-foreground">Real</TableHead>
-                      <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary-foreground">Por Licit</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground ${tableHeadClasses}`}>Real</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground ${tableHeadClasses}`}>Por Licit</TableHead>
                     </React.Fragment>
                   ))}
               </TableRow>
@@ -118,7 +120,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                           <TableCell className={cn("text-center font-bold", isDeficit ? "bg-red-600 text-white" : "")}>
                             {realCount}
                           </TableCell>
-                          <TableCell className="text-center border-r-2 border-muted-foreground">{theoreticalCount}</TableCell>
+                          <TableCell className="text-center">{theoreticalCount}</TableCell>
                         </React.Fragment>
                       );
                     })}

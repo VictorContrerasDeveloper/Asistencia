@@ -151,16 +151,16 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
            <TableRow>
               <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center align-middle ${tableHeadClasses}`}>Oficina Comercial</TableHead>
               {ROLES.map(role => (
-                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground p-1 border-r-2 border-muted-foreground ${tableHeadClasses}`}>{role}</TableHead>
+                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground p-1 ${tableHeadClasses}`}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground border-r-2 border-muted-foreground align-middle ${tableHeadClasses}`}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle ${tableHeadClasses}`}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle ${tableHeadClasses}`}>Ausentes</TableHead>
           </TableRow>
           <TableRow>
               {ROLES.map(role => (
                 <React.Fragment key={role}>
                     <TableHead className={`text-center font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>Real</TableHead>
-                    <TableHead className={`text-center border-r-2 border-muted-foreground font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>Teóri.</TableHead>
+                    <TableHead className={`text-center font-bold text-primary-foreground p-0 ${tableHeadClasses}`}>Teóri.</TableHead>
                 </React.Fragment>
               ))}
           </TableRow>
@@ -233,10 +233,10 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                             className="h-8 w-12 mx-auto text-center"
                         />
                         </TableCell>
-                        <TableCell className="text-center border-r-2 border-muted-foreground p-0">{office.theoreticalStaffing?.[role] || 0}</TableCell>
+                        <TableCell className="text-center p-0">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                     </React.Fragment>
                 ))}
-                 <TableCell className={`text-center text-xs border-r-2 border-muted-foreground ${tableCellClasses}`}>
+                 <TableCell className={`text-center text-xs ${tableCellClasses}`}>
                     {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
                   <TableCell className={`text-center text-xs ${tableCellClasses}`}>
