@@ -59,8 +59,8 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
             <TableHeader className="bg-primary text-primary-foreground">
                <TableRow className="border-0 h-auto">
                   <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r`}>Oficina Comercial</TableHead>
-                  {roles.map((role, index) => (
-                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto ${index < roles.length -1 ? "border-r border-primary" : ""}`}>{role}</TableHead>
+                  {roles.map((role) => (
+                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto`}>{role}</TableHead>
                   ))}
                   <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-primary`}>Atrasos</TableHead>
               </TableRow>
@@ -78,7 +78,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 const lateEmployees = getLateEmployees(office.employees);
                 return (
                   <TableRow key={office.id}>
-                    <TableCell className="font-medium sticky left-0 bg-card border-r">
+                    <TableCell className="font-medium sticky left-0 bg-card border-r p-1">
                        <div className="flex items-center gap-2">
                         <span>{office.name}</span>
                         <Popover>
@@ -117,14 +117,14 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                       const isDeficit = realCount < theoreticalCount;
                       return (
                         <React.Fragment key={role}>
-                          <TableCell className={cn("text-center font-bold", isDeficit ? "bg-red-600 text-white" : "")}>
+                          <TableCell className={cn("text-center font-bold p-1", isDeficit ? "bg-red-600 text-white" : "")}>
                             {realCount}
                           </TableCell>
-                          <TableCell className="text-center">{theoreticalCount}</TableCell>
+                          <TableCell className="text-center p-1">{theoreticalCount}</TableCell>
                         </React.Fragment>
                       );
                     })}
-                    <TableCell className="text-center">{lateEmployees || '-'}</TableCell>
+                    <TableCell className="text-center p-1">{lateEmployees || '-'}</TableCell>
                   </TableRow>
                 );
               })}

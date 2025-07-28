@@ -149,10 +149,10 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
               <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r`}>Oficina Comercial</TableHead>
-              {ROLES.map((role, index) => (
-                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto ${index < ROLES.length -1 ? "border-r border-primary" : ""}`}>{role}</TableHead>
+              {ROLES.map((role) => (
+                <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto`}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-r border-primary`}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-r border-l border-primary`}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto`}>Ausentes</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
