@@ -19,7 +19,6 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { formatInTimeZone } from 'date-fns-tz';
 
 type ProlongedAbsenceTableProps = {
   employees: Employee[];
@@ -63,7 +62,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
     const handleDateChange = async (employee: Employee, date: Date | undefined) => {
       if (!date) return;
       
-      const newEndDate = formatInTimeZone(date, 'UTC', 'yyyy-MM-dd');
+      const newEndDate = format(date, 'yyyy-MM-dd');
       
       try {
           const updates = { absenceEndDate: newEndDate };
@@ -116,7 +115,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
           </TableHeader>
           <TableBody>
             {absentEmployees.map(employee => {
-              const selectedDate = employee.absenceEndDate ? new Date(employee.absenceEndDate) : undefined;
+              const selectedDate = employee.absenceEndDate ? new Date(`${employee.absenceEndDate}T00:00:00Z`) : undefined;
               return (
                   <TableRow key={employee.id}>
                   <TableCell className="font-medium p-2 text-xs">{employee.name}</TableCell>
