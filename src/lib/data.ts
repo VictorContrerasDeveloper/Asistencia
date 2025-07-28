@@ -259,9 +259,9 @@ export const bulkDeleteEmployees = async (employeeIds: string[]) => {
   await batch.commit();
 }
 
-export const saveDailySummary = async (summary: any) => {
+export const saveDailySummary = async (date: Date, summary: any) => {
   await addDoc(dailySummariesCollection, {
-    date: serverTimestamp(),
+    date: Timestamp.fromDate(date),
     summary,
   });
 }

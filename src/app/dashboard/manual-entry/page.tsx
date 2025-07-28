@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera, PlusCircle, Save } from 'lucide-react';
+import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary } from '@/lib/data';
@@ -14,6 +14,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import html2canvas from 'html2canvas';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
 import { useToast } from "@/hooks/use-toast";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -25,6 +30,7 @@ export default function ManualEntryPage() {
   const [isSavingDay, setIsSavingDay] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
   const manualEntryTableRef = React.useRef<{ getSummaryData: () => any }>(null);
 
@@ -169,7 +175,7 @@ export default function ManualEntryPage() {
     if(manualEntryTableRef.current) {
       try {
         const summaryData = manualEntryTableRef.current.getSummaryData();
-        await saveDailySummary(summaryData);
+        await saveDailySummary(selectedDate, summaryData);
         const fetchedSummaries = await getDailySummaries();
         setDailySummaries(fetchedSummaries);
         toast({
@@ -201,10 +207,34 @@ export default function ManualEntryPage() {
             </Link>
             <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
           </div>
-           <Button onClick={handleSaveDay} disabled={isSavingDay}>
-              <Save className="mr-2 h-4 w-4" />
-              {isSavingDay ? 'Guardando...' : 'Guardar Día'}
-           </Button>
+           <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[280px] justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Button onClick={handleSaveDay} disabled={isSavingDay}>
+                <Save className="mr-2 h-4 w-4" />
+                {isSavingDay ? 'Guardando...' : 'Guardar Día'}
+            </Button>
+           </div>
         </header>
         <main className="flex-1 p-4 md:p-8 space-y-8">
             <Card id="manual-entry-summary" className="w-full overflow-hidden">
