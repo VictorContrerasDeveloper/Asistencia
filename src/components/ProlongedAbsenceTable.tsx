@@ -166,11 +166,11 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
           <Table>
             <TableHeader className="bg-primary/10">
               <TableRow>
-                <TableHead className="font-bold text-primary text-xs px-2 py-1">Nombre</TableHead>
-                <TableHead className="font-bold text-primary text-xs px-2 py-1">Motivo</TableHead>
-                <TableHead className="font-bold text-primary text-xs px-2 py-1">Fecha Término</TableHead>
-                <TableHead className="font-bold text-primary text-xs px-2 py-1">Última Oficina Asignada</TableHead>
-                <TableHead className="font-bold text-primary text-right text-xs px-2 py-1">Acciones</TableHead>
+                <TableHead className="font-bold text-primary text-sm px-2 py-1">Nombre</TableHead>
+                <TableHead className="font-bold text-primary text-sm px-2 py-1">Motivo</TableHead>
+                <TableHead className="font-bold text-primary text-sm px-2 py-1">Fecha Término</TableHead>
+                <TableHead className="font-bold text-primary text-sm px-2 py-1">Última Oficina Asignada</TableHead>
+                <TableHead className="font-bold text-primary text-right text-sm px-2 py-1">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
