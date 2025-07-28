@@ -89,8 +89,8 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
               <TableRow>
                 <TableHead className="font-bold text-primary">Nombre</TableHead>
                 <TableHead className="font-bold text-primary">Motivo</TableHead>
-                <TableHead className="font-bold text-primary">Última Oficina Asignada</TableHead>
                 <TableHead className="font-bold text-primary">Fecha Término</TableHead>
+                <TableHead className="font-bold text-primary">Última Oficina Asignada</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -100,7 +100,6 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
                     <TableRow key={employee.id}>
                     <TableCell className="font-medium">{employee.name}</TableCell>
                     <TableCell>{employee.absenceReason}</TableCell>
-                    <TableCell>{employee.officeName}</TableCell>
                     <TableCell>
                         <Popover>
                             <PopoverTrigger asChild>
@@ -126,6 +125,7 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
                             </PopoverContent>
                         </Popover>
                     </TableCell>
+                    <TableCell>{employee.officeName}</TableCell>
                     </TableRow>
                 )
               })}
