@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shuffle, Shield, Tablet, User, Navigation } from 'lucide-react';
+import { ArrowLeft, Shuffle, Shield, Tablet, User, Navigation, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getEmployees, getOffices, Office, Employee, EmployeeRole } from '@/lib/data';
@@ -105,6 +105,12 @@ export default function TransferEmployeePage() {
                 </p>
             </div>
           </div>
+           <Link href="/dashboard/add-employee">
+              <Button>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Agregar Personal
+              </Button>
+            </Link>
         </header>
         <main className="flex-1 p-4 md:p-6">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
