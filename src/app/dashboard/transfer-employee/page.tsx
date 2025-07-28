@@ -96,7 +96,7 @@ export default function TransferEmployeePage() {
                 ) : (
                   Object.keys(employeesByOffice).sort().map(officeName => (
                     <div key={officeName}>
-                      <h3 className="font-semibold text-primary px-2 pt-2 pb-1">{officeName}</h3>
+                      <h3 className="font-semibold text-primary px-2 pt-2 pb-1">{officeName} ({employeesByOffice[officeName].length})</h3>
                       <div className="space-y-0.5">
                         {employeesByOffice[officeName].sort((a,b) => a.name.localeCompare(b.name)).map(employee => (
                           <div key={employee.id} className="flex items-center justify-between p-0.5 rounded-md hover:bg-muted/50">
