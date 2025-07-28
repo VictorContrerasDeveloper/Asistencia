@@ -103,7 +103,7 @@ export default function ManualEntryPage() {
         const inputEl = input as HTMLInputElement;
         const span = document.createElement('span');
         span.textContent = inputEl.value || '0';
-        span.className = 'w-full h-full block text-center py-1 rounded-md';
+        span.className = 'w-full h-full flex items-center justify-center rounded-md';
 
         if (inputEl.className.includes('bg-red-600')) {
              span.classList.add('bg-red-600', 'text-white');
