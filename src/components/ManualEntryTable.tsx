@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -138,7 +139,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
             {ROLES.map(role => (
               <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
             ))}
-            <TableHead className="text-center font-bold text-primary">Atrasos</TableHead>
+            <TableHead className="text-center font-bold text-primary border-r-2 border-muted-foreground">Atrasos</TableHead>
             <TableHead className="text-center font-bold text-primary">Ausentes</TableHead>
           </TableRow>
           <TableRow>
@@ -149,7 +150,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                 <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary">Teori.</TableHead>
               </React.Fragment>
             ))}
-            <TableHead></TableHead>
+            <TableHead className="border-r-2 border-muted-foreground"></TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -223,7 +224,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                         <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                     </React.Fragment>
                 ))}
-                 <TableCell className="text-center text-xs">
+                 <TableCell className="text-center text-xs border-r-2 border-muted-foreground">
                     {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
                   <TableCell className="text-center text-xs">
