@@ -167,11 +167,11 @@ export default function ManualEntryPage() {
         <div className="flex items-center gap-2">
             <Button onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary || isGeneratingAbsences}>
                 <Camera className="mr-2 h-4 w-4" />
-                {isGeneratingSummary ? "Copiando..." : "Imagen Resumen"}
+                Imagen Resumen
             </Button>
             <Button onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsences || isGeneratingSummary}>
                 <Camera className="mr-2 h-4 w-4" />
-                {isGeneratingAbsences ? "Copiando..." : "Imagen Ausencias"}
+                Imagen Ausencias
             </Button>
         </div>
       </header>
