@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { type EmployeeRole, type Office, type Employee } from '@/lib/data';
+import { type EmployeeRole, type Office, type Employee, AttendanceStatus } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -16,8 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Users } from 'lucide-react';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 type ManualEntryTableProps = {
   offices: Office[];
@@ -32,25 +32,34 @@ type RealStaffingValues = {
   };
 };
 
+type AttendanceState = {
+    [employeeId: string]: AttendanceStatus;
+}
+
+type OfficeAttendanceState = {
+    [officeId: string]: AttendanceState
+}
+
+
 export default function ManualEntryTable({ offices, employees }: ManualEntryTableProps) {
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
-  const [absentEmployees, setAbsentEmployees] = useState<{ [officeId: string]: string[] }>({});
+  const [attendance, setAttendance] = useState<OfficeAttendanceState>({});
 
   useEffect(() => {
     const initialStaffing: RealStaffingValues = {};
-    const initialAbsences: { [officeId: string]: string[] } = {};
+    const initialAttendance: OfficeAttendanceState = {};
 
     offices.forEach(office => {
       initialStaffing[office.id] = {};
       ROLES.forEach(role => {
         initialStaffing[office.id][role] = office.realStaffing?.[role]?.toString() || '';
       });
-      initialAbsences[office.id] = [];
+      initialAttendance[office.id] = {};
     });
 
     setRealStaffing(initialStaffing);
-    setAbsentEmployees(initialAbsences);
+    setAttendance(initialAttendance);
   }, [offices]);
   
   const assignedEmployeesByOffice = useMemo(() => {
@@ -66,17 +75,14 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     return grouped;
   }, [employees]);
 
-  const handleAbsentChange = (officeId: string, employeeId: string, isChecked: boolean) => {
-    setAbsentEmployees(prev => {
-      const currentAbsences = prev[officeId] || [];
-      let newAbsences;
-      if (isChecked) {
-        newAbsences = [...currentAbsences, employeeId];
-      } else {
-        newAbsences = currentAbsences.filter(id => id !== employeeId);
-      }
-      return { ...prev, [officeId]: newAbsences };
-    });
+  const handleAttendanceChange = (officeId: string, employeeId: string, status: AttendanceStatus) => {
+    setAttendance(prev => ({
+        ...prev,
+        [officeId]: {
+            ...prev[officeId],
+            [employeeId]: status,
+        }
+    }));
   };
 
   const handleStaffingChange = (officeId: string, role: EmployeeRole, value: string) => {
@@ -94,14 +100,17 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     return (assignedEmployeesByOffice[officeId] || []).sort((a,b) => a.name.localeCompare(b.name));
   };
   
-  const getAbsentEmployeeNames = (officeId: string) => {
-    const absentIds = new Set(absentEmployees[officeId] || []);
-    if (absentIds.size === 0) return "-";
+  const getEmployeeNamesByStatus = (officeId: string, status: AttendanceStatus) => {
+     const employeeIds = Object.entries(attendance[officeId] || {})
+        .filter(([, s]) => s === status)
+        .map(([id]) => id);
     
+    if(employeeIds.length === 0) return "-";
+
     return employees
-      .filter(emp => absentIds.has(emp.id))
-      .map(emp => emp.name)
-      .join(', ');
+        .filter(emp => employeeIds.includes(emp.id))
+        .map(emp => emp.name)
+        .join(', ');
   }
 
 
@@ -115,6 +124,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
               <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
             ))}
             <TableHead className="text-center font-bold text-primary">Personal Ausente</TableHead>
+            <TableHead className="text-center font-bold text-primary">Atrasos</TableHead>
           </TableRow>
           <TableRow>
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
@@ -124,6 +134,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                 <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary">Teori.</TableHead>
               </React.Fragment>
             ))}
+            <TableHead></TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -141,25 +152,39 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                     <Users className="h-4 w-4"/>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80">
+                            <PopoverContent className="w-96">
                                 <div className="grid gap-1">
                                     <div className="space-y-1">
                                         <p className="text-sm font-semibold leading-none">Personal Asignado</p>
                                         <p className="text-xs text-muted-foreground">
-                                            Marca el personal ausente en {office.name}.
+                                            Selecciona el estado de asistencia de cada ejecutivo.
                                         </p>
                                     </div>
                                     <div className="grid gap-2">
                                         {assignedEmployees.length > 0 ? (
-                                        <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2 mt-2">
                                             {assignedEmployees.map(emp => (
-                                            <div key={emp.id} className="flex items-center space-x-2">
-                                                <Checkbox 
-                                                    id={`absent-${office.id}-${emp.id}`}
-                                                    checked={(absentEmployees[office.id] || []).includes(emp.id)}
-                                                    onCheckedChange={(checked) => handleAbsentChange(office.id, emp.id, !!checked)}
-                                                />
-                                                <Label htmlFor={`absent-${office.id}-${emp.id}`} className="flex-1 cursor-pointer">{emp.name}</Label>
+                                            <div key={emp.id} className="flex items-center justify-between">
+                                                <Label htmlFor={`attendance-${office.id}-${emp.id}`} className="flex-1 cursor-pointer">{emp.name}</Label>
+                                                 <RadioGroup
+                                                    id={`attendance-${office.id}-${emp.id}`}
+                                                    value={attendance[office.id]?.[emp.id] || 'Presente'}
+                                                    onValueChange={(value) => handleAttendanceChange(office.id, emp.id, value as AttendanceStatus)}
+                                                    className="flex items-center space-x-2"
+                                                >
+                                                    <div className="flex items-center space-x-1">
+                                                        <RadioGroupItem value="Presente" id={`presente-${office.id}-${emp.id}`} />
+                                                        <Label htmlFor={`presente-${office.id}-${emp.id}`} className="text-xs">P</Label>
+                                                    </div>
+                                                    <div className="flex items-center space-x-1">
+                                                        <RadioGroupItem value="Atrasado" id={`atrasado-${office.id}-${emp.id}`} />
+                                                        <Label htmlFor={`atrasado-${office.id}-${emp.id}`} className="text-xs">T</Label>
+                                                    </div>
+                                                    <div className="flex items-center space-x-1">
+                                                        <RadioGroupItem value="Ausente" id={`ausente-${office.id}-${emp.id}`} />
+                                                        <Label htmlFor={`ausente-${office.id}-${emp.id}`} className="text-xs">A</Label>
+                                                    </div>
+                                                </RadioGroup>
                                             </div>
                                             ))}
                                         </div>
@@ -187,8 +212,11 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                         <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                     </React.Fragment>
                 ))}
-                 <TableCell className="text-center">
-                    {getAbsentEmployeeNames(office.id)}
+                 <TableCell className="text-center text-xs">
+                    {getEmployeeNamesByStatus(office.id, 'Ausente')}
+                  </TableCell>
+                  <TableCell className="text-center text-xs">
+                    {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
                 </TableRow>
             );
