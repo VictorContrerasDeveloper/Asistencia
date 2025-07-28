@@ -12,7 +12,10 @@ import {
   getDoc,
   deleteDoc,
   writeBatch,
-  documentId
+  documentId,
+  serverTimestamp,
+  orderBy,
+  Timestamp
 } from 'firebase/firestore';
 
 export type Office = {
@@ -40,9 +43,26 @@ export type Employee = {
   absenceEndDate?: string;
 };
 
+export type DailySummary = {
+  id: string;
+  date: Timestamp;
+  summary: {
+    [officeId: string]: {
+      name: string;
+      realStaffing: {
+        [key in EmployeeRole]?: number;
+      };
+      late: string;
+      absent: string;
+    };
+  };
+};
+
+
 const db = getFirestore(app);
 const officesCollection = collection(db, 'offices');
 const employeesCollection = collection(db, 'employees');
+const dailySummariesCollection = collection(db, 'dailySummaries');
 
 export function slugify(text: string): string {
   if (!text) return "";
@@ -239,4 +259,15 @@ export const bulkDeleteEmployees = async (employeeIds: string[]) => {
   await batch.commit();
 }
 
-    
+export const saveDailySummary = async (summary: any) => {
+  await addDoc(dailySummariesCollection, {
+    date: serverTimestamp(),
+    summary,
+  });
+}
+
+export const getDailySummaries = async (): Promise<DailySummary[]> => {
+  const q = query(dailySummariesCollection, orderBy('date', 'desc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailySummary));
+}

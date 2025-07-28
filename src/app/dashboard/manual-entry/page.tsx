@@ -3,34 +3,44 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Camera, PlusCircle, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { getOffices, Office, getEmployees, Employee } from '@/lib/data';
+import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary } from '@/lib/data';
 import ManualEntryTable from '@/components/ManualEntryTable';
 import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
+import DailySummaryTable from '@/components/DailySummaryTable';
 import { Skeleton } from '@/components/ui/skeleton';
 import html2canvas from 'html2canvas';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
+import { useToast } from "@/hooks/use-toast";
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [dailySummaries, setDailySummaries] = useState<DailySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
+  const [isSavingDay, setIsSavingDay] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toast } = useToast();
+  
+  const manualEntryTableRef = React.useRef<{ getSummaryData: () => any }>(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const [fetchedOffices, fetchedEmployees] = await Promise.all([
+      const [fetchedOffices, fetchedEmployees, fetchedSummaries] = await Promise.all([
         getOffices(),
         getEmployees(),
+        getDailySummaries(),
       ]);
       const filteredOffices = fetchedOffices.filter(office => !office.name.toLowerCase().includes('movil'));
       setOffices(filteredOffices);
       setEmployees(fetchedEmployees);
+      setDailySummaries(fetchedSummaries);
       setLoading(false);
     }
     fetchData();
@@ -153,6 +163,30 @@ export default function ManualEntryPage() {
         setIsGeneratingAbsence(false);
     }
   };
+  
+  const handleSaveDay = async () => {
+    setIsSavingDay(true);
+    if(manualEntryTableRef.current) {
+      try {
+        const summaryData = manualEntryTableRef.current.getSummaryData();
+        await saveDailySummary(summaryData);
+        const fetchedSummaries = await getDailySummaries();
+        setDailySummaries(fetchedSummaries);
+        toast({
+          title: "¡Éxito!",
+          description: "El resumen del día ha sido guardado correctamente."
+        });
+      } catch (error) {
+         toast({
+          title: "Error",
+          description: "No se pudo guardar el resumen del día.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSavingDay(false);
+      }
+    }
+  };
 
 
   return (
@@ -167,6 +201,10 @@ export default function ManualEntryPage() {
             </Link>
             <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
           </div>
+           <Button onClick={handleSaveDay} disabled={isSavingDay}>
+              <Save className="mr-2 h-4 w-4" />
+              {isSavingDay ? 'Guardando...' : 'Guardar Día'}
+           </Button>
         </header>
         <main className="flex-1 p-4 md:p-8 space-y-8">
             <Card id="manual-entry-summary" className="w-full overflow-hidden">
@@ -182,7 +220,7 @@ export default function ManualEntryPage() {
                       <Skeleton className="h-10 w-full" />
                     </div>
                   ) : (
-                    <ManualEntryTable offices={offices} employees={employees} />
+                    <ManualEntryTable ref={manualEntryTableRef} offices={offices} employees={employees} />
                   )}
                 </CardContent>
               </div>
@@ -222,6 +260,20 @@ export default function ManualEntryPage() {
                     </Button>
                 </CardFooter>
             </Card>
+
+            <Card id="daily-summary" className="w-full overflow-hidden">
+              <CardHeader>
+                <CardTitle>Resumen Diario Guardado</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <Skeleton className="h-40 w-full" />
+                ) : (
+                  <DailySummaryTable summaries={dailySummaries} />
+                )}
+              </CardContent>
+            </Card>
+
         </main>
       </div>
        <AddAbsenceModal 
@@ -233,4 +285,3 @@ export default function ManualEntryPage() {
     </>
   );
 }
-

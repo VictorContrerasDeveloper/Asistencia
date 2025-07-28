@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
 import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason } from '@/lib/data';
 import {
   Table,
@@ -44,7 +44,7 @@ type OfficeAttendanceState = {
 }
 
 
-export default function ManualEntryTable({ offices, employees }: ManualEntryTableProps) {
+const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTableProps, ref) => {
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
   const [attendance, setAttendance] = useState<OfficeAttendanceState>({});
@@ -70,6 +70,27 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     setAttendance(initialAttendance);
     inputRefs.current = new Array(offices.length * ROLES.length);
   }, [offices, employees]);
+
+    useImperativeHandle(ref, () => ({
+        getSummaryData: () => {
+            const summaryData: { [officeId: string]: any } = {};
+            offices.forEach(office => {
+                const lateEmployees = getEmployeeNamesByStatus(office.id, 'Atrasado');
+                const absentEmployees = getEmployeeNamesByStatus(office.id, 'Ausente');
+                summaryData[office.id] = {
+                    name: office.name,
+                    realStaffing: {
+                        Modulo: parseInt(realStaffing[office.id]?.Modulo || '0', 10),
+                        Anfitrión: parseInt(realStaffing[office.id]?.Anfitrión || '0', 10),
+                        Tablet: parseInt(realStaffing[office.id]?.Tablet || '0', 10),
+                    },
+                    late: lateEmployees === "-" ? "" : lateEmployees.props.children.filter((c: any) => typeof c === 'string').join(' / '),
+                    absent: absentEmployees === "-" ? "" : absentEmployees.props.children.filter((c: any) => typeof c === 'string').join(' / '),
+                };
+            });
+            return summaryData;
+        }
+    }));
   
   const assignedEmployeesByOffice = useMemo(() => {
     const grouped: { [officeId: string]: Employee[] } = {};
@@ -139,7 +160,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     return (assignedEmployeesByOffice[officeId] || []).sort((a,b) => a.name.localeCompare(b.name));
   };
   
-  const getEmployeeNamesByStatus = (officeId: string, status: AttendanceStatus) => {
+  const getEmployeeNamesByStatus = (officeId: string, status: AttendanceStatus): React.ReactElement | "-" => {
      const employeeIdsWithStatus = Object.entries(attendance[officeId] || {})
         .filter(([, s]) => s === status)
         .map(([id]) => id);
@@ -301,4 +322,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
       </Table>
     </div>
   );
-}
+});
+
+ManualEntryTable.displayName = 'ManualEntryTable';
+export default ManualEntryTable;
