@@ -57,18 +57,18 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-primary text-primary-foreground">
-               <TableRow>
-                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center align-middle`}>Oficina Comercial</TableHead>
+               <TableRow className="border-0">
+                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-r border-b font-bold text-primary-foreground text-center align-middle p-1`}>Oficina Comercial</TableHead>
                   {roles.map(role => (
-                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground`}>{role}</TableHead>
+                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-r border-b p-1`}>{role}</TableHead>
                   ))}
-                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle`}>Atrasos</TableHead>
+                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b p-1`}>Atrasos</TableHead>
               </TableRow>
-              <TableRow>
+              <TableRow className="border-0">
                   {roles.map(role => (
                     <React.Fragment key={role}>
-                      <TableHead className={`text-center font-bold text-primary-foreground`}>Real</TableHead>
-                      <TableHead className={`text-center font-bold text-primary-foreground`}>Por Licit</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-r p-1`}>Real</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-r p-1`}>Por Licit</TableHead>
                     </React.Fragment>
                   ))}
               </TableRow>
@@ -78,7 +78,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                 const lateEmployees = getLateEmployees(office.employees);
                 return (
                   <TableRow key={office.id}>
-                    <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground">
+                    <TableCell className="font-medium sticky left-0 bg-card border-r">
                        <div className="flex items-center gap-2">
                         <span>{office.name}</span>
                         <Popover>
