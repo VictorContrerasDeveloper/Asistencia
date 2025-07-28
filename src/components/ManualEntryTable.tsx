@@ -148,7 +148,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
-              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r`}>Oficina Comercial</TableHead>
+              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r border-primary`}>Oficina Comercial</TableHead>
               {ROLES.map((role) => (
                 <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto`}>{role}</TableHead>
               ))}
@@ -158,8 +158,8 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
           <TableRow className="border-0 h-auto">
               {ROLES.map((role, index) => (
                 <React.Fragment key={role}>
-                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto`}>Real</TableHead>
-                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto border-r border-primary`}>Teóri.</TableHead>
+                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14`}>Real</TableHead>
+                    <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 border-r border-primary`}>Teóri.</TableHead>
                 </React.Fragment>
               ))}
           </TableRow>
