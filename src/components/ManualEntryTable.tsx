@@ -98,6 +98,16 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                 };
             });
             return summaryData;
+        },
+        clearRealStaffing: () => {
+            const clearedStaffing: RealStaffingValues = {};
+             offices.forEach(office => {
+                clearedStaffing[office.id] = {};
+                ROLES.forEach(role => {
+                    clearedStaffing[office.id][role] = '';
+                });
+            });
+            setRealStaffing(clearedStaffing);
         }
     }));
   
@@ -312,6 +322,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                                                         {prolongedAbsenceEmployees.map(emp => (
                                                             <div key={emp.id} className="flex items-center justify-between">
                                                                 <Label className="flex-1 flex items-center gap-2 text-muted-foreground italic">
+                                                                    <CalendarDays className="h-4 w-4" />
                                                                     {emp.name}
                                                                 </Label>
                                                                 <p className='text-xs text-muted-foreground italic'>({emp.absenceReason})</p>
@@ -376,5 +387,3 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
 ManualEntryTable.displayName = 'ManualEntryTable';
 export default ManualEntryTable;
-
-    

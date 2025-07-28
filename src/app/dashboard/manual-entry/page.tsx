@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon, Trash2 } from 'lucide-react';
+import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon, Trash2, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary, deleteDailySummary } from '@/lib/data';
@@ -42,7 +42,7 @@ export default function ManualEntryPage() {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
-  const manualEntryTableRef = React.useRef<{ getSummaryData: () => any }>(null);
+  const manualEntryTableRef = React.useRef<{ getSummaryData: () => any; clearRealStaffing: () => void; }>(null);
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
 
 
@@ -218,6 +218,12 @@ export default function ManualEntryPage() {
     }
   };
 
+  const handleClearRealStaffing = () => {
+    if (manualEntryTableRef.current) {
+      manualEntryTableRef.current.clearRealStaffing();
+    }
+  };
+
 
   return (
     <>
@@ -254,6 +260,10 @@ export default function ManualEntryPage() {
                 />
               </PopoverContent>
             </Popover>
+            <Button onClick={handleClearRealStaffing} variant="outline">
+                <Eraser className="mr-2 h-4 w-4" />
+                Limpiar Ingresos
+            </Button>
             <Button onClick={handleSaveDay} disabled={isSavingDay}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSavingDay ? 'Guardando...' : 'Guardar Día'}
