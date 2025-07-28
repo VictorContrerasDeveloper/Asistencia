@@ -17,9 +17,24 @@ const ROLE_ORDER: Record<EmployeeRole, number> = {
     'Anfitrión': 4,
 };
 
+const DesktopIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        viewBox="0 0 24 24" 
+        fill="currentColor" 
+        {...props}
+    >
+        <path d="M4 3C2.89543 3 2 3.89543 2 5V10C2 11.1046 2.89543 12 4 12H20C21.1046 12 22 11.1046 22 10V5C22 3.89543 21.1046 3 20 3H4ZM4 5H20V10H4V5Z" />
+        <path d="M3 14C1.89543 14 1 14.8954 1 16V19C1 20.1046 1.89543 21 3 21H21C22.1046 21 23 20.1046 23 19V16C23 14.8954 22.1046 14 21 14H3ZM3 16H21V19H3V16Z" />
+        <path d="M6 17C5.44772 17 5 17.4477 5 18C5 18.5523 5.44772 19 6 19H8C8.55228 19 9 18.5523 9 18C9 17.4477 8.55228 17 8 17H6Z" />
+        <path d="M11 17C10.4477 17 10 17.4477 10 18C10 18.5523 10.4477 19 11 19H13C13.5523 19 14 18.5523 14 18C14 17.4477 13.5523 17 13 17H11Z" />
+    </svg>
+);
+
+
 const RoleIcons: Record<EmployeeRole, React.ElementType> = {
     'Supervisión': Shield,
-    'Modulo': ConciergeBell,
+    'Modulo': DesktopIcon,
     'Tablet': Tablet,
     'Anfitrión': User,
 }
