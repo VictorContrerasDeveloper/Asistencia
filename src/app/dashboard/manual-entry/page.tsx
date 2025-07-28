@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Camera, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee } from '@/lib/data';
 import ManualEntryTable from '@/components/ManualEntryTable';
 import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
@@ -90,6 +90,14 @@ export default function ManualEntryPage() {
     const inputs = summaryTable.querySelectorAll('input[type="number"]');
     const originalDisplays: { el: HTMLElement, display: string}[] = [];
     const createdSpans: HTMLElement[] = [];
+    
+    const elementsToHide = summaryTable.querySelectorAll('.exclude-from-image');
+    elementsToHide.forEach(el => {
+        const htmlEl = el as HTMLElement;
+        originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
+        htmlEl.style.display = 'none';
+    });
+
 
     inputs.forEach((input) => {
         const inputEl = input as HTMLInputElement;
@@ -108,7 +116,7 @@ export default function ManualEntryPage() {
     });
 
     try {
-      const canvas = await html2canvas(summaryTable, { scale: 2 });
+      const canvas = await html2canvas(summaryTable, { scale: 2, backgroundColor: null });
       await copyCanvasToClipboard(canvas);
     } catch (error) {
        toast({
@@ -141,7 +149,7 @@ export default function ManualEntryPage() {
     });
 
     try {
-      const canvas = await html2canvas(absenceTable, { scale: 2 });
+      const canvas = await html2canvas(absenceTable, { scale: 2, backgroundColor: null });
       await copyCanvasToClipboard(canvas);
     } catch (error) {
        toast({
@@ -170,52 +178,58 @@ export default function ManualEntryPage() {
           </div>
         </header>
         <main className="flex-1 p-4 md:p-8 space-y-8">
-            <Card id="manual-entry-summary" className="w-full">
-              <CardHeader className="flex flex-row items-center justify-between p-4">
-                <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
-                <Button size="sm" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary}>
-                  <Camera className="mr-2 h-4 w-4" />
-                  Copiar Resumen
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                  </div>
-                ) : (
-                  <ManualEntryTable offices={offices} employees={employees} />
-                )}
-              </CardContent>
+            <Card className="w-full overflow-hidden">
+              <div id="manual-entry-summary">
+                <CardHeader className="flex flex-row items-center justify-between p-4">
+                  <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  ) : (
+                    <ManualEntryTable offices={offices} employees={employees} />
+                  )}
+                </CardContent>
+              </div>
+               <CardFooter className="flex justify-end p-2 exclude-from-image bg-card">
+                  <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary}>
+                    <Camera className="h-5 w-5" />
+                  </Button>
+              </CardFooter>
             </Card>
 
-            <Card id="prolonged-absence-summary" className="w-full">
-               <CardHeader className="flex flex-row items-center justify-between p-4">
-                 <CardTitle>Ausencias Prolongadas</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" onClick={() => setIsModalOpen(true)} className="exclude-from-image">
-                        <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
-                        Agregar
+            <Card className="w-full overflow-hidden">
+                <div id="prolonged-absence-summary">
+                    <CardHeader className="flex flex-row items-center justify-between p-4">
+                        <CardTitle>Ausencias Prolongadas</CardTitle>
+                        <div className="flex items-center gap-2 exclude-from-image">
+                            <Button size="sm" onClick={() => setIsModalOpen(true)}>
+                                <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
+                                Agregar
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        {loading ? (
+                        <Skeleton className="h-40 w-full" />
+                        ) : (
+                        <ProlongedAbsenceTable 
+                            offices={offices} 
+                            employees={employees}
+                            onEmployeeReinstated={handleEmployeeReinstated}
+                        />
+                        )}
+                    </CardContent>
+                </div>
+                <CardFooter className="flex justify-end p-2 exclude-from-image bg-card">
+                     <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence}>
+                        <Camera className="h-5 w-5" />
                     </Button>
-                     <Button size="sm" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence}>
-                        <Camera className="mr-2 h-4 w-4" />
-                        Copiar Ausencias
-                    </Button>
-                  </div>
-              </CardHeader>
-               <CardContent className="p-0">
-                {loading ? (
-                  <Skeleton className="h-40 w-full" />
-                ) : (
-                  <ProlongedAbsenceTable 
-                    offices={offices} 
-                    employees={employees}
-                    onEmployeeReinstated={handleEmployeeReinstated}
-                  />
-                )}
-               </CardContent>
+                </CardFooter>
             </Card>
         </main>
       </div>
