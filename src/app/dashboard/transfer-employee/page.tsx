@@ -3,13 +3,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Shuffle } from 'lucide-react';
+import { ArrowLeft, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getOffices, getEmployees, Office, Employee } from '@/lib/data';
-import { useToast } from "@/hooks/use-toast";
+import { getEmployees, getOffices, Office, Employee } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import TransferEmployeeModal from '@/components/TransferEmployeeModal';
 
@@ -37,18 +34,6 @@ export default function TransferEmployeePage() {
 
   const officeMap = useMemo(() => new Map(offices.map(o => [o.id, o.name])), [offices]);
 
-  const employeesByOffice = useMemo(() => {
-    return employees.reduce((acc, employee) => {
-        const officeName = officeMap.get(employee.officeId) || 'Sin Oficina Asignada';
-        if (!acc[officeName]) {
-            acc[officeName] = [];
-        }
-        acc[officeName].push(employee);
-        return acc;
-    }, {} as Record<string, Employee[]>);
-  }, [employees, officeMap]);
-
-
   const handleOpenModal = (employee: Employee) => {
     setSelectedEmployee(employee);
     setIsModalOpen(true);
@@ -59,7 +44,6 @@ export default function TransferEmployeePage() {
     setSelectedEmployee(null);
     await fetchData(); // Refresh data
   }
-
 
   return (
     <>
@@ -75,64 +59,41 @@ export default function TransferEmployeePage() {
           </div>
         </header>
         <main className="flex-1 flex justify-center p-4 md:p-8">
-          <Card className="w-full max-w-4xl">
+          <Card className="w-full max-w-2xl">
             <CardHeader>
-              <CardTitle>Lista de Personal por Oficina</CardTitle>
+              <CardTitle>Lista de Personal</CardTitle>
               <CardDescription>
                 Haz clic en el icono de traslado para reasignar un ejecutivo a una nueva oficina.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-md">
-                  <Table>
-                      <TableHeader>
-                          <TableRow>
-                          <TableHead className="font-bold w-[40%]">Oficina Actual</TableHead>
-                          <TableHead className="font-bold">Nombre Ejecutivo</TableHead>
-                          <TableHead className="font-bold text-right w-[100px]">Acción</TableHead>
-                          </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                         {loading ? (
-                            Array.from({ length: 10 }).map((_, i) => (
-                                <TableRow key={i}>
-                                    <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-                                    <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-                                    <TableCell><Skeleton className="h-10 w-full" /></TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                          Object.keys(employeesByOffice).sort().map(officeName => (
-                              <React.Fragment key={officeName}>
-                                  <TableRow className="bg-muted/50 hover:bg-muted/50">
-                                      <TableCell colSpan={3} className="font-semibold text-primary py-2">
-                                          {officeName}
-                                      </TableCell>
-                                  </TableRow>
-                                  {employeesByOffice[officeName].map((employee) => (
-                                      <TableRow key={employee.id} className="h-12">
-                                          <TableCell className="py-0"></TableCell>
-                                          <TableCell className="font-medium py-0">{employee.name}</TableCell>
-                                          <TableCell className="py-0 text-right">
-                                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenModal(employee)}>
-                                                  <Shuffle className="h-4 w-4 text-primary" />
-                                              </Button>
-                                          </TableCell>
-                                      </TableRow>
-                                  ))}
-                              </React.Fragment>
-                          ))
-                        )}
-
-                           {!loading && employees.length === 0 && (
-                              <TableRow>
-                                  <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                                      No hay personal para mostrar.
-                                  </TableCell>
-                              </TableRow>
-                          )}
-                      </TableBody>
-                  </Table>
+              <div className="border rounded-md p-2 space-y-1">
+                 {loading ? (
+                    Array.from({ length: 15 }).map((_, i) => (
+                        <div key={i} className="flex items-center justify-between p-2">
+                            <Skeleton className="h-6 w-1/2" />
+                            <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+                    ))
+                ) : (
+                  employees.map(employee => (
+                    <div key={employee.id} className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
+                        <div>
+                            <p className="font-medium text-sm">{employee.name}</p>
+                            <p className="text-xs text-muted-foreground">{officeMap.get(employee.officeId) || 'Sin Oficina'}</p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenModal(employee)}>
+                            <Shuffle className="h-4 w-4 text-primary" />
+                        </Button>
+                    </div>
+                  ))
+                )}
+                
+                {!loading && employees.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                        No hay personal para mostrar.
+                    </p>
+                )}
               </div>
             </CardContent>
           </Card>
