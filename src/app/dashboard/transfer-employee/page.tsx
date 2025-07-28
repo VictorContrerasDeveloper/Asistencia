@@ -128,7 +128,7 @@ export default function TransferEmployeePage() {
                         <TableRow>
                         <TableHead className="font-bold w-[30%]">Oficina Actual</TableHead>
                         <TableHead className="font-bold">Nombre Ejecutivo</TableHead>
-                        <TableHead className="font-bold w-[35%]">Nueva Oficina</TableHead>
+                        <TableHead className="font-bold w-[30%]">Nueva Oficina</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
