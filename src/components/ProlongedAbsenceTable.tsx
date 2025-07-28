@@ -99,7 +99,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
     }
 
     return (
-      <div className="overflow-x-auto border-t">
+      <div className="overflow-x-auto">
         <Table>
           <TableHeader className="bg-primary">
             <TableRow>

@@ -254,7 +254,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto border-t">
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
