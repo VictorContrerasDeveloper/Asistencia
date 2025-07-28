@@ -60,20 +60,15 @@ export default function ManualEntryPage() {
     });
   }
 
-  const copyCanvasToClipboard = async (canvas: HTMLCanvasElement, toastSuccessTitle: string, toastErrorDescription: string) => {
+  const copyCanvasToClipboard = async (canvas: HTMLCanvasElement) => {
      canvas.toBlob(async (blob) => {
         if(blob) {
             try {
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob })
                 ]);
-                toast({
-                    title: toastSuccessTitle,
-                    description: "La imagen ha sido copiada al portapapeles.",
-                });
             } catch (err) {
                  console.error("Error copying to clipboard:", err);
-                 toast({ title: "Error", description: toastErrorDescription, variant: "destructive" });
             }
         }
       }, 'image/png');
@@ -81,14 +76,9 @@ export default function ManualEntryPage() {
 
   const handleGenerateSummaryImage = async () => {
     setIsGeneratingSummary(true);
-    toast({
-      title: "Generando imagen del resumen...",
-      description: "Esto puede tardar unos segundos.",
-    });
-
+    
     const summaryTable = document.getElementById('manual-entry-summary');
     if (!summaryTable) {
-        toast({ title: "Error", description: "No se encontró la tabla de resumen.", variant: "destructive" });
         setIsGeneratingSummary(false);
         return;
     }
@@ -111,10 +101,9 @@ export default function ManualEntryPage() {
 
      try {
       const summaryCanvas = await html2canvas(summaryTable, { scale: 2 });
-      await copyCanvasToClipboard(summaryCanvas, "¡Resumen copiado!", "No se pudo copiar la imagen del resumen.");
+      await copyCanvasToClipboard(summaryCanvas);
     } catch (error) {
       console.error("Error generating summary image:", error);
-      toast({ title: "Error", description: "No se pudo generar la imagen del resumen.", variant: "destructive" });
     } finally {
         inputs.forEach((input) => {
             const span = input.nextSibling;
@@ -131,14 +120,9 @@ export default function ManualEntryPage() {
 
   const handleGenerateAbsenceImage = async () => {
     setIsGeneratingAbsences(true);
-    toast({
-      title: "Generando imagen de ausencias...",
-      description: "Esto puede tardar unos segundos.",
-    });
 
     const absenceTable = document.getElementById('prolonged-absence-summary');
     if (!absenceTable) {
-        toast({ title: "Error", description: "No se encontró la tabla de ausencias.", variant: "destructive" });
         setIsGeneratingAbsences(false);
         return;
     }
@@ -153,10 +137,9 @@ export default function ManualEntryPage() {
 
     try {
       const absenceCanvas = await html2canvas(absenceTable, { scale: 2 });
-      await copyCanvasToClipboard(absenceCanvas, "¡Ausencias copiadas!", "No se pudo copiar la imagen de ausencias.");
+      await copyCanvasToClipboard(absenceCanvas);
     } catch (error) {
       console.error("Error generating absence image:", error);
-      toast({ title: "Error", description: "No se pudo generar la imagen de ausencias.", variant: "destructive" });
     } finally {
         originalDisplays.forEach(item => {
             item.el.style.display = item.display;
