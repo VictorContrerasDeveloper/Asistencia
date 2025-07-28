@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -229,6 +228,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                             placeholder="0"
                             value={realStaffing[office.id]?.[role] || ''}
                             onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
+                            onFocus={(e) => e.target.select()}
                             className="h-8 w-12 mx-auto text-center"
                         />
                         </TableCell>
