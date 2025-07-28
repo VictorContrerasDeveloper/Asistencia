@@ -11,7 +11,6 @@ import ManualEntryTable from '@/components/ManualEntryTable';
 import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
 import { Skeleton } from '@/components/ui/skeleton';
 import html2canvas from 'html2canvas';
-import { useToast } from '@/hooks/use-toast';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
 
 export default function ManualEntryPage() {
@@ -21,7 +20,6 @@ export default function ManualEntryPage() {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,7 +171,7 @@ export default function ManualEntryPage() {
         <main className="flex-1 p-4 md:p-8 space-y-8">
             <Card id="manual-entry-summary" className="w-full overflow-hidden">
               <div>
-                <CardHeader className="flex flex-row items-center justify-between p-4">
+                <CardHeader className="flex flex-row items-center justify-center p-4">
                   <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -235,3 +233,4 @@ export default function ManualEntryPage() {
     </>
   );
 }
+
