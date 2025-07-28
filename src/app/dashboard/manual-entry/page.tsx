@@ -94,7 +94,7 @@ export default function ManualEntryPage() {
     });
 
     // 2. Hide elements not meant for the image
-    const elementsToHide = absenceTable.querySelectorAll('.exclude-from-image');
+    const elementsToHide = document.querySelectorAll('.exclude-from-image');
     elementsToHide.forEach(el => {
         const htmlEl = el as HTMLElement;
         originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
@@ -119,10 +119,22 @@ export default function ManualEntryPage() {
       context.drawImage(summaryCanvas, 0, 0);
       context.drawImage(absenceCanvas, 0, summaryCanvas.height + spacing);
 
-      const link = document.createElement('a');
-      link.href = combinedCanvas.toDataURL('image/png');
-      link.download = 'resumen-asistencia.png';
-      link.click();
+      combinedCanvas.toBlob(async (blob) => {
+        if(blob) {
+            try {
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]);
+                toast({
+                    title: "¡Imagen copiada!",
+                    description: "La imagen ha sido copiada al portapapeles. Ya puedes pegarla.",
+                });
+            } catch (err) {
+                 console.error("Error copying to clipboard:", err);
+                 toast({ title: "Error", description: "No se pudo copiar la imagen al portapapeles.", variant: "destructive" });
+            }
+        }
+      }, 'image/png');
       
     } catch (error) {
       console.error("Error generating image:", error);
