@@ -49,7 +49,7 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
       {sortedSummaries.map((summary) => (
         <AccordionItem value={summary.id} key={summary.id}>
           <AccordionTrigger>
-            <span className="font-semibold text-base">
+            <span className="font-semibold text-base capitalize">
               {format(summary.date.toDate(), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: es })}
             </span>
           </AccordionTrigger>
