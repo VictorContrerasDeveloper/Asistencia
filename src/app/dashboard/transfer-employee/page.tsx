@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shuffle, Shield, ConciergeBell, Tablet, User } from 'lucide-react';
+import { ArrowLeft, Shuffle, Shield, Tablet, User, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getEmployees, getOffices, Office, Employee, EmployeeRole } from '@/lib/data';
@@ -36,7 +36,7 @@ const RoleIcons: Record<EmployeeRole, React.ElementType> = {
     'Supervisión': Shield,
     'Modulo': DesktopIcon,
     'Tablet': Tablet,
-    'Anfitrión': User,
+    'Anfitrión': Navigation,
 }
 
 
