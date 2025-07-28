@@ -72,7 +72,11 @@ export default function ManualEntryPage() {
                     description: "Imagen copiada al portapapeles.",
                 });
             } catch (err) {
-                 console.error("Error copying to clipboard:", err);
+                 toast({
+                    title: "Error",
+                    description: "No se pudo copiar la imagen.",
+                    variant: "destructive"
+                });
             }
         }
       }, 'image/png');
@@ -95,6 +99,7 @@ export default function ManualEntryPage() {
         const span = document.createElement('span');
         span.textContent = inputEl.value || '0';
         span.className = inputEl.className.replace('w-12', 'w-full block').replace('h-7', 'h-full'); 
+        span.classList.add('text-center');
         if (inputEl.className.includes('bg-red-600')) {
              span.classList.add('bg-red-600', 'text-white');
         }
@@ -107,7 +112,11 @@ export default function ManualEntryPage() {
       const summaryCanvas = await html2canvas(summaryTable, { scale: 2 });
       await copyCanvasToClipboard(summaryCanvas);
     } catch (error) {
-      console.error("Error generating summary image:", error);
+       toast({
+          title: "Error",
+          description: "No se pudo generar la imagen.",
+          variant: "destructive"
+      });
     } finally {
         inputs.forEach((input) => {
             const span = input.nextSibling;
@@ -143,7 +152,11 @@ export default function ManualEntryPage() {
       const absenceCanvas = await html2canvas(absenceTable, { scale: 2 });
       await copyCanvasToClipboard(absenceCanvas);
     } catch (error) {
-      console.error("Error generating absence image:", error);
+       toast({
+          title: "Error",
+          description: "No se pudo generar la imagen.",
+          variant: "destructive"
+      });
     } finally {
         originalDisplays.forEach(item => {
             item.el.style.display = item.display;
