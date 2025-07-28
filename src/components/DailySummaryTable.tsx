@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo } from 'react';
@@ -33,7 +32,7 @@ const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
 export default function DailySummaryTable({ summaries, onDelete }: DailySummaryTableProps) {
   
   const sortedSummaries = useMemo(() => {
-    return summaries.sort((a, b) => b.date.toMillis() - a.date.toMillis());
+    return summaries.sort((a, b) => a.date.toMillis() - b.date.toMillis());
   }, [summaries]);
 
   if (summaries.length === 0) {
