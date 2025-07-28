@@ -14,7 +14,7 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users } from 'lucide-react';
+import { Users, CalendarDays } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
@@ -273,29 +273,35 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                                     <div className="grid gap-2">
                                         {assignedEmployees.length > 0 ? (
                                         <div className="space-y-3 max-h-60 overflow-y-auto pr-2 mt-2">
-                                            {assignedEmployees.map(emp => (
-                                            <div key={emp.id} className="flex items-center justify-between">
-                                                <Label htmlFor={`attendance-${office.id}-${emp.id}`} className="flex-1 cursor-pointer">{emp.name}</Label>
-                                                 <div className="flex items-center space-x-4">
-                                                    <div className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            id={`atrasado-${office.id}-${emp.id}`}
-                                                            checked={attendance[office.id]?.[emp.id] === 'Atrasado'}
-                                                            onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Atrasado', !!checked)}
-                                                        />
-                                                        <Label htmlFor={`atrasado-${office.id}-${emp.id}`} className="text-xs">T</Label>
+                                            {assignedEmployees.map(emp => {
+                                                const hasProlongedAbsence = emp.status === 'Ausente' && PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason);
+                                                return (
+                                                    <div key={emp.id} className="flex items-center justify-between">
+                                                        <Label htmlFor={`attendance-${office.id}-${emp.id}`} className="flex-1 cursor-pointer flex items-center gap-2">
+                                                            {hasProlongedAbsence && <CalendarDays className="h-4 w-4 text-muted-foreground" />}
+                                                            {emp.name}
+                                                        </Label>
+                                                        <div className="flex items-center space-x-4">
+                                                            <div className="flex items-center space-x-2">
+                                                                <Checkbox
+                                                                    id={`atrasado-${office.id}-${emp.id}`}
+                                                                    checked={attendance[office.id]?.[emp.id] === 'Atrasado'}
+                                                                    onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Atrasado', !!checked)}
+                                                                />
+                                                                <Label htmlFor={`atrasado-${office.id}-${emp.id}`} className="text-xs">T</Label>
+                                                            </div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <Checkbox
+                                                                    id={`ausente-${office.id}-${emp.id}`}
+                                                                    checked={attendance[office.id]?.[emp.id] === 'Ausente'}
+                                                                    onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Ausente', !!checked)}
+                                                                />
+                                                                <Label htmlFor={`ausente-${office.id}-${emp.id}`} className="text-xs">A</Label>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            id={`ausente-${office.id}-${emp.id}`}
-                                                            checked={attendance[office.id]?.[emp.id] === 'Ausente'}
-                                                            onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Ausente', !!checked)}
-                                                        />
-                                                        <Label htmlFor={`ausente-${office.id}-${emp.id}`} className="text-xs">A</Label>
-                                                    </div>
-                                                 </div>
-                                            </div>
-                                            ))}
+                                                )
+                                            })}
                                         </div>
                                         ) : (
                                         <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
