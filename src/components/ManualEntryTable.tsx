@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -81,20 +82,17 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
 
   const handleAttendanceChange = (officeId: string, employeeId: string, newStatus: AttendanceStatus, isChecked: boolean) => {
     setAttendance(prev => {
-        const currentStatus = prev[officeId]?.[employeeId] || 'Presente';
-        let finalStatus: AttendanceStatus;
+        const currentAttendance = prev[officeId] || {};
+        let finalStatus: AttendanceStatus = 'Presente';
 
-        if (isChecked) {
+        if(isChecked) {
             finalStatus = newStatus;
-        } else {
-            // If unchecking, they become present
-            finalStatus = 'Presente';
         }
 
         return {
             ...prev,
             [officeId]: {
-                ...prev[officeId],
+                ...currentAttendance,
                 [employeeId]: finalStatus,
             }
         };
@@ -140,8 +138,8 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
             {ROLES.map(role => (
               <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
             ))}
-            <TableHead className="text-center font-bold text-primary">Personal Ausente</TableHead>
             <TableHead className="text-center font-bold text-primary">Atrasos</TableHead>
+            <TableHead className="text-center font-bold text-primary">Personal Ausente</TableHead>
           </TableRow>
           <TableRow>
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
@@ -226,10 +224,10 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                     </React.Fragment>
                 ))}
                  <TableCell className="text-center text-xs">
-                    {getEmployeeNamesByStatus(office.id, 'Ausente')}
+                    {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
                   <TableCell className="text-center text-xs">
-                    {getEmployeeNamesByStatus(office.id, 'Atrasado')}
+                    {getEmployeeNamesByStatus(office.id, 'Ausente')}
                   </TableCell>
                 </TableRow>
             );
