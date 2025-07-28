@@ -11,22 +11,24 @@ import OfficeAttendanceSummary from '@/components/OfficeAttendanceSummary';
 import { Button } from '@/components/ui/button';
 import BulkUpdateNamesModal from '@/components/BulkUpdateNamesModal';
 
-type DashboardPageProps = {
+type DashboardPageWrapperProps = {
   params: {
     officeId: string;
   };
 };
 
 // This page now needs to be a client component to handle modal state
-export default function DashboardPageWrapper({ params }: DashboardPageProps) {
-  // We will fetch data in a client component and pass it down.
-  // This is a common pattern for pages that need both server-side data fetching
-  // and client-side interactivity.
-  return <DashboardPage params={params} />;
+export default function DashboardPageWrapper({ params }: DashboardPageWrapperProps) {
+  // We resolve the params here and pass down the primitive value to the client component.
+  // This avoids the "param property was accessed directly" warning.
+  return <DashboardPage officeId={params.officeId} />;
 }
 
+type DashboardPageProps = {
+  officeId: string;
+};
 
-function DashboardPage({ params }: DashboardPageProps) {
+function DashboardPage({ officeId }: DashboardPageProps) {
   const [offices, setOffices] = useState<Office[]>([]);
   const [office, setOffice] = useState<Office | {name: string, id: string} | null>(null);
   const [initialEmployees, setInitialEmployees] = useState<Employee[]>([]);
@@ -36,7 +38,6 @@ function DashboardPage({ params }: DashboardPageProps) {
 
   useEffect(() => {
     async function fetchData() {
-      const { officeId } = params;
       setLoading(true);
       const officesData = await getOffices();
       setOffices(officesData);
@@ -56,7 +57,7 @@ function DashboardPage({ params }: DashboardPageProps) {
       setLoading(false);
     }
     fetchData();
-  }, [params]);
+  }, [officeId]);
 
   const refetchAllEmployees = async () => {
      const allEmployeesData = await getEmployees();
@@ -82,7 +83,7 @@ function DashboardPage({ params }: DashboardPageProps) {
     );
   }
 
-  const isGeneralPanel = params.officeId === 'general';
+  const isGeneralPanel = officeId === 'general';
 
   const officeHeader = (
     <div className="flex items-center gap-4">
@@ -102,7 +103,7 @@ function DashboardPage({ params }: DashboardPageProps) {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
        <main className="flex-1 overflow-auto p-4 md:p-8">
-        {params.officeId === 'general' ? (
+        {officeId === 'general' ? (
           <>
              <header className="flex items-center p-4 border-b bg-card justify-center flex-col md:flex-row md:justify-between mb-8">
                {officeHeader}
