@@ -112,13 +112,13 @@ export default function TheoreticalStaffingTable({ offices, roles }: Theoretical
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-primary text-primary-foreground">
               <TableRow>
-                <TableHead className="font-bold text-primary">Oficina Comercial</TableHead>
+                <TableHead className="font-bold text-primary-foreground">Oficina Comercial</TableHead>
                 {roles.map(role => (
-                  <TableHead key={role} className="text-center font-bold text-primary">{role}</TableHead>
+                  <TableHead key={role} className="text-center font-bold text-primary-foreground">{role}</TableHead>
                 ))}
-                <TableHead className="text-right font-bold text-primary">Acciones</TableHead>
+                <TableHead className="text-right font-bold text-primary-foreground">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

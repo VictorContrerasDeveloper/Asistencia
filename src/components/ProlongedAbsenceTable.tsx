@@ -85,10 +85,6 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     
     // Optimistic update
     const employeeToUpdate = employees.find(e => e.id === employeeId);
-    if (employeeToUpdate) {
-        // toast removed as requested
-    }
-
     setEmployees(prev => prev.filter(e => e.id !== employeeId));
 
 
@@ -164,13 +160,13 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
       <CardContent className="p-0">
         <div className="overflow-x-auto border-t">
           <Table>
-            <TableHeader className="bg-primary/10">
+            <TableHeader className="bg-primary">
               <TableRow>
-                <TableHead className="font-bold text-primary text-sm px-2 py-1">Nombre</TableHead>
-                <TableHead className="font-bold text-primary text-sm px-2 py-1">Motivo</TableHead>
-                <TableHead className="font-bold text-primary text-sm px-2 py-1">Fecha Término</TableHead>
-                <TableHead className="font-bold text-primary text-sm px-2 py-1">Última Oficina Asignada</TableHead>
-                <TableHead className="font-bold text-primary text-right text-sm px-2 py-1">Acciones</TableHead>
+                <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Nombre</TableHead>
+                <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Motivo</TableHead>
+                <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Fecha Término</TableHead>
+                <TableHead className="font-bold text-primary-foreground text-sm px-2 py-1">Última Oficina Asignada</TableHead>
+                <TableHead className="font-bold text-primary-foreground text-right text-sm px-2 py-1">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

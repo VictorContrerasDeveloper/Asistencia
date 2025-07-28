@@ -126,14 +126,14 @@ export default function DashboardClient({ initialEmployees, offices, office, off
 
        <div className="flex-grow bg-card rounded-lg border overflow-auto mt-8">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-card">
+            <TableHeader className="sticky top-0 z-10 bg-primary text-primary-foreground">
               <TableRow>
-                <TableHead className="w-[25%] text-primary font-bold text-lg">Personal asignado</TableHead>
-                <TableHead className="w-[20%] text-primary font-bold text-lg">Función</TableHead>
-                <TableHead className="text-center text-primary font-bold text-lg">Presente</TableHead>
-                <TableHead className="text-center text-primary font-bold text-lg">Atrasado</TableHead>
-                <TableHead className="text-center text-primary font-bold text-lg">Ausente</TableHead>
-                <TableHead className="w-[25%] text-primary font-bold text-lg">Motivo Ausencia</TableHead>
+                <TableHead className="w-[25%] font-bold text-lg text-primary-foreground">Personal asignado</TableHead>
+                <TableHead className="w-[20%] font-bold text-lg text-primary-foreground">Función</TableHead>
+                <TableHead className="text-center font-bold text-lg text-primary-foreground">Presente</TableHead>
+                <TableHead className="text-center font-bold text-lg text-primary-foreground">Atrasado</TableHead>
+                <TableHead className="text-center font-bold text-lg text-primary-foreground">Ausente</TableHead>
+                <TableHead className="w-[25%] font-bold text-lg text-primary-foreground">Motivo Ausencia</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
