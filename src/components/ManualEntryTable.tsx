@@ -271,7 +271,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 onKeyDown={(e) => handleKeyDown(e, refIndex)}
                                 onBlur={() => handleSaveStaffing(office.id, role)}
                                 className={cn(
-                                    "h-7 w-12 mx-auto text-center border-0 rounded-none",
+                                    "h-7 w-12 mx-auto text-center border-0 rounded-md",
                                     isDeficit && "bg-red-600 text-white"
                                 )}
                             />
