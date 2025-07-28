@@ -62,28 +62,28 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
             <Table>
                 <TableHeader className="bg-primary/10">
                     <TableRow>
-                        <TableHead className="font-bold text-primary">Oficina</TableHead>
+                        <TableHead className="font-bold text-primary p-2 text-sm">Oficina</TableHead>
                         {ROLES.map(role => (
-                            <TableHead key={role} className="text-center font-bold text-primary">{role}</TableHead>
+                            <TableHead key={role} className="text-center font-bold text-primary p-2 text-sm">{role}</TableHead>
                         ))}
-                        <TableHead className="font-bold text-primary">Ausentes</TableHead>
+                        <TableHead className="font-bold text-primary p-2 text-sm">Ausentes</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {Object.values(summary.summary).sort((a,b) => a.name.localeCompare(b.name)).map(officeData => {
                         return (
                             <TableRow key={officeData.name}>
-                                <TableCell className="font-medium">{officeData.name}</TableCell>
+                                <TableCell className="font-medium p-2">{officeData.name}</TableCell>
                                 {ROLES.map(role => {
                                     const realCount = officeData.realStaffing[role] || 0;
                                     const isDeficit = realCount < (officeData.theoreticalStaffing?.[role as keyof typeof officeData.theoreticalStaffing] || 0);
                                     return (
-                                        <TableCell key={role} className={cn("text-center font-bold", isDeficit && "bg-red-600 text-white")}>
+                                        <TableCell key={role} className={cn("text-center font-bold p-2", isDeficit && "bg-red-600 text-white")}>
                                             {realCount}
                                         </TableCell>
                                     )
                                 })}
-                                 <TableCell className="text-xs">{officeData.absent || '-'}</TableCell>
+                                 <TableCell className="text-xs p-2">{officeData.absent || '-'}</TableCell>
                             </TableRow>
                         )
                     })}
