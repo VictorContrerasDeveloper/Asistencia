@@ -272,7 +272,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
 
                     return (
                         <React.Fragment key={role}>
-                            <TableCell className="p-0 border-r">
+                            <TableCell className="p-0">
                             <Input
                                 ref={el => {inputRefs.current[refIndex] = el}}
                                 type="number"
@@ -284,7 +284,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 onKeyDown={(e) => handleKeyDown(e, refIndex)}
                                 onBlur={() => handleSaveStaffing(office.id, role)}
                                 className={cn(
-                                    "h-7 w-12 mx-auto text-center",
+                                    "h-7 w-12 mx-auto text-center border-0 rounded-none",
                                     isDeficit && "bg-red-600 text-white"
                                 )}
                             />
@@ -307,5 +307,3 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     </div>
   );
 }
-
-    
