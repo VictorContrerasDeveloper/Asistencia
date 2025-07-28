@@ -27,7 +27,6 @@ export default function DashboardPageWrapper({ params }: DashboardPageProps) {
 
 
 function DashboardPage({ params }: DashboardPageProps) {
-  const { officeId } = params;
   const [offices, setOffices] = useState<Office[]>([]);
   const [office, setOffice] = useState<Office | {name: string, id: string} | null>(null);
   const [initialEmployees, setInitialEmployees] = useState<Employee[]>([]);
@@ -37,6 +36,7 @@ function DashboardPage({ params }: DashboardPageProps) {
 
   useEffect(() => {
     async function fetchData() {
+      const { officeId } = params;
       setLoading(true);
       const officesData = await getOffices();
       setOffices(officesData);
@@ -56,7 +56,7 @@ function DashboardPage({ params }: DashboardPageProps) {
       setLoading(false);
     }
     fetchData();
-  }, [officeId]);
+  }, [params]);
 
   const refetchAllEmployees = async () => {
      const allEmployeesData = await getEmployees();
@@ -82,7 +82,7 @@ function DashboardPage({ params }: DashboardPageProps) {
     );
   }
 
-  const isGeneralPanel = officeId === 'general';
+  const isGeneralPanel = params.officeId === 'general';
 
   const officeHeader = (
     <div className="flex items-center gap-4">
@@ -102,7 +102,7 @@ function DashboardPage({ params }: DashboardPageProps) {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
        <main className="flex-1 overflow-auto p-4 md:p-8">
-        {officeId === 'general' ? (
+        {params.officeId === 'general' ? (
           <>
              <header className="flex items-center p-4 border-b bg-card justify-center flex-col md:flex-row md:justify-between mb-8">
                {officeHeader}
