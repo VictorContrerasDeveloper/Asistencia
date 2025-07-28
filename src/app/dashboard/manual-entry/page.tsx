@@ -86,32 +86,31 @@ export default function ManualEntryPage() {
         setIsGeneratingSummary(false);
         return;
     }
-    
+
     const inputs = summaryTable.querySelectorAll('input[type="number"]');
-    const originalDisplays: { el: HTMLElement, display: string}[] = [];
-    const createdSpans: HTMLElement[] = [];
-    
+    const originalValues: { el: HTMLTableCellElement, originalContent: string, originalClasses: string }[] = [];
+
     const elementsToHide = summaryTable.querySelectorAll('.exclude-from-image');
     elementsToHide.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
-        htmlEl.style.display = 'none';
+      const htmlEl = el as HTMLElement;
+      htmlEl.style.display = 'none';
     });
-
-
+    
     inputs.forEach((input) => {
-        const inputEl = input as HTMLInputElement;
-        const span = document.createElement('span');
-        span.textContent = inputEl.value || '0';
-        span.className = 'w-full h-full flex items-center justify-center rounded-md';
+      const inputEl = input as HTMLInputElement;
+      const cell = inputEl.parentElement as HTMLTableCellElement;
+      
+      if (cell) {
+        originalValues.push({ el: cell, originalContent: cell.innerHTML, originalClasses: cell.className });
+        
+        const value = inputEl.value || '0';
+        cell.innerHTML = `<span>${value}</span>`;
+        cell.className = 'p-0 h-full flex items-center justify-center';
 
         if (inputEl.className.includes('bg-red-600')) {
-             span.classList.add('bg-red-600', 'text-white');
+          cell.classList.add('bg-red-600', 'text-white');
         }
-        originalDisplays.push({el: inputEl, display: inputEl.style.display });
-        inputEl.style.display = 'none';
-        inputEl.parentNode?.insertBefore(span, inputEl.nextSibling);
-        createdSpans.push(span);
+      }
     });
 
     try {
@@ -124,11 +123,18 @@ export default function ManualEntryPage() {
           variant: "destructive"
       });
     } finally {
-        createdSpans.forEach(span => span.parentNode?.removeChild(span));
-        originalDisplays.forEach(item => item.el.style.display = item.display);
+        originalValues.forEach(item => {
+          item.el.innerHTML = item.originalContent;
+          item.el.className = item.originalClasses;
+        });
+        elementsToHide.forEach(el => {
+          const htmlEl = el as HTMLElement;
+          htmlEl.style.display = '';
+        });
         setIsGeneratingSummary(false);
     }
   };
+
 
   const handleGenerateAbsenceImage = async () => {
     setIsGeneratingAbsence(true);
