@@ -53,7 +53,14 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
         ...emp,
         officeName: officeMap.get(emp.officeId) || 'Sin asignar'
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => {
+        if (a.absenceEndDate && b.absenceEndDate) {
+            return new Date(a.absenceEndDate).getTime() - new Date(b.absenceEndDate).getTime();
+        }
+        if (a.absenceEndDate) return -1; // a comes first
+        if (b.absenceEndDate) return 1;  // b comes first
+        return a.name.localeCompare(b.name); // fallback to name sort
+      });
   }, [employees, offices, officeMap]);
   
   const handleDateChange = async (employeeId: string, date: Date | undefined) => {
