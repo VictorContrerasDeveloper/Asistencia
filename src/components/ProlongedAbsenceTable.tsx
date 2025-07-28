@@ -116,7 +116,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
           </TableHeader>
           <TableBody>
             {absentEmployees.map(employee => {
-              const selectedDate = employee.absenceEndDate ? new Date(`${employee.absenceEndDate}T00:00:00Z`) : undefined;
+              const selectedDate = employee.absenceEndDate ? new Date(employee.absenceEndDate.replace(/-/g, '/')) : undefined;
               return (
                   <TableRow key={employee.id}>
                   <TableCell className="font-medium p-2 text-xs">{employee.name}</TableCell>
