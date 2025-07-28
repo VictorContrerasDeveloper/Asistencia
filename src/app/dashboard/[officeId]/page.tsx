@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, FileText, Users, PlusCircle, Trash2, Edit } from 'lucide-react';
 import { getEmployees, getOfficeBySlug, getOffices, slugify, Office, Employee } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
@@ -35,7 +35,7 @@ function DashboardPage({ params }: DashboardPageProps) {
   const [loading, setLoading] = useState(true);
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
 
-  useState(() => {
+  useEffect(() => {
     async function fetchData() {
       setLoading(true);
       const officesData = await getOffices();
@@ -56,7 +56,7 @@ function DashboardPage({ params }: DashboardPageProps) {
       setLoading(false);
     }
     fetchData();
-  });
+  }, [officeId]);
 
   const refetchAllEmployees = async () => {
      const allEmployeesData = await getEmployees();
