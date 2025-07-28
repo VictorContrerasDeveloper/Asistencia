@@ -125,14 +125,14 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
   if (absentEmployees.length === 0 && !isModalOpen) {
     return (
      <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Ejecutivas NO presentes en oficina (Licencias / Vacaciones)</CardTitle>
-        <Button onClick={() => setIsModalOpen(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Agregar Ausencia
+      <CardHeader className="flex flex-row items-center justify-between p-4">
+        <CardTitle className="text-base font-semibold">Ausencias Prolongadas</CardTitle>
+        <Button size="sm" onClick={() => setIsModalOpen(true)}>
+            <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
+            Agregar
         </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <p className="text-sm text-muted-foreground p-4 text-center">No hay personal con ausencias prolongadas para mostrar.</p>
         <AddAbsenceModal 
             isOpen={isModalOpen}
@@ -148,15 +148,15 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
   return (
     <>
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Ejecutivas NO presentes en oficina (Licencias / Vacaciones)</CardTitle>
-        <Button onClick={() => setIsModalOpen(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Agregar Ausencia
+       <CardHeader className="flex flex-row items-center justify-between p-4">
+        <CardTitle className="text-base font-semibold">Ausencias Prolongadas</CardTitle>
+        <Button size="sm" onClick={() => setIsModalOpen(true)}>
+            <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
+            Agregar
         </Button>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto border rounded-lg">
+      <CardContent className="p-0">
+        <div className="overflow-x-auto border-t">
           <Table>
             <TableHeader className="bg-primary/10">
               <TableRow>
@@ -181,11 +181,11 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
                                 variant={"outline"}
                                 size="sm"
                                 className={cn(
-                                    "w-[200px] justify-start text-left font-normal h-8 text-xs",
+                                    "w-[160px] justify-start text-left font-normal h-7 text-xs px-2",
                                     !selectedDate && "text-muted-foreground"
                                 )}
                                 >
-                                <CalendarIcon className="mr-2 h-3 w-3" />
+                                <CalendarIcon className="mr-1.5 h-3 w-3" />
                                 {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
                                 </Button>
                             </PopoverTrigger>
