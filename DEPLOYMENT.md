@@ -54,3 +54,27 @@ El proceso de despliegue puede tardar unos minutos. La CLI te mostrará el progr
 Una vez que el despliegue haya terminado, la Firebase CLI te mostrará un mensaje de éxito y la **URL pública** de tu aplicación. ¡Copia esa URL, pégala en tu navegador y listo! Tu aplicación "Attendance Hero" estará en línea.
 
 Cada vez que hagas cambios y quieras actualizarlos, solo necesitarás repetir el **Paso 3**.
+
+---
+
+## ¿Cómo se me cobrará por esta aplicación?
+
+Es una pregunta muy importante. Aquí te explico de forma sencilla cómo funciona el cobro en Firebase para una aplicación como "Attendance Hero":
+
+### El Plan Gratuito (Spark Plan)
+
+Por defecto, tu proyecto de Firebase está en el **Plan Spark**, que es un plan **gratuito**. Este plan está diseñado para que puedas empezar a desarrollar y lanzar tu aplicación sin costo alguno. Incluye cuotas generosas para los servicios que estamos usando:
+
+1.  **Firestore (Base de Datos)**:
+    *   **Almacenamiento**: Tienes **1 GiB** de almacenamiento gratuito. Para una app de asistencia, donde cada empleado y cada oficina es un pequeño documento de texto, esto es muchísimo espacio. Probablemente nunca te acerques a este límite a menos que tengas cientos de miles de empleados.
+    *   **Operaciones de Lectura/Escritura**: Tienes **50,000 lecturas** y **20,000 escrituras** de documentos *por día*, de forma gratuita. Cada vez que cargas la lista de personal, haces una lectura. Cada vez que cambias el estado de un empleado (de "Presente" a "Ausente"), haces una escritura. Es muy poco probable que excedas estos límites con un uso normal.
+
+2.  **Firebase App Hosting (Alojamiento Web)**:
+    *   **Almacenamiento**: Tienes **10 GB** de almacenamiento gratuito para los archivos de tu aplicación. Tu aplicación actual ocupa solo unos pocos megabytes.
+    *   **Transferencia de Datos**: Tienes **360 MB** de transferencia de datos *por día*. Esto es el tráfico que se genera cuando los usuarios visitan tu app. De nuevo, es una cuota muy generosa para empezar.
+
+### ¿Cuándo tendrías que pagar?
+
+Solo tendrías que pagar si decides cambiar tu proyecto al **Plan Blaze (pago por uso)** y *además* superas las cuotas gratuitas. El Plan Blaze sigue teniendo las mismas cuotas gratuitas que el Plan Spark, pero te permite excederlas si tu aplicación crece mucho.
+
+**En resumen:** Para una aplicación como "Attendance Hero", con una cantidad normal de oficinas y empleados, **es muy probable que tu uso se mantenga dentro del plan gratuito de Firebase de forma indefinida**. No se te cobrará nada a menos que actualices manualmente tu proyecto al plan de pago y tu aplicación reciba un tráfico o un volumen de datos masivo.
