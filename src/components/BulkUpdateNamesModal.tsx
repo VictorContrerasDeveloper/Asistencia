@@ -38,7 +38,7 @@ export default function BulkUpdateNamesModal({ isOpen, onClose, onSuccess }: Bul
         const allEmployees = await getEmployees();
         allEmployees.sort((a, b) => a.name.localeCompare(b.name));
         setEmployees(allEmployees);
-        const prefilledText = allEmployees.map(emp => `${emp.name} > `).join('\n');
+        const prefilledText = allEmployees.map(emp => `${emp.name} > ${emp.name}`).join('\n');
         setNameUpdates(prefilledText);
       }
       fetchEmployees();
