@@ -107,7 +107,7 @@ export default function ManualEntryPage() {
         const isDeficit = inputEl.className.includes('bg-red-600');
         
         const centeredContent = `
-          <div class="w-full h-full flex items-center justify-center ${isDeficit ? 'bg-red-600 text-white' : ''}">
+          <div class="w-full h-7 flex items-center justify-center rounded-md ${isDeficit ? 'bg-red-600 text-white' : ''}">
             ${value}
           </div>
         `;
