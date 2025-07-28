@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { type Employee, type Office, updateEmployee } from '@/lib/data';
 import {
   Table,
@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
+import AddAbsenceModal from './AddAbsenceModal';
 
 type ProlongedAbsenceTableProps = {
   employees: Employee[];
@@ -29,8 +29,12 @@ type ProlongedAbsenceTableProps = {
 
 const PROLONGED_ABSENCE_REASONS: (string | null)[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
-export default function ProlongedAbsenceTable({ employees, offices }: ProlongedAbsenceTableProps) {
+export default function ProlongedAbsenceTable({ employees: initialEmployees, offices }: ProlongedAbsenceTableProps) {
   const { toast } = useToast();
+  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dates, setDates] = useState<{[key: string]: Date | undefined}>({});
+  
   const officeMap = useMemo(() => {
     return new Map(offices.map(office => [office.id, office.name]));
   }, [offices]);
@@ -51,8 +55,6 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [employees, offices, officeMap]);
   
-  const [dates, setDates] = useState<{[key: string]: Date | undefined}>({});
-
   const handleDateChange = async (employeeId: string, date: Date | undefined) => {
     if (!date) return;
     
@@ -70,20 +72,51 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
     }
   }
 
-  if (absentEmployees.length === 0) {
-    return null;
+  const handleAbsenceAdded = useCallback((updatedEmployee: Employee) => {
+    setEmployees(prevEmployees => {
+      const existingEmployeeIndex = prevEmployees.findIndex(e => e.id === updatedEmployee.id);
+      if (existingEmployeeIndex !== -1) {
+        const newEmployees = [...prevEmployees];
+        newEmployees[existingEmployeeIndex] = updatedEmployee;
+        return newEmployees;
+      }
+      return [...prevEmployees, updatedEmployee];
+    });
+    setIsModalOpen(false);
+  }, []);
+
+  if (absentEmployees.length === 0 && !isModalOpen) {
+    return (
+     <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Ejecutivas NO presentes en oficina (Licencias / Vacaciones)</CardTitle>
+        <Button onClick={() => setIsModalOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Agregar Ausencia
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground p-4 text-center">No hay personal con ausencias prolongadas para mostrar.</p>
+        <AddAbsenceModal 
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onAbsenceAdded={handleAbsenceAdded}
+            allEmployees={employees}
+        />
+      </CardContent>
+    </Card>
+    )
   }
 
   return (
+    <>
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Ejecutivas NO presentes en oficina (Licencias / Vacaciones)</CardTitle>
-        <Link href="/dashboard/add-employee">
-            <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Agregar Personal
-            </Button>
-        </Link>
+        <Button onClick={() => setIsModalOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Agregar Ausencia
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto border rounded-lg">
@@ -137,5 +170,12 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
         </div>
       </CardContent>
     </Card>
+    <AddAbsenceModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAbsenceAdded={handleAbsenceAdded}
+        allEmployees={employees}
+    />
+    </>
   );
 }

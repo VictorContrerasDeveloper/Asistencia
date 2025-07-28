@@ -113,7 +113,7 @@ export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => 
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
 };
 
-export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role' | 'absenceReason' | 'name' | 'absenceEndDate'>>) => {
+export const updateEmployee = async (employeeId: string, updates: Partial<Employee>) => {
     const employeeRef = doc(db, 'employees', employeeId);
     await updateDoc(employeeRef, updates);
 };
