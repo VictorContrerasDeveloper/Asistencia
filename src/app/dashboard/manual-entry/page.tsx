@@ -67,6 +67,10 @@ export default function ManualEntryPage() {
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob })
                 ]);
+                 toast({
+                    title: "¡Éxito!",
+                    description: "Imagen copiada al portapapeles.",
+                });
             } catch (err) {
                  console.error("Error copying to clipboard:", err);
             }
@@ -205,5 +209,3 @@ export default function ManualEntryPage() {
     </div>
   );
 }
-
-    
