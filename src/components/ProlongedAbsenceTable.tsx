@@ -125,11 +125,10 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
                               variant={"outline"}
                               size="sm"
                               className={cn(
-                                  "w-[160px] justify-start text-left font-normal h-7 text-xs px-2",
+                                  "w-[160px] justify-center font-normal h-7 text-xs px-1",
                                   !selectedDate && "text-muted-foreground"
                               )}
                               >
-                              <CalendarIcon className="mr-1.5 h-3 w-3" />
                               {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
                               </Button>
                           </PopoverTrigger>
