@@ -211,10 +211,6 @@ export default function ManualEntryPage() {
     try {
       await deleteDailySummary(summaryToDelete);
       setDailySummaries(prev => prev.filter(s => s.id !== summaryToDelete));
-      toast({
-        title: "¡Éxito!",
-        description: "El resumen ha sido eliminado."
-      });
     } catch (error) {
        toast({
         title: "Error",
