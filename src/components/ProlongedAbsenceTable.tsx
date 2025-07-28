@@ -14,7 +14,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
-import { CalendarIcon, PlusCircle } from 'lucide-react';
+import { CalendarIcon, PlusCircle, UserCheck } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -72,6 +72,33 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     }
   }
 
+  const handleReinstate = async (employeeId: string) => {
+    const originalEmployees = [...employees];
+    
+    // Optimistic update
+    setEmployees(prev => prev.filter(e => e.id !== employeeId));
+
+    try {
+      await updateEmployee(employeeId, {
+        status: 'Presente',
+        absenceReason: null,
+        absenceEndDate: '',
+      });
+      toast({
+        title: "¡Éxito!",
+        description: "El empleado ha sido reintegrado.",
+      });
+    } catch (error) {
+      // Revert on failure
+      setEmployees(originalEmployees);
+      toast({
+        title: "Error",
+        description: "No se pudo reintegrar al empleado.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAbsenceAdded = useCallback((updatedEmployee: Employee) => {
     setEmployees(prevEmployees => {
       const existingEmployeeIndex = prevEmployees.findIndex(e => e.id === updatedEmployee.id);
@@ -127,6 +154,7 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
                 <TableHead className="font-bold text-primary">Motivo</TableHead>
                 <TableHead className="font-bold text-primary">Fecha Término</TableHead>
                 <TableHead className="font-bold text-primary">Última Oficina Asignada</TableHead>
+                <TableHead className="font-bold text-primary text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -162,6 +190,11 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
                         </Popover>
                     </TableCell>
                     <TableCell className="p-2">{employee.officeName}</TableCell>
+                    <TableCell className="p-2 text-right">
+                      <Button variant="ghost" size="icon" onClick={() => handleReinstate(employee.id)} title="Reintegrar empleado">
+                        <UserCheck className="h-4 w-4 text-green-600" />
+                      </Button>
+                    </TableCell>
                     </TableRow>
                 )
               })}

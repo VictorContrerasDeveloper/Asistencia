@@ -115,7 +115,20 @@ export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => 
 
 export const updateEmployee = async (employeeId: string, updates: Partial<Employee>) => {
     const employeeRef = doc(db, 'employees', employeeId);
-    await updateDoc(employeeRef, updates);
+    
+    // Firestore does not allow `undefined` values. Convert them to something else or handle them.
+    // In this case, if absenceEndDate is an empty string, we can assume it should be removed.
+    // Or if we pass null for absenceReason.
+    const finalUpdates: { [key: string]: any } = { ...updates };
+
+    if (updates.absenceReason === null) {
+      finalUpdates.absenceReason = null;
+    }
+     if (updates.absenceEndDate === '') {
+      finalUpdates.absenceEndDate = '';
+    }
+
+    await updateDoc(employeeRef, finalUpdates);
 };
 
 export const bulkUpdateEmployeeNames = async (nameUpdates: string): Promise<{updated: number, notFound: string[]}> => {
