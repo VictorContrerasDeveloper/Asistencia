@@ -60,10 +60,6 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
 
     try {
         await updateEmployee(employeeId, { absenceEndDate: newEndDate });
-        toast({
-            title: "Fecha actualizada",
-            description: "La fecha de término de ausencia ha sido guardada.",
-        })
     } catch(e) {
         toast({
             title: "Error",
