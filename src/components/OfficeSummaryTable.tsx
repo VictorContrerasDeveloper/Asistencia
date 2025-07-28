@@ -41,6 +41,10 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
   const getLateEmployees = (employees: Employee[]) => {
     return employees.filter(e => e.status === 'Atrasado').map(e => e.name).join(', ');
   };
+  
+  const filteredOffices = useMemo(() => {
+      return offices.filter(office => office.name.toLowerCase() !== 'oficina movil');
+  }, [offices]);
 
   return (
     <Card>
@@ -70,7 +74,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
               </TableRow>
             </TableHeader>
             <TableBody>
-              {offices.map(office => {
+              {filteredOffices.map(office => {
                 const lateEmployees = getLateEmployees(office.employees);
                 return (
                   <TableRow key={office.id}>
