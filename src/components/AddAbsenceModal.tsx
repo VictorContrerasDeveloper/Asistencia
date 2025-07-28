@@ -64,10 +64,6 @@ export default function AddAbsenceModal({ isOpen, onClose, onAbsenceAdded, allEm
         await updateEmployee(selectedEmployee.id, updates);
         
         onAbsenceAdded({ ...selectedEmployee, ...updates });
-        toast({
-            title: "¡Éxito!",
-            description: `Se ha registrado la ausencia para ${selectedEmployee.name}.`,
-        });
         resetForm();
     } catch (error) {
          toast({

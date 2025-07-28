@@ -42,10 +42,6 @@ export default function BulkAddEmployeesPage() {
     setIsSaving(true);
     try {
       await bulkAddEmployees(names, officeId);
-      toast({
-          title: "¡Éxito!",
-          description: "El personal ha sido agregado correctamente.",
-      });
       router.push('/dashboard/general');
     } catch (error) {
        toast({

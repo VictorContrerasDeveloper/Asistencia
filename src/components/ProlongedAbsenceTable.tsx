@@ -66,10 +66,6 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
       
       try {
           await updateEmployee(employeeId, { absenceEndDate: newEndDate });
-          toast({
-            title: 'Fecha actualizada',
-            description: 'La fecha de término de la ausencia ha sido guardada.',
-          })
       } catch(e) {
           toast({
               title: "Error",
@@ -87,10 +83,6 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
           absenceEndDate: null,
         });
         onEmployeeReinstated(employeeId);
-        toast({
-          title: "¡Éxito!",
-          description: "El empleado ha sido reintegrado.",
-        });
       } catch (error) {
         toast({
           title: "Error",

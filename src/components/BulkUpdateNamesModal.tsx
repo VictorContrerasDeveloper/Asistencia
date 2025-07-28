@@ -61,15 +61,13 @@ export default function BulkUpdateNamesModal({ isOpen, onClose, onSuccess }: Bul
     try {
       const { updated, notFound } = await bulkUpdateEmployeeNames(nameUpdates);
       
-      let description = `Se actualizaron ${updated} nombres correctamente.`;
       if(notFound.length > 0) {
-          description += ` No se encontraron los siguientes nombres: ${notFound.join(', ')}.`;
+          toast({
+            title: "Algunos nombres no se encontraron",
+            description: `No se encontraron los siguientes nombres: ${notFound.join(', ')}.`,
+            variant: "destructive"
+        });
       }
-
-      toast({
-          title: "¡Éxito!",
-          description: description,
-      });
 
       if(updated > 0) {
         onSuccess();

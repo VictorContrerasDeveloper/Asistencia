@@ -42,10 +42,6 @@ export default function AddEmployeePage() {
       return;
     }
     await addEmployee(name, officeId, role);
-    toast({
-        title: "¡Éxito!",
-        description: "El personal ha sido agregado correctamente.",
-    });
     router.push('/dashboard/general');
   };
 

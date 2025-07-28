@@ -61,10 +61,6 @@ export default function DeleteEmployeePage() {
     setIsDeleting(true);
     try {
       await bulkDeleteEmployees(selectedEmployees);
-      toast({
-          title: "¡Éxito!",
-          description: "El personal seleccionado ha sido eliminado.",
-      });
       router.push('/dashboard/general');
     } catch (error) {
        toast({

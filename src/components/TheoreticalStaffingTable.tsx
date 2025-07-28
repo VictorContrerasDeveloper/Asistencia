@@ -91,10 +91,6 @@ export default function TheoreticalStaffingTable({ offices, roles }: Theoretical
 
     try {
       await updateOfficeStaffing(officeId, newTheoreticalStaffing);
-      toast({
-        title: "¡Éxito!",
-        description: "Dotación teórica guardada correctamente.",
-      });
     } catch (error) {
       toast({
         title: "Error",
