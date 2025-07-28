@@ -81,7 +81,7 @@ Solo tendrías que pagar si decides cambiar tu proyecto al **Plan Blaze (pago po
 
 ---
 
-## Diferencia: Firebase Hosting vs. Cloud Storage
+## Diferencia: Firebase Hosting vs. Cloud Storage vs. Firestore
 
 Es una duda muy común. Aquí te explicamos la diferencia de forma sencilla con una analogía.
 
@@ -90,8 +90,11 @@ Imagina que estás construyendo una tienda en línea:
 *   **Firebase Hosting** es como el **local de la tienda**. Es el espacio donde construyes tu tienda, pones los estantes, las luces y la vitrina. Es lo que los clientes visitan. En términos de tu aplicación, **Hosting** es donde se alojan los archivos que la hacen funcionar (HTML, CSS, JavaScript). Cuando publicas tu app con `firebase apphosting:deploy`, estás subiendo los archivos de tu aplicación a Hosting para que la gente pueda visitarla en una URL.
     *   **Uso en nuestra app**: La usamos para servir la aplicación de "Attendance Hero" a los usuarios.
 
-*   **Cloud Storage for Firebase** es como la **bodega o el almacén** de tu tienda. No es la tienda en sí, sino el lugar donde guardas los productos que vendes, como cajas de zapatos o ropa. En términos de tu aplicación, **Storage** se usa para que los *usuarios* de la app suban, almacenen y descarguen archivos, como fotos de perfil, videos, PDFs, etc.
+*   **Cloud Storage for Firebase** es como la **bodega o el almacén** de tu tienda. No es la tienda en sí, sino el lugar donde guardas los productos que vendes, como cajas de zapatos o ropa. En términos de tu aplicación, **Storage** se usa para que los *usuarios* de la app suban, almacenen y descarguengan archivos, como fotos de perfil, videos, PDFs, etc.
     *   **Uso en nuestra app**: Actualmente *no* la estamos usando, porque nuestra aplicación no necesita que los usuarios suban ningún tipo de archivo.
+
+*   **Cloud Firestore** es el **archivador inteligente** de la tienda. Es la base de datos donde se guarda, organiza y consulta toda la información estructurada que la aplicación necesita para funcionar, como la lista de empleados, las oficinas o el estado de la asistencia. No guarda archivos grandes, sino datos organizados que deben ser accedidos y actualizados rápidamente.
+    *   **Uso en nuestra app**: ¡Es el corazón de la aplicación! La usamos para guardar la lista de oficinas, todo el personal y su estado de asistencia en tiempo real.
 
 ### Resumen Rápido
 
@@ -99,3 +102,4 @@ Imagina que estás construyendo una tienda en línea:
 | :--- | :--- | :--- | :--- |
 | **Firebase Hosting** | El local de la tienda | Para alojar y servir los archivos de tu aplicación web (el "motor" de la app). | **Sí**, para que puedas visitar y usar "Attendance Hero". |
 | **Cloud Storage** | La bodega de la tienda | Para almacenar y gestionar archivos subidos por los usuarios (fotos, videos, etc.). | **No**, porque la app no tiene esa funcionalidad. |
+| **Cloud Firestore** | El archivador | Para guardar y sincronizar los datos estructurados de la app en tiempo real. | **Sí**, es nuestra base de datos principal. |

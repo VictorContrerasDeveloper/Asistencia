@@ -218,7 +218,7 @@ export const bulkUpdateEmployeeNames = async (nameUpdates: string): Promise<{upd
     if(updatedCount > 0) {
       await batch.commit();
     }
-    return { updated: updatedCount, notFound };
+    return { updated: updatedCount, notFound: [] };
 }
 
 
