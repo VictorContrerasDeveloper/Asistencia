@@ -6,9 +6,16 @@ import Link from 'next/link';
 import { ArrowLeft, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { getEmployees, getOffices, Office, Employee } from '@/lib/data';
+import { getEmployees, getOffices, Office, Employee, EmployeeRole } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import TransferEmployeeModal from '@/components/TransferEmployeeModal';
+
+const ROLE_ORDER: Record<EmployeeRole, number> = {
+    'Modulo': 1,
+    'Tablet': 2,
+    'Anfitrión': 3,
+    'Supervisión': 4, 
+};
 
 export default function TransferEmployeePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -98,7 +105,16 @@ export default function TransferEmployeePage() {
                         <CardTitle className="text-base">{officeName} ({employeesByOffice[officeName].length})</CardTitle>
                       </CardHeader>
                       <CardContent className="p-3 pt-0 overflow-y-auto">
-                        {employeesByOffice[officeName].sort((a,b) => a.name.localeCompare(b.name)).map(employee => (
+                        {employeesByOffice[officeName]
+                          .sort((a, b) => {
+                            const roleA = ROLE_ORDER[a.role] || 99;
+                            const roleB = ROLE_ORDER[b.role] || 99;
+                            if(roleA !== roleB) {
+                                return roleA - roleB;
+                            }
+                            return a.name.localeCompare(b.name);
+                          })
+                          .map(employee => (
                           <div key={employee.id} className="flex items-center justify-between py-0 px-1 rounded-md hover:bg-muted/50">
                               <p className="font-medium text-sm">{employee.name}</p>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenModal(employee)}>
