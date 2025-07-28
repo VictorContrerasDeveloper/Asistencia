@@ -93,7 +93,16 @@ export const updateOfficeRealStaffing = async (officeId: string, realStaffing: {
     }
 
     const currentStaffing = officeDoc.data().realStaffing || {};
-    const updatedStaffing = { ...currentStaffing, ...realStaffing };
+    
+    // Ensure 0 is saved if that's the value, otherwise merge
+    const updatedStaffing: { [key in EmployeeRole]?: number } = { ...currentStaffing };
+    for (const role in realStaffing) {
+        const key = role as EmployeeRole;
+        const value = realStaffing[key];
+        if (value !== undefined) {
+          updatedStaffing[key] = value;
+        }
+    }
     
     await updateDoc(officeRef, { realStaffing: updatedStaffing });
 };
@@ -228,3 +237,5 @@ export const bulkDeleteEmployees = async (employeeIds: string[]) => {
   });
   await batch.commit();
 }
+
+    

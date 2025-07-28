@@ -57,7 +57,8 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     offices.forEach(office => {
       initialStaffing[office.id] = {};
       ROLES.forEach(role => {
-        initialStaffing[office.id][role] = office.realStaffing?.[role]?.toString() || '';
+        const realValue = office.realStaffing?.[role];
+        initialStaffing[office.id][role] = realValue !== undefined ? realValue.toString() : '';
       });
       initialAttendance[office.id] = {};
        (employees.filter(e => e.officeId === office.id)).forEach(emp => {
@@ -192,7 +193,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
-              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary-foreground font-bold text-primary-foreground text-center align-middle h-auto border-r border-primary py-0 p-1`}>Oficina Comercial</TableHead>
+              <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary-foreground font-bold text-primary-foreground text-center align-middle h-auto p-1 border-r border-primary`}>Oficina Comercial</TableHead>
               {ROLES.map((role) => (
                 <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto p-1 border-r border-primary`}>{role}</TableHead>
               ))}
@@ -306,3 +307,5 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     </div>
   );
 }
+
+    
