@@ -47,6 +47,7 @@ export default function ManualEntryPage() {
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Ejecutivas SI presentes en oficina</CardTitle>
+            <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
             <CardDescription>
               Ingresa la cantidad de personal presente para cada rol en las oficinas.
             </CardDescription>
