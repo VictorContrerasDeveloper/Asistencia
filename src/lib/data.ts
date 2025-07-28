@@ -58,7 +58,8 @@ export function slugify(text: string): string {
 
 export const getOffices = async (): Promise<Office[]> => {
     const snapshot = await getDocs(query(officesCollection));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+    const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+    return offices.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const addOffice = async (name: string) => {
@@ -107,43 +108,39 @@ export const updateOfficeRealStaffing = async (officeId: string, realStaffing: {
     await updateDoc(officeRef, { realStaffing: updatedStaffing });
 };
 
-export const getOfficeBySlug = async (slug: string): Promise<Office | undefined> => {
+export const getOfficeBySlug = async (slug: string, offices?: Office[]): Promise<Office | undefined> => {
   if (!slug) return undefined;
-  const q = query(officesCollection);
-  const snapshot = await getDocs(q);
-  // Manual filter by slug as Firestore doesn't support slug-based queries directly
-  const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
-  return offices.find(office => slugify(office.name) === slug);
+  const officeList = offices || await getOffices();
+  return officeList.find(office => slugify(office.name) === slug);
 }
 
-export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => {
+export const getEmployees = async (officeId?: string): Promise<Employee[]> => {
   let q;
-  if (!officeSlug || officeSlug === 'general') {
+  if (!officeId || officeId === 'general') {
     q = query(employeesCollection);
   } else {
-    const office = await getOfficeBySlug(officeSlug);
-    if (!office) {
-      return [];
-    }
-    q = query(employeesCollection, where('officeId', '==', office.id));
+    q = query(employeesCollection, where('officeId', '==', officeId));
   }
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+  const employees = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+  return employees.sort((a,b) => a.name.localeCompare(b.name));
 };
 
 export const updateEmployee = async (employeeId: string, updates: Partial<Employee>) => {
     const employeeRef = doc(db, 'employees', employeeId);
     
-    // Firestore does not allow `undefined` values. Convert them to something else or handle them.
-    // In this case, if absenceEndDate is an empty string, we can assume it should be removed.
-    // Or if we pass null for absenceReason.
-    const finalUpdates: { [key: string]: any } = { ...updates };
+    const finalUpdates: { [key: string]: any } = {};
+    for(const key in updates) {
+        if(updates[key as keyof Employee] !== undefined) {
+            finalUpdates[key] = updates[key as keyof Employee];
+        }
+    }
 
     if (updates.absenceReason === null) {
       finalUpdates.absenceReason = null;
     }
      if (updates.absenceEndDate === '') {
-      finalUpdates.absenceEndDate = '';
+      finalUpdates.absenceEndDate = null;
     }
 
     await updateDoc(employeeRef, finalUpdates);
@@ -182,7 +179,9 @@ export const bulkUpdateEmployeeNames = async (nameUpdates: string): Promise<{upd
         }
     }
 
-    await batch.commit();
+    if(updatedCount > 0) {
+      await batch.commit();
+    }
     return { updated: updatedCount, notFound };
 }
 
@@ -194,6 +193,7 @@ export const addEmployee = async (name: string, officeId: string, role: Employee
     status: 'Ausente',
     absenceReason: 'Inasistencia',
     role: role || 'Modulo',
+    absenceEndDate: null
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
   return { id: docRef.id, ...newEmployee } as Employee;
@@ -213,6 +213,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       status: 'Ausente',
       absenceReason: 'Inasistencia',
       role: 'Modulo',
+      absenceEndDate: null
     };
     const docRef = doc(employeesCollection);
     batch.set(docRef, newEmployee);

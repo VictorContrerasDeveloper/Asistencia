@@ -5,10 +5,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee } from '@/lib/data';
 import ManualEntryTable from '@/components/ManualEntryTable';
 import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -20,16 +21,40 @@ export default function ManualEntryPage() {
       setLoading(true);
       const [fetchedOffices, fetchedEmployees] = await Promise.all([
         getOffices(),
-        getEmployees(), // Fetch all employees
+        getEmployees(),
       ]);
       const filteredOffices = fetchedOffices.filter(office => !office.name.toLowerCase().includes('movil'));
-      filteredOffices.sort((a, b) => a.name.localeCompare(b.name));
       setOffices(filteredOffices);
       setEmployees(fetchedEmployees);
       setLoading(false);
     }
     fetchData();
   }, []);
+
+   const handleEmployeeUpdate = (updatedEmployee: Employee) => {
+    setEmployees(prev => 
+      prev.map(emp => emp.id === updatedEmployee.id ? updatedEmployee : emp)
+    );
+  };
+
+  const handleEmployeeReinstated = (reinstatedEmployeeId: string) => {
+     setEmployees(prev => 
+      prev.map(emp => emp.id === reinstatedEmployeeId ? { ...emp, status: 'Presente', absenceReason: null, absenceEndDate: undefined } : emp)
+    );
+  }
+
+  const handleAbsenceAdded = (newOrUpdatedEmployee: Employee) => {
+    setEmployees(prev => {
+      const index = prev.findIndex(e => e.id === newOrUpdatedEmployee.id);
+      if (index !== -1) {
+        const newEmployees = [...prev];
+        newEmployees[index] = newOrUpdatedEmployee;
+        return newEmployees;
+      }
+      return [...prev, newOrUpdatedEmployee];
+    });
+  }
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -50,7 +75,11 @@ export default function ManualEntryPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p>Cargando datos...</p>
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
             ) : (
               <ManualEntryTable offices={offices} employees={employees} />
             )}
@@ -58,12 +87,19 @@ export default function ManualEntryPage() {
         </Card>
 
         {loading ? (
-          <p>Cargando ausencias...</p>
+          <Skeleton className="h-40 w-full" />
         ) : (
-          <ProlongedAbsenceTable offices={offices} employees={employees} />
+          <ProlongedAbsenceTable 
+            offices={offices} 
+            employees={employees}
+            onAbsenceAdded={handleAbsenceAdded}
+            onEmployeeReinstated={handleEmployeeReinstated}
+           />
         )}
 
       </main>
     </div>
   );
 }
+
+    

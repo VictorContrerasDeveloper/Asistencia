@@ -2,8 +2,8 @@
 "use client";
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, Users, PlusCircle, Trash2, Edit } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Edit, PlusCircle, Trash2, Users } from 'lucide-react';
 import { Office, Employee, getEmployees } from '@/lib/data';
 import DashboardClient from '@/components/DashboardClient';
 import OfficeSummaryDashboard from '@/components/OfficeSummaryDashboard';
@@ -16,7 +16,6 @@ type DashboardPageClientProps = {
   initialEmployees: Employee[];
   allEmployees: Employee[];
   offices: Office[];
-  officeHeader: React.ReactNode;
   isGeneralPanel: boolean;
 };
 
@@ -26,17 +25,35 @@ export default function DashboardPageClient({
     initialEmployees: initialEmployeesProp, 
     allEmployees: allEmployeesProp, 
     offices: officesProp,
-    officeHeader,
     isGeneralPanel 
 }: DashboardPageClientProps) {
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
-  const [allEmployees, setAllEmployees] = useState<Employee[]>(allEmployeesProp);
-  const [offices, setOffices] = useState<Office[]>(officesProp);
+  const [employees, setEmployees] = useState(isGeneralPanel ? allEmployeesProp : initialEmployeesProp);
+  const [offices] = useState<Office[]>(officesProp);
 
-  const refetchAllEmployees = async () => {
-     const allEmployeesData = await getEmployees();
-     setAllEmployees(allEmployeesData);
+  const refetchAllData = async () => {
+     const [allEmployeesData, officesData] = await Promise.all([
+       getEmployees(),
+       // getOffices() // In case offices can change, but it's unlikely
+     ]);
+     setEmployees(allEmployeesData);
+     // setOffices(officesData);
   }
+
+  const officeHeader = (
+     <div className="flex items-center gap-4">
+      { !isGeneralPanel && (
+         <Link href="/">
+            <Button variant="outline" size="icon">
+                <ArrowLeft className="h-4 w-4"/>
+            </Button>
+         </Link>
+      )}
+      <h1 className="text-xl md:text-2xl font-bold text-card-foreground">
+        {isGeneralPanel ? `Panel de Asistencia - ${office.name}` : office.name}
+      </h1>
+    </div>
+  )
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
@@ -76,17 +93,17 @@ export default function DashboardPageClient({
                   </Link>
                </div>
             </header>
-            <OfficeSummaryDashboard offices={offices} employees={allEmployees} />
+            <OfficeSummaryDashboard offices={offices} employees={employees} />
             <BulkUpdateNamesModal 
               isOpen={isUpdateModalOpen}
               onClose={() => setUpdateModalOpen(false)}
-              onSuccess={refetchAllEmployees}
+              onSuccess={refetchAllData}
             />
           </>
         ) : (
           <DashboardClient 
-            initialEmployees={initialEmployeesProp} 
-            offices={officesProp} 
+            initialEmployees={employees} 
+            offices={offices} 
             office={office as Office}
             officeHeader={officeHeader} 
           />
@@ -95,3 +112,5 @@ export default function DashboardPageClient({
     </div>
   );
 }
+
+    

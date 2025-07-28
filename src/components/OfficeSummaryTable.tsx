@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { type Employee, type EmployeeRole } from '@/lib/data';
 import {
   Table,
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { cn } from '@/lib/utils';
-import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Users } from 'lucide-react';
 import { Button } from './ui/button';
@@ -56,17 +55,17 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
           <Table>
             <TableHeader className="bg-primary text-primary-foreground">
                <TableRow className="border-0 h-auto">
-                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r`}>Oficina Comercial</TableHead>
+                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b-2 border-primary-foreground font-bold text-primary-foreground text-center align-middle p-0 h-auto border-r`}>Oficina Comercial</TableHead>
                   {roles.map((role) => (
-                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto`}>{role}</TableHead>
+                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-primary-foreground py-0 h-auto border-r`}>{role}</TableHead>
                   ))}
-                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-l border-r`}>Atrasos</TableHead>
+                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b-2 border-primary-foreground py-0 h-auto border-l`}>Atrasos</TableHead>
               </TableRow>
               <TableRow className="border-0 h-auto">
                   {roles.map(role => (
                     <React.Fragment key={role}>
-                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14`}>Real</TableHead>
-                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 border-r`}>Por Licit</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary-foreground py-0 h-auto w-14`}>Real</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-b-2 border-primary-foreground py-0 h-auto w-14 border-r`}>Por Licit</TableHead>
                     </React.Fragment>
                   ))}
               </TableRow>
@@ -96,7 +95,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                                   <div className="grid gap-2">
                                       {office.employees.length > 0 ? (
                                         <ul className="list-disc list-inside text-sm max-h-48 overflow-y-auto">
-                                          {office.employees.map(emp => (
+                                          {office.employees.sort((a,b) => a.name.localeCompare(b.name)).map(emp => (
                                             <li key={emp.id}>{emp.name}</li>
                                           ))}
                                         </ul>
@@ -122,7 +121,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
                         </React.Fragment>
                       );
                     })}
-                    <TableCell className="text-center p-1 border-r">{lateEmployees || '-'}</TableCell>
+                    <TableCell className="text-center p-1 border-l">{lateEmployees || '-'}</TableCell>
                   </TableRow>
                 );
               })}

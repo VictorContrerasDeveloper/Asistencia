@@ -26,15 +26,15 @@ import { formatInTimeZone } from 'date-fns-tz';
 type ProlongedAbsenceTableProps = {
   employees: Employee[];
   offices: Office[];
+  onAbsenceAdded: (employee: Employee) => void;
+  onEmployeeReinstated: (employeeId: string) => void;
 };
 
 const PROLONGED_ABSENCE_REASONS: (string | null)[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
-export default function ProlongedAbsenceTable({ employees: initialEmployees, offices }: ProlongedAbsenceTableProps) {
+export default function ProlongedAbsenceTable({ employees, offices, onAbsenceAdded, onEmployeeReinstated }: ProlongedAbsenceTableProps) {
   const { toast } = useToast();
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [dates, setDates] = useState<{[key: string]: Date | undefined}>({});
   
   const officeMap = useMemo(() => {
     return new Map(offices.map(office => [office.id, office.name]));
@@ -57,9 +57,9 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
         if (a.absenceEndDate && b.absenceEndDate) {
             return new Date(a.absenceEndDate).getTime() - new Date(b.absenceEndDate).getTime();
         }
-        if (a.absenceEndDate) return -1; // a comes first
-        if (b.absenceEndDate) return 1;  // b comes first
-        return a.name.localeCompare(b.name); // fallback to name sort
+        if (a.absenceEndDate) return -1;
+        if (b.absenceEndDate) return 1;
+        return a.name.localeCompare(b.name);
       });
   }, [employees, offices, officeMap]);
   
@@ -67,10 +67,13 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     if (!date) return;
     
     const newEndDate = formatInTimeZone(date, 'UTC', 'yyyy-MM-dd');
-    setDates(prev => ({...prev, [employeeId]: date}));
-
+    
     try {
         await updateEmployee(employeeId, { absenceEndDate: newEndDate });
+        toast({
+          title: 'Fecha actualizada',
+          description: 'La fecha de término de la ausencia ha sido guardada.',
+        })
     } catch(e) {
         toast({
             title: "Error",
@@ -81,22 +84,18 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
   }
 
   const handleReinstate = async (employeeId: string) => {
-    const originalEmployees = [...employees];
-    
-    // Optimistic update
-    const employeeToUpdate = employees.find(e => e.id === employeeId);
-    setEmployees(prev => prev.filter(e => e.id !== employeeId));
-
-
     try {
       await updateEmployee(employeeId, {
         status: 'Presente',
         absenceReason: null,
-        absenceEndDate: '',
+        absenceEndDate: null,
+      });
+      onEmployeeReinstated(employeeId);
+      toast({
+        title: "¡Éxito!",
+        description: "El empleado ha sido reintegrado.",
       });
     } catch (error) {
-      // Revert on failure
-      setEmployees(originalEmployees);
       toast({
         title: "Error",
         description: "No se pudo reintegrar al empleado.",
@@ -105,18 +104,10 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     }
   };
 
-  const handleAbsenceAdded = useCallback((updatedEmployee: Employee) => {
-    setEmployees(prevEmployees => {
-      const existingEmployeeIndex = prevEmployees.findIndex(e => e.id === updatedEmployee.id);
-      if (existingEmployeeIndex !== -1) {
-        const newEmployees = [...prevEmployees];
-        newEmployees[existingEmployeeIndex] = updatedEmployee;
-        return newEmployees;
-      }
-      return [...prevEmployees, updatedEmployee];
-    });
-    setIsModalOpen(false);
-  }, []);
+  const handleAbsenceAddedOptimistic = (updatedEmployee: Employee) => {
+      onAbsenceAdded(updatedEmployee);
+      setIsModalOpen(false);
+  };
 
   if (absentEmployees.length === 0 && !isModalOpen) {
     return (
@@ -136,7 +127,7 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
         <AddAbsenceModal 
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            onAbsenceAdded={handleAbsenceAdded}
+            onAbsenceAdded={handleAbsenceAddedOptimistic}
             allEmployees={employees}
         />
       </CardContent>
@@ -171,7 +162,7 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
             </TableHeader>
             <TableBody>
               {absentEmployees.map(employee => {
-                const selectedDate = dates[employee.id] || (employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined)
+                const selectedDate = employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined;
                 return (
                     <TableRow key={employee.id}>
                     <TableCell className="font-medium p-1 text-xs">{employee.name}</TableCell>
@@ -219,9 +210,11 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     <AddAbsenceModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onAbsenceAdded={handleAbsenceAdded}
+        onAbsenceAdded={handleAbsenceAddedOptimistic}
         allEmployees={employees}
     />
     </>
   );
 }
+
+    
