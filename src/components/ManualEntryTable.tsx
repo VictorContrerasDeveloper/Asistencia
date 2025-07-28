@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
-import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason } from '@/lib/data';
+import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason, updateEmployee } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -108,24 +108,47 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
     return grouped;
   }, [employees]);
 
-  const handleAttendanceChange = (officeId: string, employeeId: string, type: 'Atrasado' | 'Ausente', isChecked: boolean) => {
+  const handleAttendanceChange = async (officeId: string, employeeId: string, type: 'Atrasado' | 'Ausente', isChecked: boolean) => {
+    const originalAttendanceState = { ...attendance };
+    
+    let newStatus: AttendanceStatus;
+    const currentState = attendance[officeId]?.[employeeId];
+
+    if (isChecked) {
+        newStatus = type;
+    } else {
+        newStatus = 'Presente';
+    }
+
+    // Optimistic update
     setAttendance(prev => {
-        const currentAttendance = { ...(prev[officeId] || {}) };
-        const currentState = currentAttendance[employeeId];
-
-        if (isChecked) {
-            currentAttendance[employeeId] = type;
-        } else {
-            if (currentState === type) {
-                currentAttendance[employeeId] = 'Presente';
-            }
-        }
-
         return {
             ...prev,
-            [officeId]: currentAttendance,
+            [officeId]: {
+                ...prev[officeId],
+                [employeeId]: newStatus
+            }
         };
     });
+
+    try {
+        const updates: Partial<Employee> = { status: newStatus };
+         if (newStatus === 'Presente' || newStatus === 'Atrasado') {
+          updates.absenceReason = null;
+        } else {
+          // Default reason when switching to Ausente
+          updates.absenceReason = 'Inasistencia';
+        }
+        await updateEmployee(employeeId, updates);
+    } catch (error) {
+        // Revert on failure
+        setAttendance(originalAttendanceState);
+        toast({
+            title: "Error",
+            description: "No se pudo actualizar el estado del empleado.",
+            variant: "destructive"
+        });
+    }
 };
 
 
