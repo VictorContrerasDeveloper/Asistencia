@@ -58,17 +58,17 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
           <Table>
             <TableHeader className="bg-primary text-primary-foreground">
                <TableRow className="border-0">
-                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b border-r border-blue-900 font-bold text-primary-foreground text-center align-middle p-1`}>Oficina Comercial</TableHead>
+                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-b border-r border-primary font-bold text-primary-foreground text-center align-middle p-1`}>Oficina Comercial</TableHead>
                   {roles.map(role => (
-                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-r border-blue-900 p-1`}>{role}</TableHead>
+                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground border-b border-r border-primary p-1`}>{role}</TableHead>
                   ))}
-                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b border-blue-900 p-1`}>Atrasos</TableHead>
+                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle border-b border-primary p-1`}>Atrasos</TableHead>
               </TableRow>
               <TableRow className="border-0">
                   {roles.map(role => (
                     <React.Fragment key={role}>
-                      <TableHead className={`text-center font-bold text-primary-foreground border-b border-r border-blue-900 p-1`}>Real</TableHead>
-                      <TableHead className={`text-center font-bold text-primary-foreground border-b border-r border-blue-900 p-1`}>Por Licit</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-b border-r border-primary p-1`}>Real</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground border-b border-r border-primary p-1`}>Por Licit</TableHead>
                     </React.Fragment>
                   ))}
               </TableRow>
