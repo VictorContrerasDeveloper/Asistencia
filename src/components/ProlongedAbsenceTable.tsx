@@ -16,11 +16,12 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
 import { CalendarIcon, PlusCircle, UserCheck } from 'lucide-react';
 import { Calendar } from './ui/calendar';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import AddAbsenceModal from './AddAbsenceModal';
+import { formatInTimeZone } from 'date-fns-tz';
 
 type ProlongedAbsenceTableProps = {
   employees: Employee[];
@@ -58,7 +59,7 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
   const handleDateChange = async (employeeId: string, date: Date | undefined) => {
     if (!date) return;
     
-    const newEndDate = format(date, 'yyyy-MM-dd');
+    const newEndDate = formatInTimeZone(date, 'UTC', 'yyyy-MM-dd');
     setDates(prev => ({...prev, [employeeId]: date}));
 
     try {
@@ -76,7 +77,16 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     const originalEmployees = [...employees];
     
     // Optimistic update
+    const employeeToUpdate = employees.find(e => e.id === employeeId);
+    if (employeeToUpdate) {
+        toast({
+            title: 'Empleado Reintegrado',
+            description: `${employeeToUpdate.name} ha sido marcado como "Presente".`,
+        });
+    }
+
     setEmployees(prev => prev.filter(e => e.id !== employeeId));
+
 
     try {
       await updateEmployee(employeeId, {
@@ -155,7 +165,7 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
             </TableHeader>
             <TableBody>
               {absentEmployees.map(employee => {
-                const selectedDate = dates[employee.id] || (employee.absenceEndDate ? new Date(employee.absenceEndDate) : undefined)
+                const selectedDate = dates[employee.id] || (employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined)
                 return (
                     <TableRow key={employee.id}>
                     <TableCell className="font-medium p-2">{employee.name}</TableCell>

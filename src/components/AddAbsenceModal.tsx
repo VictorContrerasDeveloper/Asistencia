@@ -20,9 +20,10 @@ import { Calendar } from './ui/calendar';
 import { CalendarIcon, Check, ChevronsUpDown } from 'lucide-react';
 import { Employee, AbsenceReason, updateEmployee } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { formatInTimeZone } from 'date-fns-tz';
 
 type AddAbsenceModalProps = {
   isOpen: boolean;
@@ -58,7 +59,7 @@ export default function AddAbsenceModal({ isOpen, onClose, onAbsenceAdded, allEm
         const updates: Partial<Employee> = {
             status: 'Ausente',
             absenceReason: reason as AbsenceReason,
-            absenceEndDate: endDate ? format(endDate, 'yyyy-MM-dd') : undefined,
+            absenceEndDate: endDate ? formatInTimeZone(endDate, 'UTC', 'yyyy-MM-dd') : undefined,
         };
         await updateEmployee(selectedEmployee.id, updates);
         
