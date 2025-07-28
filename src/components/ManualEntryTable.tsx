@@ -229,7 +229,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                             placeholder="0"
                             value={realStaffing[office.id]?.[role] || ''}
                             onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
-                            className="h-8 w-12 text-center"
+                            className="h-8 w-12 mx-auto text-center"
                         />
                         </TableCell>
                         <TableCell className="text-center border-r-2 border-muted-foreground p-0">{office.theoreticalStaffing?.[role] || 0}</TableCell>
