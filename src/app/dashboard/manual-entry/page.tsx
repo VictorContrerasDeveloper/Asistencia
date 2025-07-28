@@ -64,16 +64,8 @@ export default function ManualEntryPage() {
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': blob })
                 ]);
-                 toast({
-                    title: "¡Éxito!",
-                    description: "Imagen copiada al portapapeles.",
-                });
             } catch (err) {
-                 toast({
-                    title: "Error",
-                    description: "No se pudo copiar la imagen.",
-                    variant: "destructive"
-                });
+                 console.error("Failed to copy image to clipboard", err);
             }
         }
       }, 'image/png');
@@ -121,11 +113,7 @@ export default function ManualEntryPage() {
       const canvas = await html2canvas(summaryTable, { scale: 2, backgroundColor: null });
       await copyCanvasToClipboard(canvas);
     } catch (error) {
-       toast({
-          title: "Error",
-          description: "No se pudo generar la imagen del resumen.",
-          variant: "destructive"
-      });
+       console.error("Error generating summary image:", error);
     } finally {
         originalValues.forEach(item => {
           item.el.innerHTML = item.originalContent;
@@ -161,11 +149,7 @@ export default function ManualEntryPage() {
       const canvas = await html2canvas(absenceTable, { scale: 2, backgroundColor: null });
       await copyCanvasToClipboard(canvas);
     } catch (error) {
-       toast({
-          title: "Error",
-          description: "No se pudo generar la imagen de ausencias.",
-          variant: "destructive"
-      });
+       console.error("Error generating absence image:", error);
     } finally {
         originalDisplays.forEach(item => item.el.style.display = item.display);
         setIsGeneratingAbsence(false);
