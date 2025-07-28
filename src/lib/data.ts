@@ -52,6 +52,9 @@ export type DailySummary = {
       realStaffing: {
         [key in EmployeeRole]?: number;
       };
+       theoreticalStaffing: {
+        [key in EmployeeRole]?: number;
+      };
       absent: string;
     };
   };
@@ -158,7 +161,7 @@ export const updateEmployee = async (employeeId: string, updates: Partial<Employ
     if (updates.absenceReason === null) {
       finalUpdates.absenceReason = null;
     }
-     if (updates.absenceEndDate === '') {
+     if (updates.absenceEndDate === null) {
       finalUpdates.absenceEndDate = null;
     }
 

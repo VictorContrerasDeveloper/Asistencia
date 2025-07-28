@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from './ui/button';
 import { Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type DailySummaryTableProps = {
   summaries: DailySummary[];
@@ -69,17 +70,24 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {Object.values(summary.summary).sort((a,b) => a.name.localeCompare(b.name)).map(officeData => (
-                        <TableRow key={officeData.name}>
-                            <TableCell className="font-medium">{officeData.name}</TableCell>
-                            {ROLES.map(role => (
-                                <TableCell key={role} className="text-center">
-                                    {officeData.realStaffing[role] || 0}
-                                </TableCell>
-                            ))}
-                             <TableCell className="text-xs">{officeData.absent || '-'}</TableCell>
-                        </TableRow>
-                    ))}
+                    {Object.values(summary.summary).sort((a,b) => a.name.localeCompare(b.name)).map(officeData => {
+                        return (
+                            <TableRow key={officeData.name}>
+                                <TableCell className="font-medium">{officeData.name}</TableCell>
+                                {ROLES.map(role => {
+                                    const realCount = officeData.realStaffing[role] || 0;
+                                    const theoreticalCount = officeData.theoreticalStaffing?.[role] || 0;
+                                    const isDeficit = realCount < theoreticalCount;
+                                    return (
+                                        <TableCell key={role} className={cn("text-center", isDeficit && "text-red-600 font-bold")}>
+                                            {realCount}
+                                        </TableCell>
+                                    )
+                                })}
+                                 <TableCell className="text-xs">{officeData.absent || '-'}</TableCell>
+                            </TableRow>
+                        )
+                    })}
                 </TableBody>
             </Table>
           </AccordionContent>

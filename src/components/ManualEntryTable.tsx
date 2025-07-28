@@ -88,6 +88,11 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                         Anfitrión: parseInt(realStaffing[office.id]?.Anfitrión || '0', 10),
                         Tablet: parseInt(realStaffing[office.id]?.Tablet || '0', 10),
                     },
+                    theoreticalStaffing: {
+                      Modulo: office.theoreticalStaffing?.Modulo || 0,
+                      Anfitrión: office.theoreticalStaffing?.Anfitrión || 0,
+                      Tablet: office.theoreticalStaffing?.Tablet || 0,
+                    },
                     absent: absentEmployeeNames || "",
                 };
             });
@@ -122,14 +127,13 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
     // Optimistic update
     setAttendance(prev => {
+        const newOfficeAttendance = { ...prev[officeId], [employeeId]: newStatus };
         return {
             ...prev,
-            [officeId]: {
-                ...prev[officeId],
-                [employeeId]: newStatus
-            }
+            [officeId]: newOfficeAttendance
         };
     });
+    
 
     try {
         const updates: Partial<Employee> = { status: newStatus };
@@ -174,11 +178,6 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
     try {
         await updateOfficeRealStaffing(officeId, { [role]: numberValue });
     } catch(error) {
-        // toast({
-        //     title: "Error",
-        //     description: "No se pudo guardar la dotación.",
-        //     variant: "destructive"
-        // });
     }
   }
 
@@ -187,7 +186,8 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
   };
   
   const getEmployeeNamesByStatus = (officeId: string, status: AttendanceStatus): React.ReactElement | "-" => {
-     const employeeIdsWithStatus = Object.entries(attendance[officeId] || {})
+     const officeAttendance = attendance[officeId] || {};
+     const employeeIdsWithStatus = Object.entries(officeAttendance)
         .filter(([, s]) => s === status)
         .map(([id]) => id);
 
