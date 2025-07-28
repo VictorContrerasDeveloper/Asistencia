@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { getEmployees, getOffices, Office, Employee } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import TransferEmployeeModal from '@/components/TransferEmployeeModal';
-import { Separator } from '@/components/ui/separator';
 
 export default function TransferEmployeePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -69,56 +68,55 @@ export default function TransferEmployeePage() {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Trasladar Personal</h1>
+            <div className='flex flex-col'>
+                <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Trasladar Personal</h1>
+                <p className="text-sm text-muted-foreground">
+                    Haz clic en el icono de traslado para reasignar un ejecutivo a una nueva oficina.
+                </p>
+            </div>
           </div>
         </header>
-        <main className="flex-1 flex justify-center p-4 md:p-8">
-          <Card className="w-full max-w-2xl">
-            <CardHeader>
-              <CardTitle>Lista de Personal</CardTitle>
-              <CardDescription>
-                Haz clic en el icono de traslado para reasignar un ejecutivo a una nueva oficina.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="border rounded-md p-2 space-y-1 max-h-[60vh] overflow-y-auto">
+        <main className="flex-1 p-4 md:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                  {loading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="space-y-3 p-2">
-                        <Skeleton className="h-6 w-1/3" />
-                        <div className="space-y-2">
-                          <Skeleton className="h-8 w-full" />
-                          <Skeleton className="h-8 w-full" />
-                          <Skeleton className="h-8 w-full" />
-                        </div>
-                      </div>
+                    Array.from({ length: 8 }).map((_, i) => (
+                        <Card key={i}>
+                            <CardHeader>
+                                <Skeleton className="h-6 w-3/4" />
+                            </CardHeader>
+                            <CardContent className="space-y-2">
+                                <Skeleton className="h-8 w-full" />
+                                <Skeleton className="h-8 w-full" />
+                                <Skeleton className="h-8 w-full" />
+                            </CardContent>
+                        </Card>
                     ))
                 ) : (
                   Object.keys(employeesByOffice).sort().map(officeName => (
-                    <div key={officeName}>
-                      <h3 className="font-semibold text-primary px-2 pt-2 pb-1">{officeName} ({employeesByOffice[officeName].length})</h3>
-                      <div className="space-y-0.5">
+                    <Card key={officeName} className="flex flex-col">
+                      <CardHeader className="p-3">
+                        <CardTitle className="text-base">{officeName} ({employeesByOffice[officeName].length})</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-3 pt-0 space-y-1 overflow-y-auto">
                         {employeesByOffice[officeName].sort((a,b) => a.name.localeCompare(b.name)).map(employee => (
-                          <div key={employee.id} className="flex items-center justify-between p-0.5 rounded-md hover:bg-muted/50">
-                              <p className="font-medium text-sm pl-1.5">{employee.name}</p>
+                          <div key={employee.id} className="flex items-center justify-between p-1 rounded-md hover:bg-muted/50">
+                              <p className="font-medium text-sm">{employee.name}</p>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleOpenModal(employee)}>
                                   <Shuffle className="h-4 w-4 text-primary" />
                               </Button>
                           </div>
                         ))}
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))
                 )}
                 
                 {!loading && employees.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">
+                    <p className="text-center text-muted-foreground py-8 col-span-full">
                         No hay personal para mostrar.
                     </p>
                 )}
               </div>
-            </CardContent>
-          </Card>
         </main>
       </div>
       {selectedEmployee && (
