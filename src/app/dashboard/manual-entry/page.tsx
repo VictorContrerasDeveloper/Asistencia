@@ -325,7 +325,7 @@ export default function ManualEntryPage() {
             </Card>
 
             <Card id="daily-summary" className="w-full overflow-hidden">
-              <CardHeader>
+              <CardHeader className="items-center">
                 <CardTitle>Resumen Diario Guardado</CardTitle>
               </CardHeader>
               <CardContent>
