@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -63,6 +64,18 @@ export default function ManualEntryPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleAbsenceUpdated = (updatedEmployee: Employee) => {
+    setEmployees(prev => {
+      const index = prev.findIndex(e => e.id === updatedEmployee.id);
+      if (index !== -1) {
+        const newEmployees = [...prev];
+        newEmployees[index] = updatedEmployee;
+        return newEmployees;
+      }
+      return prev;
+    });
+  }
 
   const handleEmployeeReinstated = (reinstatedEmployeeId: string) => {
      setEmployees(prev => 
@@ -274,7 +287,7 @@ export default function ManualEntryPage() {
                 <CardHeader className="flex flex-row items-center justify-center p-4">
                   <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
                   {loading ? (
                     <div className="space-y-2 p-6">
                       <Skeleton className="h-10 w-full" />
@@ -327,6 +340,7 @@ export default function ManualEntryPage() {
                                 offices={offices} 
                                 employees={employees}
                                 onEmployeeReinstated={handleEmployeeReinstated}
+                                onAbsenceUpdated={handleAbsenceUpdated}
                             />
                         )}
                     </CardContent>

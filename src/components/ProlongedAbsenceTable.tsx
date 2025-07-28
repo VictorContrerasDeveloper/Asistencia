@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo, useState, useCallback, forwardRef } from 'react';
+import { useMemo } from 'react';
 import { type Employee, type Office, updateEmployee } from '@/lib/data';
 import {
   Table,
@@ -25,11 +25,12 @@ type ProlongedAbsenceTableProps = {
   employees: Employee[];
   offices: Office[];
   onEmployeeReinstated: (employeeId: string) => void;
+  onAbsenceUpdated: (employee: Employee) => void;
 };
 
 const PROLONGED_ABSENCE_REASONS: (string | null)[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
-const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: ProlongedAbsenceTableProps) => {
+const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbsenceUpdated }: ProlongedAbsenceTableProps) => {
     const { toast } = useToast();
     
     const officeMap = useMemo(() => {
@@ -59,13 +60,15 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
         });
     }, [employees, offices, officeMap]);
     
-    const handleDateChange = async (employeeId: string, date: Date | undefined) => {
+    const handleDateChange = async (employee: Employee, date: Date | undefined) => {
       if (!date) return;
       
       const newEndDate = formatInTimeZone(date, 'UTC', 'yyyy-MM-dd');
       
       try {
-          await updateEmployee(employeeId, { absenceEndDate: newEndDate });
+          const updates = { absenceEndDate: newEndDate };
+          await updateEmployee(employee.id, updates);
+          onAbsenceUpdated({ ...employee, ...updates });
       } catch(e) {
           toast({
               title: "Error",
@@ -137,7 +140,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated }: Pro
                               <Calendar
                               mode="single"
                               selected={selectedDate}
-                              onSelect={(date) => handleDateChange(employee.id, date)}
+                              onSelect={(date) => handleDateChange(employee, date)}
                               initialFocus
                               locale={es}
                               />
