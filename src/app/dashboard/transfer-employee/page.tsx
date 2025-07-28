@@ -150,7 +150,7 @@ export default function TransferEmployeePage() {
                     ))
                 ) : (
                   <>
-                  {Object.keys(activeEmployeesByOffice).sort().map(officeName => (
+                  {Object.keys(activeEmployeesByOffice).sort((a, b) => activeEmployeesByOffice[b].length - activeEmployeesByOffice[a].length).map(officeName => (
                     <Card key={officeName} className="flex flex-col">
                       <CardHeader className="p-3">
                         <CardTitle className="text-base">{officeName} ({activeEmployeesByOffice[officeName].length})</CardTitle>
