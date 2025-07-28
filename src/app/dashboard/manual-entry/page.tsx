@@ -44,6 +44,7 @@ export default function ManualEntryPage() {
   
   const manualEntryTableRef = React.useRef<{ getSummaryData: () => any; clearRealStaffing: () => void; }>(null);
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
+  const [isClearAlertOpen, setClearAlertOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -222,6 +223,7 @@ export default function ManualEntryPage() {
     if (manualEntryTableRef.current) {
       manualEntryTableRef.current.clearRealStaffing();
     }
+    setClearAlertOpen(false);
   };
 
 
@@ -291,7 +293,7 @@ export default function ManualEntryPage() {
                 </CardContent>
               </div>
                <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
-                  <Button size="icon" variant="ghost" onClick={handleClearRealStaffing} title="Limpiar Ingresos">
+                  <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)} title="Limpiar Ingresos">
                     <Eraser className="h-5 w-5" />
                   </Button>
                   <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary} title="Copiar Imagen del Resumen">
@@ -363,6 +365,22 @@ export default function ManualEntryPage() {
               <AlertDialogCancel onClick={() => setSummaryToDelete(null)}>Cancelar</AlertDialogCancel>
               <AlertDialogAction onClick={handleDeleteSummary}>
                 Sí, eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog open={isClearAlertOpen} onOpenChange={setClearAlertOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás seguro de limpiar los ingresos?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción borrará todos los números de dotación real que has ingresado en la tabla. Esta acción no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleClearRealStaffing}>
+                Sí, limpiar
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
