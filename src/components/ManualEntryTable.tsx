@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { cn } from '@/lib/utils';
+import { Separator } from './ui/separator';
 
 
 type ManualEntryTableProps = {
@@ -254,6 +255,9 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
         <TableBody>
           {offices.map((office, officeIndex) => {
             const assignedEmployees = getAssignedEmployees(office.id);
+            const activeEmployees = assignedEmployees.filter(emp => !PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason));
+            const prolongedAbsenceEmployees = assignedEmployees.filter(emp => PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason));
+
             return (
                 <TableRow key={office.id}>
                 <TableCell className={'font-medium sticky left-0 bg-card p-1 border-r border-primary'}>
@@ -270,15 +274,13 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                                     <div className="space-y-1">
                                         <p className="text-sm font-semibold leading-none">Personal Asignado</p>
                                     </div>
-                                    <div className="grid gap-2">
+                                    <div className="grid gap-2 mt-2 max-h-80 overflow-y-auto pr-2">
                                         {assignedEmployees.length > 0 ? (
-                                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2 mt-2">
-                                            {assignedEmployees.map(emp => {
-                                                const hasProlongedAbsence = emp.status === 'Ausente' && PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason);
-                                                return (
+                                        <>
+                                            <div className="space-y-3">
+                                                {activeEmployees.map(emp => (
                                                     <div key={emp.id} className="flex items-center justify-between">
                                                         <Label htmlFor={`attendance-${office.id}-${emp.id}`} className="flex-1 cursor-pointer flex items-center gap-2">
-                                                            {hasProlongedAbsence && <CalendarDays className="h-4 w-4 text-muted-foreground" />}
                                                             {emp.name}
                                                         </Label>
                                                         <div className="flex items-center space-x-4">
@@ -300,9 +302,25 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                                                             </div>
                                                         </div>
                                                     </div>
-                                                )
-                                            })}
-                                        </div>
+                                                ))}
+                                            </div>
+                                            {prolongedAbsenceEmployees.length > 0 && (
+                                                <>
+                                                    <Separator className="my-2"/>
+                                                    <div className='space-y-2'>
+                                                        <p className="text-sm font-semibold leading-none text-muted-foreground">Ausencias Prolongadas</p>
+                                                        {prolongedAbsenceEmployees.map(emp => (
+                                                            <div key={emp.id} className="flex items-center justify-between">
+                                                                <Label className="flex-1 flex items-center gap-2 text-muted-foreground italic">
+                                                                    {emp.name}
+                                                                </Label>
+                                                                <p className='text-xs text-muted-foreground italic'>({emp.absenceReason})</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </>
                                         ) : (
                                         <p className="text-sm text-muted-foreground">No hay personal asignado a esta oficina.</p>
                                         )}
@@ -358,3 +376,5 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
 ManualEntryTable.displayName = 'ManualEntryTable';
 export default ManualEntryTable;
+
+    
