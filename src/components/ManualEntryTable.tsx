@@ -13,7 +13,7 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Checkbox } from './ui/checkbox';
@@ -93,6 +93,16 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
   const getAssignedEmployees = (officeId: string) => {
     return (assignedEmployeesByOffice[officeId] || []).sort((a,b) => a.name.localeCompare(b.name));
   };
+  
+  const getAbsentEmployeeNames = (officeId: string) => {
+    const absentIds = new Set(absentEmployees[officeId] || []);
+    if (absentIds.size === 0) return "-";
+    
+    return employees
+      .filter(emp => absentIds.has(emp.id))
+      .map(emp => emp.name)
+      .join(', ');
+  }
 
 
   return (
@@ -104,6 +114,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
             {ROLES.map(role => (
               <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
             ))}
+            <TableHead className="text-center font-bold text-primary">Personal Ausente</TableHead>
           </TableRow>
           <TableRow>
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
@@ -113,6 +124,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                 <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary">Teori.</TableHead>
               </React.Fragment>
             ))}
+            <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -175,6 +187,9 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                         <TableCell className="text-center border-r-2 border-muted-foreground">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                     </React.Fragment>
                 ))}
+                 <TableCell className="text-center">
+                    {getAbsentEmployeeNames(office.id)}
+                  </TableCell>
                 </TableRow>
             );
           })}
