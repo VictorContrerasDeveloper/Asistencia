@@ -17,7 +17,8 @@ export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [isGeneratingAbsences, setIsGeneratingAbsences] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -59,27 +60,42 @@ export default function ManualEntryPage() {
     });
   }
 
-  const handleGenerateImage = async () => {
-    setIsGeneratingImage(true);
+  const copyCanvasToClipboard = async (canvas: HTMLCanvasElement, toastSuccessTitle: string, toastErrorDescription: string) => {
+     canvas.toBlob(async (blob) => {
+        if(blob) {
+            try {
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]);
+                toast({
+                    title: toastSuccessTitle,
+                    description: "La imagen ha sido copiada al portapapeles.",
+                });
+            } catch (err) {
+                 console.error("Error copying to clipboard:", err);
+                 toast({ title: "Error", description: toastErrorDescription, variant: "destructive" });
+            }
+        }
+      }, 'image/png');
+  }
+
+  const handleGenerateSummaryImage = async () => {
+    setIsGeneratingSummary(true);
     toast({
-      title: "Generando imagen...",
+      title: "Generando imagen del resumen...",
       description: "Esto puede tardar unos segundos.",
     });
 
     const summaryTable = document.getElementById('manual-entry-summary');
-    const absenceTable = document.getElementById('prolonged-absence-summary');
-
-    if (!summaryTable || !absenceTable) {
-        toast({ title: "Error", description: "No se encontraron las tablas para generar la imagen.", variant: "destructive" });
-        setIsGeneratingImage(false);
+    if (!summaryTable) {
+        toast({ title: "Error", description: "No se encontró la tabla de resumen.", variant: "destructive" });
+        setIsGeneratingSummary(false);
         return;
     }
-
-    // --- Prepare tables for capturing ---
-
-    // 1. Temporarily replace inputs with spans for html2canvas
+    
     const inputs = summaryTable.querySelectorAll('input[type="number"]');
     const originalDisplays: { el: HTMLElement, display: string}[] = [];
+
     inputs.forEach((input) => {
         const inputEl = input as HTMLInputElement;
         const span = document.createElement('span');
@@ -93,69 +109,59 @@ export default function ManualEntryPage() {
         inputEl.parentNode?.insertBefore(span, inputEl.nextSibling);
     });
 
-    // 2. Hide elements not meant for the image
-    const elementsToHide = document.querySelectorAll('.exclude-from-image');
-    elementsToHide.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
-        htmlEl.style.display = 'none';
-    })
-
-
-    try {
+     try {
       const summaryCanvas = await html2canvas(summaryTable, { scale: 2 });
-      const absenceCanvas = await html2canvas(absenceTable, { scale: 2 });
-
-      const combinedCanvas = document.createElement('canvas');
-      const context = combinedCanvas.getContext('2d');
-      if (!context) return;
-      
-      const spacing = 40;
-      combinedCanvas.width = Math.max(summaryCanvas.width, absenceCanvas.width);
-      combinedCanvas.height = summaryCanvas.height + absenceCanvas.height + spacing;
-
-      context.fillStyle = 'white';
-      context.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
-      context.drawImage(summaryCanvas, 0, 0);
-      context.drawImage(absenceCanvas, 0, summaryCanvas.height + spacing);
-
-      combinedCanvas.toBlob(async (blob) => {
-        if(blob) {
-            try {
-                await navigator.clipboard.write([
-                    new ClipboardItem({ 'image/png': blob })
-                ]);
-                toast({
-                    title: "¡Imagen copiada!",
-                    description: "La imagen ha sido copiada al portapapeles. Ya puedes pegarla.",
-                });
-            } catch (err) {
-                 console.error("Error copying to clipboard:", err);
-                 toast({ title: "Error", description: "No se pudo copiar la imagen al portapapeles.", variant: "destructive" });
-            }
-        }
-      }, 'image/png');
-      
+      await copyCanvasToClipboard(summaryCanvas, "¡Resumen copiado!", "No se pudo copiar la imagen del resumen.");
     } catch (error) {
-      console.error("Error generating image:", error);
-      toast({ title: "Error", description: "No se pudo generar la imagen.", variant: "destructive" });
+      console.error("Error generating summary image:", error);
+      toast({ title: "Error", description: "No se pudo generar la imagen del resumen.", variant: "destructive" });
     } finally {
-        // --- Restore original elements ---
-        
-        // 1. Restore inputs
         inputs.forEach((input) => {
             const span = input.nextSibling;
             if (span && span.nodeName === 'SPAN') {
                 span.parentNode?.removeChild(span);
             }
         });
-
-        // 2. Restore all hidden elements
         originalDisplays.forEach(item => {
             item.el.style.display = item.display;
         })
-        
-        setIsGeneratingImage(false);
+        setIsGeneratingSummary(false);
+    }
+  }
+
+  const handleGenerateAbsenceImage = async () => {
+    setIsGeneratingAbsences(true);
+    toast({
+      title: "Generando imagen de ausencias...",
+      description: "Esto puede tardar unos segundos.",
+    });
+
+    const absenceTable = document.getElementById('prolonged-absence-summary');
+    if (!absenceTable) {
+        toast({ title: "Error", description: "No se encontró la tabla de ausencias.", variant: "destructive" });
+        setIsGeneratingAbsences(false);
+        return;
+    }
+
+    const originalDisplays: { el: HTMLElement, display: string}[] = [];
+    const elementsToHide = absenceTable.querySelectorAll('.exclude-from-image');
+    elementsToHide.forEach(el => {
+        const htmlEl = el as HTMLElement;
+        originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
+        htmlEl.style.display = 'none';
+    });
+
+    try {
+      const absenceCanvas = await html2canvas(absenceTable, { scale: 2 });
+      await copyCanvasToClipboard(absenceCanvas, "¡Ausencias copiadas!", "No se pudo copiar la imagen de ausencias.");
+    } catch (error) {
+      console.error("Error generating absence image:", error);
+      toast({ title: "Error", description: "No se pudo generar la imagen de ausencias.", variant: "destructive" });
+    } finally {
+        originalDisplays.forEach(item => {
+            item.el.style.display = item.display;
+        });
+        setIsGeneratingAbsences(false);
     }
   }
 
@@ -171,10 +177,16 @@ export default function ManualEntryPage() {
           </Link>
           <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
         </div>
-        <Button onClick={handleGenerateImage} disabled={isGeneratingImage}>
-          <Camera className="mr-2 h-4 w-4" />
-          {isGeneratingImage ? "Generando..." : "Generar Imagen"}
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary || isGeneratingAbsences}>
+                <Camera className="mr-2 h-4 w-4" />
+                {isGeneratingSummary ? "Copiando..." : "Imagen Resumen"}
+            </Button>
+            <Button onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsences || isGeneratingSummary}>
+                <Camera className="mr-2 h-4 w-4" />
+                {isGeneratingAbsences ? "Copiando..." : "Imagen Ausencias"}
+            </Button>
+        </div>
       </header>
       <main className="flex-1 p-4 md:p-8 space-y-8">
         <Card id="manual-entry-summary" className="w-full">
