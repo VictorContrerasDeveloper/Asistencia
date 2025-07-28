@@ -13,7 +13,7 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users } from 'lucide-react';
+import { Copy, Users } from 'lucide-react';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Checkbox } from './ui/checkbox';
@@ -55,11 +55,13 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
   
   const assignedEmployeesByOffice = useMemo(() => {
     const grouped: { [officeId: string]: Employee[] } = {};
-    for (const emp of employees) {
-      if (!grouped[emp.officeId]) {
-        grouped[emp.officeId] = [];
-      }
-      grouped[emp.officeId].push(emp);
+    if (employees) {
+        for (const emp of employees) {
+            if (!grouped[emp.officeId]) {
+                grouped[emp.officeId] = [];
+            }
+            grouped[emp.officeId].push(emp);
+        }
     }
     return grouped;
   }, [employees]);
@@ -89,8 +91,9 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
   };
   
   const getAssignedEmployees = (officeId: string) => {
-    return employees.filter(emp => emp.officeId === officeId).sort((a,b) => a.name.localeCompare(b.name));
+    return (assignedEmployeesByOffice[officeId] || []).sort((a,b) => a.name.localeCompare(b.name));
   };
+
 
   return (
     <div className="overflow-x-auto">
@@ -122,9 +125,8 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                         <span>{office.name}</span>
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button size="sm" variant="outline" className="h-8">
-                                    <Users className="h-4 w-4 mr-2"/>
-                                    Ver Personal
+                                <Button size="icon" variant="ghost" className="h-7 w-7">
+                                    <Users className="h-4 w-4"/>
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-80">
