@@ -126,11 +126,14 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     return (
      <Card>
       <CardHeader className="flex flex-row items-center justify-between p-4">
-        <CardTitle className="text-base font-semibold">Ausencias Prolongadas</CardTitle>
-        <Button size="sm" onClick={() => setIsModalOpen(true)}>
-            <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
-            Agregar
-        </Button>
+        <div className="flex-1"></div>
+        <CardTitle className="text-base font-semibold text-center flex-1">Ausencias Prolongadas</CardTitle>
+        <div className="flex-1 flex justify-end">
+            <Button size="sm" onClick={() => setIsModalOpen(true)}>
+                <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
+                Agregar
+            </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <p className="text-sm text-muted-foreground p-4 text-center">No hay personal con ausencias prolongadas para mostrar.</p>
@@ -149,11 +152,14 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     <>
     <Card>
        <CardHeader className="flex flex-row items-center justify-between p-4">
-        <CardTitle className="text-base font-semibold">Ausencias Prolongadas</CardTitle>
-        <Button size="sm" onClick={() => setIsModalOpen(true)}>
-            <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
-            Agregar
-        </Button>
+        <div className="flex-1"></div>
+        <CardTitle className="text-base font-semibold text-center flex-1">Ausencias Prolongadas</CardTitle>
+        <div className="flex-1 flex justify-end">
+            <Button size="sm" onClick={() => setIsModalOpen(true)}>
+                <PlusCircle className="mr-1.5 h-3.5 w-3.5" />
+                Agregar
+            </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto border-t">
