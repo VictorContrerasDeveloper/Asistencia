@@ -22,7 +22,7 @@ export default function ManualEntryPage() {
         getOffices(),
         getEmployees(), // Fetch all employees
       ]);
-      const filteredOffices = fetchedOffices.filter(office => office.name.toLowerCase() !== 'oficina movil');
+      const filteredOffices = fetchedOffices.filter(office => !office.name.toLowerCase().includes('movil'));
       filteredOffices.sort((a, b) => a.name.localeCompare(b.name));
       setOffices(filteredOffices);
       setEmployees(fetchedEmployees);

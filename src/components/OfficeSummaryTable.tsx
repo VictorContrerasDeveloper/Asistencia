@@ -43,7 +43,7 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
   };
   
   const filteredOffices = useMemo(() => {
-      return offices.filter(office => office.name.toLowerCase() !== 'oficina movil');
+      return offices.filter(office => !office.name.toLowerCase().includes('movil'));
   }, [offices]);
 
   return (
