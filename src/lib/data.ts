@@ -293,5 +293,3 @@ export const deleteDailySummary = async (summaryId: string) => {
   const summaryRef = doc(db, 'dailySummaries', summaryId);
   await deleteDoc(summaryRef);
 };
-
-    
