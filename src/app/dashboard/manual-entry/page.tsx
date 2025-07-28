@@ -119,7 +119,7 @@ export default function ManualEntryPage() {
     }
 
     const inputs = summaryTable.querySelectorAll('input[type="number"]');
-    const originalValues: { el: HTMLTableCellElement, originalContent: string, originalPadding: string }[] = [];
+    const originalValues: { el: HTMLElement, originalContent: string, originalPadding: string }[] = [];
 
     const elementsToHide = summaryTable.querySelectorAll('.exclude-from-image');
     elementsToHide.forEach(el => {
@@ -147,6 +147,14 @@ export default function ManualEntryPage() {
         cell.style.padding = '0';
       }
     });
+
+    const officeCells = summaryTable.querySelectorAll('td.font-medium');
+     officeCells.forEach(cell => {
+        const htmlCell = cell as HTMLElement;
+        originalValues.push({ el: htmlCell, originalContent: htmlCell.innerHTML, originalPadding: htmlCell.style.padding });
+        htmlCell.style.padding = '0.25rem'; 
+     });
+
 
     try {
       const canvas = await html2canvas(summaryTable, { scale: 2, backgroundColor: null });
