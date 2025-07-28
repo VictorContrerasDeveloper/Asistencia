@@ -13,7 +13,6 @@ import DailySummaryTable from '@/components/DailySummaryTable';
 import { Skeleton } from '@/components/ui/skeleton';
 import html2canvas from 'html2canvas';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
-import TransferEmployeeModal from '@/components/TransferEmployeeModal';
 import { useToast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -40,7 +39,6 @@ export default function ManualEntryPage() {
   const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
   const [isSavingDay, setIsSavingDay] = useState(false);
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
-  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
@@ -82,19 +80,6 @@ export default function ManualEntryPage() {
       return [...prev, newOrUpdatedEmployee];
     });
     setIsAbsenceModalOpen(false);
-  }
-
-  const handleEmployeeTransferred = (transferredEmployee: Employee) => {
-    setEmployees(prev => {
-        const index = prev.findIndex(e => e.id === transferredEmployee.id);
-        if (index !== -1) {
-            const newEmployees = [...prev];
-            newEmployees[index] = transferredEmployee;
-            return newEmployees;
-        }
-        return [...prev, transferredEmployee];
-    });
-    fetchData(); // Refetch all data to ensure consistency
   }
 
   const copyCanvasToClipboard = async (canvas: HTMLCanvasElement) => {
@@ -275,10 +260,12 @@ export default function ManualEntryPage() {
                 />
               </PopoverContent>
             </Popover>
-            <Button onClick={() => setIsTransferModalOpen(true)} variant="outline">
-                <Shuffle className="mr-2 h-4 w-4" />
-                Trasladar Personal
-            </Button>
+            <Link href="/dashboard/transfer-employee">
+              <Button variant="outline">
+                  <Shuffle className="mr-2 h-4 w-4" />
+                  Trasladar Personal
+              </Button>
+            </Link>
             <Button onClick={handleSaveDay} disabled={isSavingDay}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSavingDay ? 'Guardando...' : 'Guardar Día'}
@@ -363,13 +350,6 @@ export default function ManualEntryPage() {
           onClose={() => setIsAbsenceModalOpen(false)}
           onAbsenceAdded={handleAbsenceAdded}
           allEmployees={employees}
-      />
-       <TransferEmployeeModal
-          isOpen={isTransferModalOpen}
-          onClose={() => setIsTransferModalOpen(false)}
-          onEmployeeTransferred={handleEmployeeTransferred}
-          allEmployees={employees}
-          allOffices={offices}
       />
        <AlertDialog open={!!summaryToDelete} onOpenChange={(isOpen) => !isOpen && setSummaryToDelete(null)}>
           <AlertDialogContent>
