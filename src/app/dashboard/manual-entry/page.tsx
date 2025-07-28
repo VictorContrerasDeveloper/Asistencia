@@ -262,12 +262,6 @@ export default function ManualEntryPage() {
                 />
               </PopoverContent>
             </Popover>
-            <Link href="/dashboard/transfer-employee">
-              <Button variant="outline">
-                  <Shuffle className="mr-2 h-4 w-4" />
-                  Trasladar Personal
-              </Button>
-            </Link>
             <Button onClick={handleSaveDay} disabled={isSavingDay}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSavingDay ? 'Guardando...' : 'Guardar Día'}
@@ -292,13 +286,21 @@ export default function ManualEntryPage() {
                   )}
                 </CardContent>
               </div>
-               <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
-                  <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)} title="Limpiar Ingresos">
-                    <Eraser className="h-5 w-5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary} title="Copiar Imagen del Resumen">
-                    <Camera className="h-5 w-5" />
-                  </Button>
+               <CardFooter className="flex justify-between items-center p-2 exclude-from-image bg-card">
+                  <Link href="/dashboard/transfer-employee">
+                    <Button variant="outline" size="sm">
+                        <Shuffle className="mr-2 h-4 w-4" />
+                        Trasladar Personal
+                    </Button>
+                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)} title="Limpiar Ingresos">
+                      <Eraser className="h-5 w-5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary} title="Copiar Imagen del Resumen">
+                      <Camera className="h-5 w-5" />
+                    </Button>
+                  </div>
               </CardFooter>
             </Card>
 
