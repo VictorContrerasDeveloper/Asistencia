@@ -75,11 +75,11 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
         getSummaryData: () => {
             const summaryData: { [officeId: string]: any } = {};
             offices.forEach(office => {
-                const absentEmployees = getEmployeeNamesByStatus(office.id, 'Ausente');
-                
-                const absentText = absentEmployees === "-" ? "" : 
-                  (React.isValidElement(absentEmployees) && absentEmployees.props.children) ?
-                  (Array.isArray(absentEmployees.props.children) ? absentEmployees.props.children.filter((c: any) => typeof c === 'string' || (c && c.props && typeof c.props.children === 'string')).map((c:any) => typeof c === 'string' ? c : c.props.children).join(' / ') : absentEmployees.props.children) : '';
+                const officeAttendance = attendance[office.id] || {};
+                const absentEmployeeNames = employees
+                    .filter(emp => emp.officeId === office.id && officeAttendance[emp.id] === 'Ausente' && !PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason))
+                    .map(emp => emp.name)
+                    .join(' / ');
 
                 summaryData[office.id] = {
                     name: office.name,
@@ -88,7 +88,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                         Anfitrión: parseInt(realStaffing[office.id]?.Anfitrión || '0', 10),
                         Tablet: parseInt(realStaffing[office.id]?.Tablet || '0', 10),
                     },
-                    absent: absentText,
+                    absent: absentEmployeeNames || "",
                 };
             });
             return summaryData;
