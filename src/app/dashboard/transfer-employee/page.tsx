@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { getEmployees, getOffices, Office, Employee } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import TransferEmployeeModal from '@/components/TransferEmployeeModal';
+import { Separator } from '@/components/ui/separator';
 
 export default function TransferEmployeePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -23,7 +24,7 @@ export default function TransferEmployeePage() {
         getEmployees(),
         getOffices()
     ]);
-    setEmployees(fetchedEmployees.sort((a,b) => a.name.localeCompare(b.name)));
+    setEmployees(fetchedEmployees);
     setOffices(fetchedOffices);
     setLoading(false);
   }
@@ -33,6 +34,19 @@ export default function TransferEmployeePage() {
   }, []);
 
   const officeMap = useMemo(() => new Map(offices.map(o => [o.id, o.name])), [offices]);
+
+  const employeesByOffice = useMemo(() => {
+    if (loading) return {};
+    return employees.reduce((acc, employee) => {
+      const officeName = officeMap.get(employee.officeId) || 'Sin Oficina';
+      if (!acc[officeName]) {
+        acc[officeName] = [];
+      }
+      acc[officeName].push(employee);
+      return acc;
+    }, {} as Record<string, Employee[]>);
+  }, [employees, officeMap, loading]);
+
 
   const handleOpenModal = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -67,24 +81,32 @@ export default function TransferEmployeePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-md p-2 space-y-1">
+              <div className="border rounded-md p-2 space-y-1 max-h-[60vh] overflow-y-auto">
                  {loading ? (
-                    Array.from({ length: 15 }).map((_, i) => (
-                        <div key={i} className="flex items-center justify-between p-2">
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-8 w-8 rounded-full" />
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="space-y-3 p-2">
+                        <Skeleton className="h-6 w-1/3" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-8 w-full" />
+                          <Skeleton className="h-8 w-full" />
+                          <Skeleton className="h-8 w-full" />
                         </div>
+                      </div>
                     ))
                 ) : (
-                  employees.map(employee => (
-                    <div key={employee.id} className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                        <div>
-                            <p className="font-medium text-sm">{employee.name}</p>
-                            <p className="text-xs text-muted-foreground">{officeMap.get(employee.officeId) || 'Sin Oficina'}</p>
-                        </div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenModal(employee)}>
-                            <Shuffle className="h-4 w-4 text-primary" />
-                        </Button>
+                  Object.keys(employeesByOffice).sort().map(officeName => (
+                    <div key={officeName} className="py-2">
+                      <h3 className="font-semibold text-primary px-2 pb-2">{officeName}</h3>
+                      <div className="space-y-1">
+                        {employeesByOffice[officeName].sort((a,b) => a.name.localeCompare(b.name)).map(employee => (
+                          <div key={employee.id} className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
+                              <p className="font-medium text-sm">{employee.name}</p>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenModal(employee)}>
+                                  <Shuffle className="h-4 w-4 text-primary" />
+                              </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))
                 )}
