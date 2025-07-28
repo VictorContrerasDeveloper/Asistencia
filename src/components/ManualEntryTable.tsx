@@ -13,7 +13,7 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Save } from 'lucide-react';
+import { Users } from 'lucide-react';
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Checkbox } from './ui/checkbox';
@@ -88,50 +88,6 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     setRealStaffing(newStaffing);
   };
   
-  const handleSave = async (officeId: string) => {
-    const officeStaffing = realStaffing[officeId];
-    const newRealStaffing: { [key in EmployeeRole]?: number } = {};
-    
-    let hasError = false;
-    for (const r in ROLES) {
-        const currentRole = ROLES[r as any];
-        const aValue = officeStaffing[currentRole];
-        if (aValue === '' || aValue === undefined) {
-          newRealStaffing[currentRole] = 0;
-          continue;
-        };
-        const numberValue = parseInt(aValue, 10);
-        if (isNaN(numberValue) || numberValue < 0) {
-            hasError = true;
-            break;
-        }
-        newRealStaffing[currentRole] = numberValue;
-    }
-
-    if (hasError) {
-       toast({
-          title: "Error de validación",
-          description: "Ingresa solo números positivos.",
-          variant: "destructive",
-      });
-      return;
-    }
-    
-    try {
-        await updateOfficeRealStaffing(officeId, newRealStaffing);
-        toast({
-            title: "¡Éxito!",
-            description: "Dotación real guardada correctamente.",
-        });
-    } catch(e) {
-         toast({
-            title: "Error",
-            description: "No se pudo guardar la información.",
-            variant: "destructive",
-        });
-    }
-  };
-
   const getAssignedEmployees = (officeId: string) => {
     return employees.filter(emp => emp.officeId === officeId).sort((a,b) => a.name.localeCompare(b.name));
   };
@@ -217,10 +173,6 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 </div>
                             </PopoverContent>
                         </Popover>
-                        <Button size="sm" className="h-8" onClick={() => handleSave(office.id)}>
-                            <Save className="h-4 w-4 mr-2" />
-                            Guardar
-                        </Button>
                     </div>
                 </TableCell>
                 </TableRow>
