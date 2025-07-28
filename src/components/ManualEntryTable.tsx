@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -80,24 +79,25 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     return grouped;
   }, [employees]);
 
-  const handleAttendanceChange = (officeId: string, employeeId: string, newStatus: AttendanceStatus, isChecked: boolean) => {
+  const handleAttendanceChange = (officeId: string, employeeId: string, type: 'Atrasado' | 'Ausente', isChecked: boolean) => {
     setAttendance(prev => {
-        const currentAttendance = prev[officeId] || {};
-        let finalStatus: AttendanceStatus = 'Presente';
+        const currentAttendance = { ...(prev[officeId] || {}) };
+        const currentState = currentAttendance[employeeId];
 
-        if(isChecked) {
-            finalStatus = newStatus;
+        if (isChecked) {
+            currentAttendance[employeeId] = type;
+        } else {
+            if (currentState === type) {
+                currentAttendance[employeeId] = 'Presente';
+            }
         }
 
         return {
             ...prev,
-            [officeId]: {
-                ...currentAttendance,
-                [employeeId]: finalStatus,
-            }
+            [officeId]: currentAttendance,
         };
     });
-  };
+};
 
 
   const handleStaffingChange = (officeId: string, role: EmployeeRole, value: string) => {
@@ -139,7 +139,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
               <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary">{role}</TableHead>
             ))}
             <TableHead className="text-center font-bold text-primary">Atrasos</TableHead>
-            <TableHead className="text-center font-bold text-primary">Personal Ausente</TableHead>
+            <TableHead className="text-center font-bold text-primary">Ausentes</TableHead>
           </TableRow>
           <TableRow>
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground"></TableHead>
