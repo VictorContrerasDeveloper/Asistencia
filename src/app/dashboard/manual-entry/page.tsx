@@ -17,8 +17,7 @@ export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [isGeneratingAbsences, setIsGeneratingAbsences] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -82,75 +81,53 @@ export default function ManualEntryPage() {
       }, 'image/png');
   }
 
-  const handleGenerateSummaryImage = async () => {
-    setIsGeneratingSummary(true);
-    
-    const summaryTable = document.getElementById('manual-entry-summary');
-    if (!summaryTable) {
-        setIsGeneratingSummary(false);
+  const handleGenerateCombinedImage = async () => {
+    setIsGeneratingImage(true);
+
+    const imageContainer = document.getElementById('image-capture-container');
+    if (!imageContainer) {
+        setIsGeneratingImage(false);
         return;
     }
     
-    const inputs = summaryTable.querySelectorAll('input[type="number"]');
+    // --- Prepare elements for capture ---
+    const summaryTable = document.getElementById('manual-entry-summary');
+    const absenceTable = document.getElementById('prolonged-absence-summary');
+    
+    const inputs = summaryTable?.querySelectorAll('input[type="number"]') || [];
+    const elementsToHide = absenceTable?.querySelectorAll('.exclude-from-image') || [];
+    
     const originalDisplays: { el: HTMLElement, display: string}[] = [];
+    const createdSpans: HTMLElement[] = [];
 
+    // Replace inputs in summary table
     inputs.forEach((input) => {
         const inputEl = input as HTMLInputElement;
         const span = document.createElement('span');
         span.textContent = inputEl.value || '0';
         span.className = inputEl.className.replace('w-12', 'w-full block').replace('h-7', 'h-full'); 
         span.classList.add('text-center');
+
         if (inputEl.className.includes('bg-red-600')) {
              span.classList.add('bg-red-600', 'text-white');
         }
         originalDisplays.push({el: inputEl, display: inputEl.style.display });
         inputEl.style.display = 'none';
         inputEl.parentNode?.insertBefore(span, inputEl.nextSibling);
+        createdSpans.push(span);
     });
 
-     try {
-      const summaryCanvas = await html2canvas(summaryTable, { scale: 2 });
-      await copyCanvasToClipboard(summaryCanvas);
-    } catch (error) {
-       toast({
-          title: "Error",
-          description: "No se pudo generar la imagen.",
-          variant: "destructive"
-      });
-    } finally {
-        inputs.forEach((input) => {
-            const span = input.nextSibling;
-            if (span && span.nodeName === 'SPAN') {
-                span.parentNode?.removeChild(span);
-            }
-        });
-        originalDisplays.forEach(item => {
-            item.el.style.display = item.display;
-        })
-        setIsGeneratingSummary(false);
-    }
-  }
-
-  const handleGenerateAbsenceImage = async () => {
-    setIsGeneratingAbsences(true);
-
-    const absenceTable = document.getElementById('prolonged-absence-summary');
-    if (!absenceTable) {
-        setIsGeneratingAbsences(false);
-        return;
-    }
-
-    const originalDisplays: { el: HTMLElement, display: string}[] = [];
-    const elementsToHide = absenceTable.querySelectorAll('.exclude-from-image');
+    // Hide elements in absence table
     elementsToHide.forEach(el => {
         const htmlEl = el as HTMLElement;
         originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
         htmlEl.style.display = 'none';
     });
 
+    // --- Capture ---
     try {
-      const absenceCanvas = await html2canvas(absenceTable, { scale: 2 });
-      await copyCanvasToClipboard(absenceCanvas);
+      const canvas = await html2canvas(imageContainer, { scale: 2 });
+      await copyCanvasToClipboard(canvas);
     } catch (error) {
        toast({
           title: "Error",
@@ -158,10 +135,14 @@ export default function ManualEntryPage() {
           variant: "destructive"
       });
     } finally {
+        // --- Cleanup ---
+        createdSpans.forEach(span => {
+            span.parentNode?.removeChild(span);
+        });
         originalDisplays.forEach(item => {
             item.el.style.display = item.display;
-        });
-        setIsGeneratingAbsences(false);
+        })
+        setIsGeneratingImage(false);
     }
   }
 
@@ -178,46 +159,43 @@ export default function ManualEntryPage() {
           <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
         </div>
         <div className="flex items-center gap-2">
-            <Button onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary || isGeneratingAbsences}>
+            <Button onClick={handleGenerateCombinedImage} disabled={isGeneratingImage}>
                 <Camera className="mr-2 h-4 w-4" />
-                Imagen Resumen
-            </Button>
-            <Button onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsences || isGeneratingSummary}>
-                <Camera className="mr-2 h-4 w-4" />
-                Imagen Ausencias
+                Copiar Resumen
             </Button>
         </div>
       </header>
       <main className="flex-1 p-4 md:p-8 space-y-8">
-        <Card id="manual-entry-summary" className="w-full">
-          <CardHeader>
-            <CardTitle className="text-center">Resumen dotacion Of. Com. Helpbank</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div id="image-capture-container" className="space-y-8">
+            <Card id="manual-entry-summary" className="w-full">
+              <CardHeader>
+                <CardTitle className="text-center">Resumen dotacion Of. Com. Helpbank</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ) : (
+                  <ManualEntryTable offices={offices} employees={employees} />
+                )}
+              </CardContent>
+            </Card>
+
             {loading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-              </div>
+              <Skeleton className="h-40 w-full" />
             ) : (
-              <ManualEntryTable offices={offices} employees={employees} />
+              <ProlongedAbsenceTable 
+                id="prolonged-absence-summary"
+                offices={offices} 
+                employees={employees}
+                onAbsenceAdded={handleAbsenceAdded}
+                onEmployeeReinstated={handleEmployeeReinstated}
+               />
             )}
-          </CardContent>
-        </Card>
-
-        {loading ? (
-          <Skeleton className="h-40 w-full" />
-        ) : (
-          <ProlongedAbsenceTable 
-            id="prolonged-absence-summary"
-            offices={offices} 
-            employees={employees}
-            onAbsenceAdded={handleAbsenceAdded}
-            onEmployeeReinstated={handleEmployeeReinstated}
-           />
-        )}
-
+        </div>
       </main>
     </div>
   );
