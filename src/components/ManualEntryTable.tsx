@@ -126,11 +126,11 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     try {
         await updateOfficeRealStaffing(officeId, { [role]: numberValue });
     } catch(error) {
-        toast({
-            title: "Error",
-            description: "No se pudo guardar la dotación.",
-            variant: "destructive"
-        });
+        // toast({
+        //     title: "Error",
+        //     description: "No se pudo guardar la dotación.",
+        //     variant: "destructive"
+        // });
     }
   }
 
@@ -180,18 +180,18 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
       <Table>
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
-              <TableHead rowSpan={2} className={'sticky left-0 bg-primary border-b-2 border-primary-foreground font-bold text-primary-foreground text-center align-middle h-auto p-0 border-r border-primary'}>Oficina Comercial</TableHead>
+              <TableHead rowSpan={2} className={'sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle h-auto p-0 border-r border-primary'}>Oficina Comercial</TableHead>
               {ROLES.map((role) => (
-                <TableHead key={role} colSpan={2} className={'text-center font-bold text-primary-foreground border-b border-primary-foreground py-0 h-auto p-1 border-r border-primary'}>{role}</TableHead>
+                <TableHead key={role} colSpan={2} className={'text-center font-bold text-primary-foreground border-b border-primary py-0 h-auto p-1 border-r border-primary'}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary-foreground py-0 h-auto border-r border-primary'}>Atrasos</TableHead>
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary-foreground py-0 h-auto'}>Ausentes</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto border-r border-primary'}>Atrasos</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto'}>Ausentes</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
-              {ROLES.map((role) => (
+              {ROLES.map((role, index) => (
                 <React.Fragment key={role}>
-                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary-foreground py-0 h-auto w-14 p-1'}>Real</TableHead>
-                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary-foreground py-0 h-auto w-14 p-1'}>Teóri.</TableHead>
+                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 p-1'}>Real</TableHead>
+                    <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 p-1 border-r border-primary'}>Teóri.</TableHead>
                 </React.Fragment>
               ))}
           </TableRow>
