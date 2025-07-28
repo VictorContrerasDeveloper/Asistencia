@@ -86,10 +86,7 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
     // Optimistic update
     const employeeToUpdate = employees.find(e => e.id === employeeId);
     if (employeeToUpdate) {
-        toast({
-            title: 'Empleado Reintegrado',
-            description: `${employeeToUpdate.name} ha sido marcado como "Presente".`,
-        });
+        // toast removed as requested
     }
 
     setEmployees(prev => prev.filter(e => e.id !== employeeId));
@@ -163,11 +160,11 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
           <Table>
             <TableHeader className="bg-primary/10">
               <TableRow>
-                <TableHead className="font-bold text-primary">Nombre</TableHead>
-                <TableHead className="font-bold text-primary">Motivo</TableHead>
-                <TableHead className="font-bold text-primary">Fecha Término</TableHead>
-                <TableHead className="font-bold text-primary">Última Oficina Asignada</TableHead>
-                <TableHead className="font-bold text-primary text-right">Acciones</TableHead>
+                <TableHead className="font-bold text-primary text-xs px-2 py-1">Nombre</TableHead>
+                <TableHead className="font-bold text-primary text-xs px-2 py-1">Motivo</TableHead>
+                <TableHead className="font-bold text-primary text-xs px-2 py-1">Fecha Término</TableHead>
+                <TableHead className="font-bold text-primary text-xs px-2 py-1">Última Oficina Asignada</TableHead>
+                <TableHead className="font-bold text-primary text-right text-xs px-2 py-1">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -175,19 +172,20 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
                 const selectedDate = dates[employee.id] || (employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined)
                 return (
                     <TableRow key={employee.id}>
-                    <TableCell className="font-medium p-2">{employee.name}</TableCell>
-                    <TableCell className="p-2">{employee.absenceReason}</TableCell>
-                    <TableCell className="p-2">
+                    <TableCell className="font-medium p-1 text-xs">{employee.name}</TableCell>
+                    <TableCell className="p-1 text-xs">{employee.absenceReason}</TableCell>
+                    <TableCell className="p-1 text-xs">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
                                 variant={"outline"}
+                                size="sm"
                                 className={cn(
-                                    "w-[240px] justify-start text-left font-normal",
+                                    "w-[200px] justify-start text-left font-normal h-8 text-xs",
                                     !selectedDate && "text-muted-foreground"
                                 )}
                                 >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                <CalendarIcon className="mr-2 h-3 w-3" />
                                 {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
                                 </Button>
                             </PopoverTrigger>
@@ -202,9 +200,9 @@ export default function ProlongedAbsenceTable({ employees: initialEmployees, off
                             </PopoverContent>
                         </Popover>
                     </TableCell>
-                    <TableCell className="p-2">{employee.officeName}</TableCell>
-                    <TableCell className="p-2 text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleReinstate(employee.id)} title="Reintegrar empleado">
+                    <TableCell className="p-1 text-xs">{employee.officeName}</TableCell>
+                    <TableCell className="p-1 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => handleReinstate(employee.id)} title="Reintegrar empleado" className="h-7 w-7 p-0">
                         <UserCheck className="h-4 w-4 text-green-600" />
                       </Button>
                     </TableCell>
