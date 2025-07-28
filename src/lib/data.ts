@@ -226,8 +226,8 @@ export const addEmployee = async (name: string, officeId: string, role: Employee
   const newEmployee = {
     name,
     officeId,
-    status: 'Ausente',
-    absenceReason: 'Inasistencia',
+    status: 'Presente',
+    absenceReason: null,
     role: role || 'Modulo',
     absenceEndDate: null
   };
@@ -246,8 +246,8 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
     const newEmployee = {
       name: name.trim(),
       officeId,
-      status: 'Ausente',
-      absenceReason: 'Inasistencia',
+      status: 'Presente',
+      absenceReason: null,
       role: 'Modulo',
       absenceEndDate: null
     };
