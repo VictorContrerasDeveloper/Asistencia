@@ -74,6 +74,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                           Carga Masiva
                       </Button>
                   </Link>
+                  <Link href="/dashboard/bulk-update-names">
+                      <Button variant="secondary">
+                          <Edit />
+                          Actualizar Nombres
+                      </Button>
+                  </Link>
                   <Link href="/dashboard/delete-employee">
                       <Button variant="destructive">
                           <Trash2 />

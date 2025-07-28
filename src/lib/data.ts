@@ -113,10 +113,48 @@ export const getEmployees = async (officeSlug?: string): Promise<Employee[]> => 
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
 };
 
-export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role' | 'absenceReason'>>) => {
+export const updateEmployee = async (employeeId: string, updates: Partial<Pick<Employee, 'status' | 'officeId' | 'role' | 'absenceReason' | 'name'>>) => {
     const employeeRef = doc(db, 'employees', employeeId);
     await updateDoc(employeeRef, updates);
 };
+
+export const bulkUpdateEmployeeNames = async (nameUpdates: string): Promise<{updated: number, notFound: string[]}> => {
+    const lines = nameUpdates.split('\n').filter(line => line.trim() !== '');
+    if(lines.length === 0) {
+        return { updated: 0, notFound: [] };
+    }
+
+    const allEmployees = await getEmployees();
+    const employeeMapByName = new Map(allEmployees.map(emp => [emp.name.trim().toLowerCase(), emp]));
+    
+    const batch = writeBatch(db);
+    let updatedCount = 0;
+    const notFound: string[] = [];
+
+    for(const line of lines) {
+        const parts = line.split('>');
+        if(parts.length !== 2) continue; // Skip malformed lines
+
+        const oldName = parts[0].trim();
+        const newName = parts[1].trim();
+
+        if(!oldName || !newName) continue;
+
+        const employee = employeeMapByName.get(oldName.toLowerCase());
+
+        if(employee) {
+            const employeeRef = doc(db, 'employees', employee.id);
+            batch.update(employeeRef, { name: newName });
+            updatedCount++;
+        } else {
+            notFound.push(oldName);
+        }
+    }
+
+    await batch.commit();
+    return { updated: updatedCount, notFound };
+}
+
 
 export const addEmployee = async (name: string, officeId: string, role: EmployeeRole) => {
   const newEmployee = {
