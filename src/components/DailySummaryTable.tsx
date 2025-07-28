@@ -76,7 +76,7 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
                                 <TableCell className="font-medium">{officeData.name}</TableCell>
                                 {ROLES.map(role => {
                                     const realCount = officeData.realStaffing[role] || 0;
-                                    const theoreticalCount = officeData.theoreticalStaffing?.[role] || 0;
+                                    const theoreticalCount = officeData.theoreticalStaffing?.[role as keyof typeof officeData.theoreticalStaffing] || 0;
                                     const isDeficit = realCount < theoreticalCount;
                                     return (
                                         <TableCell key={role} className={cn("text-center", isDeficit && "text-red-600 font-bold")}>
