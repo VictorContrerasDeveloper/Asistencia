@@ -14,12 +14,13 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, PlusCircle } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 type ProlongedAbsenceTableProps = {
   employees: Employee[];
@@ -75,8 +76,14 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Ejecutivas NO presentes en oficina (Licencias / Vacaciones)</CardTitle>
+        <Link href="/dashboard/add-employee">
+            <Button>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Agregar Personal
+            </Button>
+        </Link>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto border rounded-lg">
