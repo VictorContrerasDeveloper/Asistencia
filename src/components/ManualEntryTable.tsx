@@ -131,10 +131,6 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
 
     try {
         await updateOfficeRealStaffing(officeId, { [role]: numberValue });
-        /* toast({
-            title: "¡Guardado!",
-            description: `Se actualizó la dotación para ${role}.`
-        }) */
     } catch(error) {
         toast({
             title: "Error",
@@ -184,9 +180,6 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
           }
       }
   }
-
-  const tableCellClasses = "py-1 px-2";
-
 
   return (
     <div className="overflow-x-auto">
@@ -307,3 +300,5 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     </div>
   );
 }
+
+    
