@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { type EmployeeRole, type Office, type Employee, AttendanceStatus } from '@/lib/data';
+import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -115,6 +115,34 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     setRealStaffing(newStaffing);
   };
   
+  const handleSaveStaffing = async (officeId: string, role: EmployeeRole) => {
+    const value = realStaffing[officeId]?.[role];
+    const numberValue = value === '' || value === undefined ? 0 : parseInt(value, 10);
+    
+    if (isNaN(numberValue) || numberValue < 0) {
+        toast({
+            title: "Error de Validación",
+            description: "Por favor, ingresa un número válido.",
+            variant: "destructive"
+        });
+        return;
+    }
+
+    try {
+        await updateOfficeRealStaffing(officeId, { [role]: numberValue });
+        toast({
+            title: "¡Guardado!",
+            description: `Se actualizó la dotación para ${role}.`
+        })
+    } catch(error) {
+        toast({
+            title: "Error",
+            description: "No se pudo guardar la dotación.",
+            variant: "destructive"
+        });
+    }
+  }
+
   const getAssignedEmployees = (officeId: string) => {
     return (assignedEmployeesByOffice[officeId] || []).sort((a,b) => a.name.localeCompare(b.name));
   };
@@ -253,6 +281,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                                 onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
                                 onFocus={(e) => e.target.select()}
                                 onKeyDown={(e) => handleKeyDown(e, refIndex)}
+                                onBlur={() => handleSaveStaffing(office.id, role)}
                                 className={cn(
                                     "h-7 w-12 mx-auto text-center",
                                     isDeficit && "bg-red-600 text-white"

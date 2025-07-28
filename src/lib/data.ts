@@ -86,7 +86,16 @@ export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing
 
 export const updateOfficeRealStaffing = async (officeId: string, realStaffing: { [key in EmployeeRole]?: number }) => {
     const officeRef = doc(db, 'offices', officeId);
-    await updateDoc(officeRef, { realStaffing });
+    
+    const officeDoc = await getDoc(officeRef);
+    if(!officeDoc.exists()) {
+        throw new Error("Office not found");
+    }
+
+    const currentStaffing = officeDoc.data().realStaffing || {};
+    const updatedStaffing = { ...currentStaffing, ...realStaffing };
+    
+    await updateDoc(officeRef, { realStaffing: updatedStaffing });
 };
 
 export const getOfficeBySlug = async (slug: string): Promise<Office | undefined> => {
