@@ -148,7 +148,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
           <TableRow>
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground font-bold text-primary px-2">Oficina Comercial</TableHead>
             {ROLES.map(role => (
-              <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary px-1">{role}</TableHead>
+              <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary p-0">{role}</TableHead>
             ))}
             <TableHead className="text-center font-bold text-primary border-r-2 border-muted-foreground px-2">Atrasos</TableHead>
             <TableHead className="text-center font-bold text-primary px-2">Ausentes</TableHead>
@@ -157,8 +157,8 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
             <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground px-2"></TableHead>
             {ROLES.map(role => (
               <React.Fragment key={`${role}-sub`}>
-                <TableHead className="text-center font-bold text-primary px-1">Real</TableHead>
-                <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary px-1">Teori.</TableHead>
+                <TableHead className="text-center font-bold text-primary p-0">Real</TableHead>
+                <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary p-0">Teori.</TableHead>
               </React.Fragment>
             ))}
             <TableHead className="border-r-2 border-muted-foreground px-2"></TableHead>
@@ -222,17 +222,17 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                 </TableCell>
                 {ROLES.map(role => (
                     <React.Fragment key={role}>
-                        <TableCell className="p-1">
+                        <TableCell className="p-0">
                         <Input
                             type="number"
                             min="0"
                             placeholder="0"
                             value={realStaffing[office.id]?.[role] || ''}
                             onChange={(e) => handleStaffingChange(office.id, role, e.target.value)}
-                            className="h-8 w-16 mx-auto text-center"
+                            className="h-8 w-12 mx-auto text-center"
                         />
                         </TableCell>
-                        <TableCell className="text-center border-r-2 border-muted-foreground p-1">{office.theoreticalStaffing?.[role] || 0}</TableCell>
+                        <TableCell className="text-center border-r-2 border-muted-foreground p-0">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                     </React.Fragment>
                 ))}
                  <TableCell className="text-center text-xs border-r-2 border-muted-foreground px-2">
