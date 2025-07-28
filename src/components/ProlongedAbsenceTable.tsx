@@ -26,14 +26,21 @@ export default function ProlongedAbsenceTable({ employees, offices }: ProlongedA
   }, [offices]);
     
   const absentEmployees = useMemo(() => {
+    // Get IDs of offices that should be displayed (exclude "Oficina Movil")
+    const displayedOfficeIds = new Set(offices.map(o => o.id));
+
     return employees
-      .filter(emp => emp.status === 'Ausente' && PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason))
+      .filter(emp => 
+        emp.status === 'Ausente' && 
+        PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason) &&
+        displayedOfficeIds.has(emp.officeId) // Ensure employee belongs to a displayed office
+      )
       .map(emp => ({
         ...emp,
         officeName: officeMap.get(emp.officeId) || 'Sin asignar'
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [employees, officeMap]);
+  }, [employees, offices, officeMap]);
 
   if (absentEmployees.length === 0) {
     return null;
