@@ -66,15 +66,32 @@ export default function ManualEntryPage() {
       description: "Esto puede tardar unos segundos.",
     });
 
-    try {
-      const summaryTable = document.getElementById('manual-entry-summary');
-      const absenceTable = document.getElementById('prolonged-absence-summary');
+    const summaryTable = document.getElementById('manual-entry-summary');
+    const absenceTable = document.getElementById('prolonged-absence-summary');
 
-      if (!summaryTable || !absenceTable) {
+    if (!summaryTable || !absenceTable) {
         toast({ title: "Error", description: "No se encontraron las tablas para generar la imagen.", variant: "destructive" });
+        setIsGeneratingImage(false);
         return;
-      }
+    }
 
+    // Temporarily replace inputs with spans for html2canvas
+    const inputs = summaryTable.querySelectorAll('input[type="number"]');
+    const originalDisplays: string[] = [];
+    inputs.forEach((input, index) => {
+        const span = document.createElement('span');
+        span.textContent = (input as HTMLInputElement).value || '0';
+        span.className = input.className.replace('w-12', 'w-full block').replace('h-7', 'h-full'); // copy styles
+        if (input.className.includes('bg-red-600')) {
+             span.classList.add('bg-red-600', 'text-white');
+        }
+        originalDisplays[index] = input.style.display;
+        input.style.display = 'none';
+        input.parentNode?.insertBefore(span, input.nextSibling);
+    });
+
+
+    try {
       const summaryCanvas = await html2canvas(summaryTable, { scale: 2 });
       const absenceCanvas = await html2canvas(absenceTable, { scale: 2 });
 
@@ -100,6 +117,14 @@ export default function ManualEntryPage() {
       console.error("Error generating image:", error);
       toast({ title: "Error", description: "No se pudo generar la imagen.", variant: "destructive" });
     } finally {
+        // Restore inputs
+        inputs.forEach((input, index) => {
+            input.style.display = originalDisplays[index] || '';
+            const span = input.nextSibling;
+            if (span && span.nodeName === 'SPAN') {
+                span.parentNode?.removeChild(span);
+            }
+        });
         setIsGeneratingImage(false);
     }
   }
