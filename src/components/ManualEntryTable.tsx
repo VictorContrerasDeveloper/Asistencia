@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -139,29 +140,32 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
     );
   }
 
+  const tableCellClasses = "py-1 px-2";
+  const tableHeadClasses = "py-1 px-2";
+
 
   return (
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground font-bold text-primary px-2">Oficina Comercial</TableHead>
+            <TableHead className={`sticky left-0 bg-card border-r-2 border-muted-foreground font-bold text-primary ${tableHeadClasses}`}>Oficina Comercial</TableHead>
             {ROLES.map(role => (
-              <TableHead key={role} colSpan={2} className="text-center border-r-2 border-muted-foreground font-bold text-primary p-0">{role}</TableHead>
+              <TableHead key={role} colSpan={2} className={`text-center border-r-2 border-muted-foreground font-bold text-primary p-0 ${tableHeadClasses}`}>{role}</TableHead>
             ))}
-            <TableHead className="text-center font-bold text-primary border-r-2 border-muted-foreground px-2">Atrasos</TableHead>
-            <TableHead className="text-center font-bold text-primary px-2">Ausentes</TableHead>
+            <TableHead className={`text-center font-bold text-primary border-r-2 border-muted-foreground ${tableHeadClasses}`}>Atrasos</TableHead>
+            <TableHead className={`text-center font-bold text-primary ${tableHeadClasses}`}>Ausentes</TableHead>
           </TableRow>
           <TableRow>
-            <TableHead className="sticky left-0 bg-card border-r-2 border-muted-foreground px-2"></TableHead>
+            <TableHead className={`sticky left-0 bg-card border-r-2 border-muted-foreground ${tableHeadClasses}`}></TableHead>
             {ROLES.map(role => (
               <React.Fragment key={`${role}-sub`}>
                 <TableHead className="text-center font-bold text-primary p-0">Real</TableHead>
                 <TableHead className="text-center border-r-2 border-muted-foreground font-bold text-primary p-0">Teori.</TableHead>
               </React.Fragment>
             ))}
-            <TableHead className="border-r-2 border-muted-foreground px-2"></TableHead>
-            <TableHead className="px-2"></TableHead>
+            <TableHead className={`border-r-2 border-muted-foreground ${tableHeadClasses}`}></TableHead>
+            <TableHead className={tableHeadClasses}></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -169,7 +173,7 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
             const assignedEmployees = getAssignedEmployees(office.id);
             return (
                 <TableRow key={office.id}>
-                <TableCell className="font-medium sticky left-0 bg-card border-r-2 border-muted-foreground px-2">
+                <TableCell className={`font-medium sticky left-0 bg-card border-r-2 border-muted-foreground ${tableCellClasses}`}>
                     <div className="flex items-center gap-2">
                         <span>{office.name}</span>
                         <Popover>
@@ -235,10 +239,10 @@ export default function ManualEntryTable({ offices, employees }: ManualEntryTabl
                         <TableCell className="text-center border-r-2 border-muted-foreground p-0">{office.theoreticalStaffing?.[role] || 0}</TableCell>
                     </React.Fragment>
                 ))}
-                 <TableCell className="text-center text-xs border-r-2 border-muted-foreground px-2">
+                 <TableCell className={`text-center text-xs border-r-2 border-muted-foreground ${tableCellClasses}`}>
                     {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
-                  <TableCell className="text-center text-xs px-2">
+                  <TableCell className={`text-center text-xs ${tableCellClasses}`}>
                     {getEmployeeNamesByStatus(office.id, 'Ausente')}
                   </TableCell>
                 </TableRow>
