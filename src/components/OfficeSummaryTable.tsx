@@ -55,20 +55,20 @@ export default function OfficeSummaryTable({ offices, roles }: OfficeSummaryTabl
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="border-spacing-0">
             <TableHeader className="bg-primary text-primary-foreground">
                <TableRow>
-                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-r-2 border-muted-foreground font-bold text-primary-foreground text-center align-middle ${tableHeadClasses}`}>Oficina Comercial</TableHead>
+                  <TableHead rowSpan={2} className={`sticky left-0 bg-primary border-r font-bold text-primary-foreground text-center align-middle p-1`}>Oficina Comercial</TableHead>
                   {roles.map(role => (
-                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground p-1 ${tableHeadClasses}`}>{role}</TableHead>
+                    <TableHead key={role} colSpan={2} className={`text-center font-bold text-primary-foreground p-1`}>{role}</TableHead>
                   ))}
-                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle ${tableHeadClasses}`}>Atrasos</TableHead>
+                  <TableHead rowSpan={2} className={`text-center font-bold text-primary-foreground align-middle p-1`}>Atrasos</TableHead>
               </TableRow>
               <TableRow>
                   {roles.map(role => (
                     <React.Fragment key={role}>
-                      <TableHead className={`text-center font-bold text-primary-foreground ${tableHeadClasses}`}>Real</TableHead>
-                      <TableHead className={`text-center font-bold text-primary-foreground ${tableHeadClasses}`}>Por Licit</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground p-1`}>Real</TableHead>
+                      <TableHead className={`text-center font-bold text-primary-foreground p-1`}>Por Licit</TableHead>
                     </React.Fragment>
                   ))}
               </TableRow>
