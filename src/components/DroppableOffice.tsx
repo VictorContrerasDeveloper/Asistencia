@@ -9,14 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 
-type DraggableOfficeProps = {
+type DroppableOfficeProps = {
   office: Office;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   employeeCount: number;
   isOverlay?: boolean;
 };
 
-export default function DraggableOffice({ office, children, employeeCount, isOverlay }: DraggableOfficeProps) {
+export default function DroppableOffice({ office, children, employeeCount, isOverlay }: DroppableOfficeProps) {
   const {
     attributes,
     listeners,
@@ -43,10 +43,9 @@ export default function DraggableOffice({ office, children, employeeCount, isOve
     <div ref={setNodeRef} style={style}>
        <Card 
           className={cn("flex flex-col h-full", isOverlay && "shadow-lg")}
-          {...attributes} 
-          {...listeners}
+          
        >
-         <CardHeader className="p-3 cursor-grab">
+         <CardHeader className="p-3 cursor-grab" {...attributes} {...listeners}>
            <CardTitle className="text-base truncate">{office.name} ({employeeCount})</CardTitle>
          </CardHeader>
           <CardContent className="p-3 pt-0">
@@ -56,3 +55,4 @@ export default function DraggableOffice({ office, children, employeeCount, isOve
     </div>
   );
 }
+

@@ -12,16 +12,16 @@ import {
   DragOverlay,
   UniqueIdentifier,
   DragStartEvent,
-  arrayMove,
 } from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
   rectSortingStrategy,
+  arrayMove,
 } from '@dnd-kit/sortable';
 import { Office, Employee, EmployeeRole, updateEmployee, updateOfficeOrder } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import DraggableOffice from './DraggableOffice';
+import DroppableOffice from './DroppableOffice';
 import DraggableEmployee from './DraggableEmployee';
 import EditEmployeeModal from './EditEmployeeModal';
 
@@ -112,13 +112,17 @@ export default function DraggableStaffDashboard({
     
     let targetOfficeId: string | null = null;
     
+    // Determine the target office ID
     if (overData?.type === 'Office') {
-      targetOfficeId = overId;
+      targetOfficeId = overId; // Dropped on an office card header
     } else if (overData?.type === 'Employee') {
       const overEmployee = employeeMap.get(overId);
-      targetOfficeId = overEmployee?.officeId || null;
+      targetOfficeId = overEmployee?.officeId || null; // Dropped on an employee
+    } else if (over.id && officeMap.has(over.id as string)) {
+        targetOfficeId = over.id as string; // Dropped directly on a droppable area
     }
-    
+
+
     if (!targetOfficeId || !officeMap.has(targetOfficeId)) {
         return;
     }
@@ -127,14 +131,12 @@ export default function DraggableStaffDashboard({
         const originalEmployees = [...employees];
         const updatedEmployee = { ...activeEmployee, officeId: targetOfficeId };
         
-        const newEmployees = employees.map(e => e.id === active.id ? updatedEmployee : e);
-        setEmployees(newEmployees);
+        onEmployeeUpdate(updatedEmployee); // Optimistic update
         
         try {
           await updateEmployee(active.id as string, { officeId: targetOfficeId });
-          onEmployeeUpdate(updatedEmployee);
         } catch (error) {
-          setEmployees(originalEmployees);
+          onEmployeeUpdate(activeEmployee); // Revert optimistic update
           toast({
             title: "Error de Reasignación",
             description: `No se pudo mover a ${activeEmployee.name}.`,
@@ -153,16 +155,16 @@ export default function DraggableStaffDashboard({
     const oldIndex = offices.findIndex(o => o.id === active.id);
     const newIndex = offices.findIndex(o => o.id === over.id);
 
+    if (oldIndex === -1 || newIndex === -1) return;
+
     const newOffices = arrayMove(offices, oldIndex, newIndex);
-    setOffices(newOffices);
-    onOfficeOrderChange(newOffices);
+    onOfficeOrderChange(newOffices); // Optimistic UI update
     
     const officeOrder = newOffices.map((office, index) => ({ id: office.id, order: index }));
     try {
       await updateOfficeOrder(officeOrder);
     } catch (error) {
-      setOffices(offices); // revert on error
-      onOfficeOrderChange(offices);
+      onOfficeOrderChange(offices); // revert on error
       toast({
         title: "Error",
         description: "No se pudo guardar el nuevo orden de las oficinas.",
@@ -208,7 +210,7 @@ export default function DraggableStaffDashboard({
       <SortableContext items={offices.map(o => o.id)} strategy={rectSortingStrategy}>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
           {offices.map(office => (
-             <DraggableOffice 
+             <DroppableOffice 
                 key={office.id} 
                 office={office}
                 employeeCount={(employeesByOffice[office.id] || []).length}
@@ -232,7 +234,7 @@ export default function DraggableStaffDashboard({
                           Sin personal
                       </div>
                   )}
-            </DraggableOffice>
+            </DroppableOffice>
           ))}
         </div>
       </SortableContext>
@@ -240,7 +242,7 @@ export default function DraggableStaffDashboard({
         {activeId && activeItem ? (
            activeItemType === 'employee' ? 
               <DraggableEmployee employee={activeItem as Employee} isOverlay /> :
-              <DraggableOffice 
+              <DroppableOffice 
                   office={activeItem as Office} 
                   isOverlay 
                   employeeCount={(employeesByOffice[(activeItem as Office).id] || []).length}
