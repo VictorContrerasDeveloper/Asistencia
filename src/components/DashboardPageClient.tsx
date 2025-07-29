@@ -5,10 +5,13 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowLeft, Edit, PlusCircle, Trash2, Users } from 'lucide-react';
 import { Office, Employee, getEmployees } from '@/lib/data';
-import OfficeSummaryDashboard from '@/components/OfficeSummaryDashboard';
 import { Button } from '@/components/ui/button';
 import BulkUpdateNamesModal from '@/components/BulkUpdateNamesModal';
 import AddEmployeeModal from './AddEmployeeModal';
+import TheoreticalStaffingTable from './TheoreticalStaffingTable';
+import DraggableStaffDashboard from './DraggableStaffDashboard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 type DashboardPageClientProps = {
   office: { name: string; id: string; };
@@ -24,7 +27,7 @@ export default function DashboardPageClient({
   const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [employees, setEmployees] = useState(allEmployeesProp);
-  const [offices] = useState<Office[]>(officesProp);
+  const [offices, setOffices] = useState<Office[]>(officesProp);
 
   const refetchAllData = async () => {
      const [allEmployeesData] = await Promise.all([
@@ -40,6 +43,10 @@ export default function DashboardPageClient({
       </h1>
     </div>
   )
+
+  const handleEmployeeUpdated = (updatedEmployee: Employee) => {
+    setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
+  }
 
   return (
     <>
@@ -77,7 +84,23 @@ export default function DashboardPageClient({
                   </Link>
                </div>
             </header>
-            <OfficeSummaryDashboard offices={offices} employees={employees} />
+            
+            <Tabs defaultValue="staffing" className="w-full">
+              <TabsList className='mb-4'>
+                <TabsTrigger value="staffing">Dotación Asignada</TabsTrigger>
+                <TabsTrigger value="theoretical">Dotación Teórica</TabsTrigger>
+              </TabsList>
+              <TabsContent value="staffing">
+                <DraggableStaffDashboard 
+                  offices={offices} 
+                  employees={employees} 
+                  onEmployeeUpdate={handleEmployeeUpdated}
+                />
+              </TabsContent>
+              <TabsContent value="theoretical">
+                 <TheoreticalStaffingTable offices={offices} roles={['Modulo', 'Tablet', 'Anfitrión', 'Supervisión']} />
+              </TabsContent>
+            </Tabs>
           </>
       </main>
     </div>

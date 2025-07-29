@@ -4,7 +4,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { type Employee, type Office, updateOfficeStaffing, EmployeeRole } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import OfficeSummaryTable from './OfficeSummaryTable';
 import TheoreticalStaffingTable from './TheoreticalStaffingTable';
 
 const STAFFING_ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Tablet', 'Anfitrión', 'Supervisión'];

@@ -172,10 +172,10 @@ export const updateEmployee = async (employeeId: string, updates: Partial<Employ
         }
     }
 
-    if (updates.absenceReason === null) {
+    if (Object.prototype.hasOwnProperty.call(updates, 'absenceReason') && updates.absenceReason === null) {
       finalUpdates.absenceReason = null;
     }
-     if (updates.absenceEndDate === null) {
+     if (Object.prototype.hasOwnProperty.call(updates, 'absenceEndDate') && updates.absenceEndDate === null) {
       finalUpdates.absenceEndDate = null;
     }
 
