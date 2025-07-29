@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 const LevelAbbreviations: Record<EmployeeLevel, string> = {
     'Nivel 1': 'Ej1.',
     'Nivel 2': 'Ej2.',
-    'Nivel intermedio': 'NIn.',
+    'Nivel intermedio': 'Int.',
     'Nivel Básico': 'Basic.',
 }
 
