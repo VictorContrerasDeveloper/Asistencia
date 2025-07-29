@@ -118,8 +118,8 @@ export default function DraggableStaffDashboard({
     } else if (overData?.type === 'Employee') {
       const overEmployee = employeeMap.get(overId);
       targetOfficeId = overEmployee?.officeId || null; // Dropped on an employee
-    } else if (over.id && officeMap.has(over.id as string)) {
-        targetOfficeId = over.id as string; // Dropped directly on a droppable area
+    } else if (officeMap.has(over.id as string)) {
+      targetOfficeId = over.id as string; // Dropped directly on a droppable area
     }
 
 
@@ -134,7 +134,7 @@ export default function DraggableStaffDashboard({
         onEmployeeUpdate(updatedEmployee); // Optimistic update
         
         try {
-          await updateEmployee(active.id as string, { officeId: targetOfficeId });
+          await updateEmployee(active.id as string, { officeId: targetOfficeId, absenceEndDate: null });
         } catch (error) {
           onEmployeeUpdate(activeEmployee); // Revert optimistic update
           toast({
