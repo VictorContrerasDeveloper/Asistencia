@@ -17,7 +17,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Office, Employee, EmployeeRole, updateEmployee } from '@/lib/data';
+import { Office, Employee, EmployeeRole, EmployeeLevel, updateEmployee } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import DroppableOffice from './DroppableOffice';
 import DraggableEmployee from './DraggableEmployee';
@@ -35,6 +35,13 @@ const ROLE_ORDER: Record<EmployeeRole, number> = {
     'Modulo': 2,
     'Tablet': 3,
     'Anfitrión': 4,
+};
+
+const LEVEL_ORDER: Record<EmployeeLevel, number> = {
+    'Nivel 1': 1,
+    'Nivel 2': 2,
+    'Nivel intermedio': 3,
+    'Nivel Básico': 4,
 };
 
 export default function DraggableStaffDashboard({ 
@@ -78,6 +85,14 @@ export default function DraggableStaffDashboard({
             if(roleA !== roleB) {
                 return roleA - roleB;
             }
+            
+            const levelA = LEVEL_ORDER[a.level || 'Nivel Básico'] || 99;
+            const levelB = LEVEL_ORDER[b.level || 'Nivel Básico'] || 99;
+
+            if (levelA !== levelB) {
+                return levelA - levelB;
+            }
+
             return a.name.localeCompare(b.name);
         });
     }
