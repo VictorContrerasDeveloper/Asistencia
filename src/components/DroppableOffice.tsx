@@ -2,27 +2,57 @@
 "use client";
 
 import React from 'react';
-import { useDroppable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Office } from '@/lib/data';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
-type DroppableOfficeProps = {
-  id: string;
+
+type DraggableOfficeProps = {
+  office: Office;
   children: React.ReactNode;
+  employeeCount: number;
+  isOverlay?: boolean;
 };
 
-export default function DroppableOffice({ id, children }: DroppableOfficeProps) {
-  const { isOver, setNodeRef } = useDroppable({
-    id,
+export default function DraggableOffice({ office, children, employeeCount, isOverlay }: DraggableOfficeProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: office.id,
+    data: {
+      type: 'Office',
+      office,
+    },
   });
 
   const style = {
-    // border: isOver ? '2px solid hsl(var(--primary))' : undefined,
-    boxShadow: isOver ? '0 0 0 2px hsl(var(--primary))' : undefined,
-    borderRadius: 'var(--radius)',
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 100 : 'auto',
   };
 
   return (
     <div ref={setNodeRef} style={style}>
-      {children}
+       <Card 
+          className={cn("flex flex-col h-full", isOverlay && "shadow-lg")}
+          {...attributes} 
+          {...listeners}
+       >
+         <CardHeader className="p-3 cursor-grab">
+           <CardTitle className="text-base truncate">{office.name} ({employeeCount})</CardTitle>
+         </CardHeader>
+          <CardContent className="p-3 pt-0">
+              {children}
+           </CardContent>
+       </Card>
     </div>
   );
 }

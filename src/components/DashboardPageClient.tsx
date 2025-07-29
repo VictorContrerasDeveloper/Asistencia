@@ -48,6 +48,10 @@ export default function DashboardPageClient({
     setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
   }
 
+  const handleOfficeOrderChange = (reorderedOffices: Office[]) => {
+    setOffices(reorderedOffices);
+  }
+
   return (
     <>
     <div className="flex flex-col h-screen bg-background text-foreground">
@@ -97,6 +101,7 @@ export default function DashboardPageClient({
                   offices={offices} 
                   employees={employees} 
                   onEmployeeUpdate={handleEmployeeUpdated}
+                  onOfficeOrderChange={handleOfficeOrderChange}
                 />
               </TabsContent>
               <TabsContent value="theoretical">

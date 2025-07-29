@@ -21,6 +21,7 @@ import {
 export type Office = {
   id: string;
   name: string;
+  order?: number;
   theoreticalStaffing?: {
     [key in EmployeeRole]?: number;
   };
@@ -83,7 +84,14 @@ export function slugify(text: string): string {
 export const getOffices = async (): Promise<Office[]> => {
     const snapshot = await getDocs(query(officesCollection));
     const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
-    return offices.sort((a, b) => a.name.localeCompare(b.name));
+    return offices.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+        }
+        if (a.order !== undefined) return -1;
+        if (b.order !== undefined) return 1;
+        return a.name.localeCompare(b.name);
+    });
 };
 
 export const addOffice = async (name: string) => {
@@ -108,6 +116,15 @@ export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing
   const officeRef = doc(db, 'offices', officeId);
   await updateDoc(officeRef, { theoreticalStaffing });
 }
+
+export const updateOfficeOrder = async (updates: { id: string, order: number }[]) => {
+  const batch = writeBatch(db);
+  updates.forEach(update => {
+    const officeRef = doc(db, 'offices', update.id);
+    batch.update(officeRef, { order: update.order });
+  });
+  await batch.commit();
+};
 
 export const clearAllRealStaffing = async (officeIds: string[]) => {
     const batch = writeBatch(db);

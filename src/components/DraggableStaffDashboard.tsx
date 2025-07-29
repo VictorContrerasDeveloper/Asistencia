@@ -12,15 +12,16 @@ import {
   DragOverlay,
   UniqueIdentifier,
   DragStartEvent,
+  arrayMove,
 } from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
+  rectSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Office, Employee, EmployeeRole, updateEmployee } from '@/lib/data';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Office, Employee, EmployeeRole, updateEmployee, updateOfficeOrder } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import DroppableOffice from './DroppableOffice';
+import DraggableOffice from './DraggableOffice';
 import DraggableEmployee from './DraggableEmployee';
 import EditEmployeeModal from './EditEmployeeModal';
 
@@ -29,6 +30,7 @@ type DraggableStaffDashboardProps = {
   offices: Office[];
   employees: Employee[];
   onEmployeeUpdate: (employee: Employee) => void;
+  onOfficeOrderChange: (offices: Office[]) => void;
 };
 
 const ROLE_ORDER: Record<EmployeeRole, number> = {
@@ -38,10 +40,17 @@ const ROLE_ORDER: Record<EmployeeRole, number> = {
     'Anfitrión': 4,
 };
 
-export default function DraggableStaffDashboard({ offices, employees: initialEmployees, onEmployeeUpdate }: DraggableStaffDashboardProps) {
+export default function DraggableStaffDashboard({ 
+  offices: initialOffices, 
+  employees: initialEmployees, 
+  onEmployeeUpdate,
+  onOfficeOrderChange,
+}: DraggableStaffDashboardProps) {
   const { toast } = useToast();
   const [employees, setEmployees] = useState(initialEmployees);
+  const [offices, setOffices] = useState(initialOffices);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [activeItemType, setActiveItemType] = useState<'employee' | 'office' | null>(null);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -49,6 +58,10 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
   useEffect(() => {
     setEmployees(initialEmployees);
   }, [initialEmployees]);
+
+  useEffect(() => {
+    setOffices(initialOffices);
+  }, [initialOffices]);
   
   const officeMap = useMemo(() => new Map(offices.map(o => [o.id, o])), [offices]);
   const employeeMap = useMemo(() => new Map(employees.map(e => [e.id, e])), [employees]);
@@ -63,7 +76,6 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
         grouped[emp.officeId].push(emp);
       }
     });
-    // Sort employees within each office
     for (const officeId in grouped) {
         grouped[officeId].sort((a, b) => {
             const roleA = ROLE_ORDER[a.role] || 99;
@@ -83,10 +95,11 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
   
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
+    const type = event.active.data.current?.type;
+    setActiveItemType(type === 'Office' ? 'office' : 'employee');
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    setActiveId(null);
+  const handleEmployeeDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over) return;
@@ -94,17 +107,18 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
     const activeEmployee = employeeMap.get(active.id as string);
     if (!activeEmployee) return;
 
+    const overId = over.id as string;
+    const overData = over.data.current;
+    
     let targetOfficeId: string | null = null;
-
-    if (officeMap.has(over.id as string)) {
-        targetOfficeId = over.id as string;
-    } else {
-        const overEmployee = employeeMap.get(over.id as string);
-        if (overEmployee) {
-            targetOfficeId = overEmployee.officeId;
-        }
+    
+    if (overData?.type === 'Office') {
+      targetOfficeId = overId;
+    } else if (overData?.type === 'Employee') {
+      const overEmployee = employeeMap.get(overId);
+      targetOfficeId = overEmployee?.officeId || null;
     }
-
+    
     if (!targetOfficeId || !officeMap.has(targetOfficeId)) {
         return;
     }
@@ -119,11 +133,6 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
         try {
           await updateEmployee(active.id as string, { officeId: targetOfficeId });
           onEmployeeUpdate(updatedEmployee);
-           toast({
-                title: "Reasignación Exitosa",
-                description: `${activeEmployee.name} ha sido movido/a de oficina.`,
-                duration: 2000,
-           });
         } catch (error) {
           setEmployees(originalEmployees);
           toast({
@@ -133,19 +142,50 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
           });
         }
     }
-  };
-  
-  const activeEmployee = useMemo(() => employees.find(e => e.id === activeId), [activeId, employees]);
+  }
 
-  const sortedOffices = useMemo(() => {
-    return [...offices]
-      .filter(o => !o.name.toLowerCase().includes('movil'))
-      .sort((a, b) => {
-        const countA = employeesByOffice[a.id]?.length || 0;
-        const countB = employeesByOffice[b.id]?.length || 0;
-        return countB - countA;
+  const handleOfficeDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = offices.findIndex(o => o.id === active.id);
+    const newIndex = offices.findIndex(o => o.id === over.id);
+
+    const newOffices = arrayMove(offices, oldIndex, newIndex);
+    setOffices(newOffices);
+    onOfficeOrderChange(newOffices);
+    
+    const officeOrder = newOffices.map((office, index) => ({ id: office.id, order: index }));
+    try {
+      await updateOfficeOrder(officeOrder);
+    } catch (error) {
+      setOffices(offices); // revert on error
+      onOfficeOrderChange(offices);
+      toast({
+        title: "Error",
+        description: "No se pudo guardar el nuevo orden de las oficinas.",
+        variant: "destructive"
       });
-  }, [offices, employeesByOffice]);
+    }
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    if(activeItemType === 'employee') {
+      handleEmployeeDragEnd(event);
+    } else if(activeItemType === 'office') {
+      handleOfficeDragEnd(event);
+    }
+    setActiveId(null);
+    setActiveItemType(null);
+  }
+  
+  const activeItem = useMemo(() => {
+    if (!activeId) return null;
+    return activeItemType === 'office' ? officeMap.get(activeId as string) : employeeMap.get(activeId as string);
+  }, [activeId, activeItemType, officeMap, employeeMap]);
+
 
   const handleOpenEditModal = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -165,41 +205,46 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
-        {sortedOffices.map(office => (
-          <DroppableOffice key={office.id} id={office.id}>
-             <Card className="flex flex-col h-full">
-               <CardHeader className="p-3">
-                 <CardTitle className="text-base truncate">{office.name} ({employeesByOffice[office.id]?.length || 0})</CardTitle>
-               </CardHeader>
-                <CardContent className="p-3 pt-0">
-                    <SortableContext
-                        items={(employeesByOffice[office.id] || []).map(e => e.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <div className="space-y-1">
-                            {(employeesByOffice[office.id] || []).map(employee => (
-                                <DraggableEmployee 
-                                  key={employee.id} 
-                                  employee={employee} 
-                                  onNameClick={() => handleOpenEditModal(employee)}
-                                />
-                            ))}
-                        </div>
-                    </SortableContext>
-                    {(employeesByOffice[office.id] || []).length === 0 && (
-                        <div className="text-sm text-muted-foreground text-center py-4">
-                            Sin personal
-                        </div>
-                    )}
-                 </CardContent>
-             </Card>
-          </DroppableOffice>
-        ))}
-      </div>
+      <SortableContext items={offices.map(o => o.id)} strategy={rectSortingStrategy}>
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
+          {offices.map(office => (
+             <DraggableOffice 
+                key={office.id} 
+                office={office}
+                employeeCount={(employeesByOffice[office.id] || []).length}
+              >
+                  <SortableContext
+                      items={(employeesByOffice[office.id] || []).map(e => e.id)}
+                      strategy={verticalListSortingStrategy}
+                  >
+                      <div className="space-y-1">
+                          {(employeesByOffice[office.id] || []).map(employee => (
+                              <DraggableEmployee 
+                                key={employee.id} 
+                                employee={employee} 
+                                onNameClick={() => handleOpenEditModal(employee)}
+                              />
+                          ))}
+                      </div>
+                  </SortableContext>
+                  {(employeesByOffice[office.id] || []).length === 0 && (
+                      <div className="text-sm text-muted-foreground text-center py-4">
+                          Sin personal
+                      </div>
+                  )}
+            </DraggableOffice>
+          ))}
+        </div>
+      </SortableContext>
       <DragOverlay>
-        {activeId && activeEmployee ? (
-          <DraggableEmployee employee={activeEmployee} isOverlay />
+        {activeId && activeItem ? (
+           activeItemType === 'employee' ? 
+              <DraggableEmployee employee={activeItem as Employee} isOverlay /> :
+              <DraggableOffice 
+                  office={activeItem as Office} 
+                  isOverlay 
+                  employeeCount={(employeesByOffice[(activeItem as Office).id] || []).length}
+              />
         ) : null}
       </DragOverlay>
     </DndContext>
@@ -214,4 +259,3 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
     </>
   );
 }
-
