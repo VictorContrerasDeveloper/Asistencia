@@ -106,8 +106,8 @@ export default function EditEmployeeModal({
             Modifica los datos de este ejecutivo.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4 space-y-4">
-           <div className="space-y-2">
+        <div className="space-y-2">
+           <div className="space-y-1">
              <Label htmlFor="new-name">Nombre</Label>
              <div className="flex items-center gap-2">
                 <Input
@@ -122,7 +122,7 @@ export default function EditEmployeeModal({
                 </Button>
              </div>
            </div>
-           <div className="space-y-2">
+           <div className="space-y-1">
              <Label htmlFor="new-office">Oficina</Label>
              <Select value={newOfficeId} onValueChange={setNewOfficeId}>
                 <SelectTrigger id="new-office">
@@ -137,7 +137,7 @@ export default function EditEmployeeModal({
                 </SelectContent>
              </Select>
            </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
              <Label htmlFor="new-role">Rol</Label>
              <Select value={newRole} onValueChange={(value) => setNewRole(value as EmployeeRole)}>
                 <SelectTrigger id="new-role">
@@ -152,7 +152,7 @@ export default function EditEmployeeModal({
                 </SelectContent>
              </Select>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
              <Label htmlFor="new-level">Nivel</Label>
              <Select value={newLevel} onValueChange={(value) => setNewLevel(value as EmployeeLevel)}>
                 <SelectTrigger id="new-level">
