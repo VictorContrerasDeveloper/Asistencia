@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, PlusCircle, Trash2, Users, Layers, ChevronDown } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Users, Layers, ChevronDown, UserPlus } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -75,10 +75,6 @@ export default function DashboardPageClient({
                       Volver a Paneles
                     </Button>
                   </Link>
-                  <Button onClick={() => setAddModalOpen(true)}>
-                      <PlusCircle />
-                      Agregar Personal
-                  </Button>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -89,6 +85,10 @@ export default function DashboardPageClient({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
+                       <DropdownMenuItem onClick={() => setAddModalOpen(true)}>
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          <span>Agregar Personal</span>
+                      </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/dashboard/bulk-update-levels">
                           <Layers className="mr-2 h-4 w-4" />
