@@ -5,7 +5,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Employee, EmployeeLevel, EmployeeRole } from '@/lib/data';
-import { GripVertical, Shield, Tablet, User, Award, Star, Medal, Minus } from 'lucide-react';
+import { GripVertical, Shield, Tablet, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 
@@ -30,11 +30,11 @@ const RoleIcons: Record<EmployeeRole, React.ElementType> = {
     'Anfitrión': User,
 }
 
-const LevelIcons: Record<EmployeeLevel, React.ElementType> = {
-    'Nivel 1': Medal,
-    'Nivel 2': Star,
-    'Nivel intermedio': Award,
-    'Nivel Básico': Minus,
+const LevelAbbreviations: Record<EmployeeLevel, string> = {
+    'Nivel 1': 'N1.',
+    'Nivel 2': 'N2.',
+    'Nivel intermedio': 'NIn.',
+    'Nivel Básico': 'NB.',
 }
 
 
@@ -62,7 +62,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
   };
   
   const RoleIcon = RoleIcons[employee.role] || User;
-  const LevelIcon = LevelIcons[employee.level] || Minus;
+  const levelAbbreviation = LevelAbbreviations[employee.level] || 'NB.';
 
 
   return (
@@ -81,7 +81,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
         onClick={onNameClick}
        >
          <RoleIcon className="h-3.5 w-3.5 text-muted-foreground" />
-         <LevelIcon className="h-3.5 w-3.5 text-muted-foreground" />
+         <span className="text-muted-foreground font-semibold text-xs w-6">{levelAbbreviation}</span>
          <span className="truncate">{employee.name}</span>
        </div>
        <div {...attributes} {...listeners}>
