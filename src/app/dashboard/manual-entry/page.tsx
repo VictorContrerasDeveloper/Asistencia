@@ -62,6 +62,9 @@ export default function ManualEntryPage() {
       setLoading(false);
     }
     fetchData();
+  }, []);
+
+  useEffect(() => {
     setSelectedDate(new Date());
   }, []);
 
@@ -296,7 +299,7 @@ export default function ManualEntryPage() {
                 <CardHeader className="flex flex-row items-center justify-center p-4">
                   <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
+                <CardContent className="px-4">
                   {loading ? (
                     <div className="space-y-2 p-6">
                       <Skeleton className="h-10 w-full" />
