@@ -60,7 +60,7 @@ export default function DraggableEmployee({ employee, isOverlay }: DraggableEmpl
       ref={setNodeRef}
       style={style}
       className={cn(
-        "flex items-center justify-between p-1.5 rounded-md bg-card border border-transparent text-sm font-medium",
+        "flex items-center justify-between p-1 rounded-md bg-card border border-transparent text-sm font-medium",
         "hover:bg-muted/80",
         isOverlay && "bg-muted shadow-lg",
         isDragging && "cursor-grabbing"

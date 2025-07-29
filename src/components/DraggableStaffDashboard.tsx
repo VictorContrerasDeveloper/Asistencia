@@ -133,7 +133,7 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
                  <CardTitle className="text-base truncate">{office.name} ({employeesByOffice[office.id]?.length || 0})</CardTitle>
                </CardHeader>
                <ScrollArea className="h-96">
-                <CardContent className="p-3 pt-0 space-y-1">
+                <CardContent className="p-3 pt-0">
                     <SortableContext
                         items={(employeesByOffice[office.id] || []).map(e => e.id)}
                         strategy={verticalListSortingStrategy}
