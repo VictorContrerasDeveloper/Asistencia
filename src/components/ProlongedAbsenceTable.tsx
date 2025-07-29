@@ -69,6 +69,10 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
           const updates = { absenceEndDate: newEndDate };
           await updateEmployee(employee.id, updates);
           onAbsenceUpdated({ ...employee, ...updates });
+          toast({
+              title: "Fecha Actualizada",
+              description: `Se actualizó la fecha de término para ${employee.name}.`
+          });
       } catch(e) {
           toast({
               title: "Error",
