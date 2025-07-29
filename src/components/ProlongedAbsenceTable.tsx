@@ -71,7 +71,8 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
           onAbsenceUpdated({ ...employee, ...updates });
           toast({
               title: "Fecha Actualizada",
-              description: `Se actualizó la fecha de término para ${employee.name}.`
+              description: `Se actualizó la fecha de término para ${employee.name}.`,
+              duration: 1000,
           });
       } catch(e) {
           toast({
@@ -120,7 +121,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
           </TableHeader>
           <TableBody>
             {absentEmployees.map(employee => {
-              const selectedDate = employee.absenceEndDate ? new Date(employee.absenceEndDate.replace(/-/g, '/')) : undefined;
+              const selectedDate = employee.absenceEndDate ? new Date(employee.absenceEndDate) : undefined;
               return (
                   <TableRow key={employee.id}>
                   <TableCell className="font-medium p-2 text-xs">{employee.name}</TableCell>
