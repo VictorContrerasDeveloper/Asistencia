@@ -72,14 +72,10 @@ export default function DashboardPageClient({
                           Carga Masiva
                       </Button>
                   </Link>
-                   <Button variant="secondary" onClick={() => setUpdateModalOpen(true)}>
-                      <Edit />
-                      Actualizar Nombres
-                  </Button>
                   <Link href="/dashboard/bulk-update-levels">
                     <Button variant="secondary">
                         <Layers />
-                        Actualizar Niveles
+                        Gestión Masiva
                     </Button>
                   </Link>
                   <Link href="/dashboard/delete-employee">
