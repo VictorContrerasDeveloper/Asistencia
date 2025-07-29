@@ -3,13 +3,19 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, PlusCircle, Trash2, Users, Layers } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Users, Layers, ChevronDown } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
 import TheoreticalStaffingTable from './TheoreticalStaffingTable';
 import DraggableStaffDashboard from './DraggableStaffDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 
 type DashboardPageClientProps = {
@@ -73,24 +79,37 @@ export default function DashboardPageClient({
                       <PlusCircle />
                       Agregar Personal
                   </Button>
-                  <Link href="/dashboard/bulk-add-employees">
-                      <Button>
-                          <Users />
-                          Carga Masiva
-                      </Button>
-                  </Link>
-                  <Link href="/dashboard/bulk-update-levels">
-                    <Button variant="secondary">
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="secondary">
                         <Layers />
-                        Gestión Masiva
-                    </Button>
-                  </Link>
-                  <Link href="/dashboard/delete-employee">
-                      <Button variant="destructive">
-                          <Trash2 />
-                          Eliminar Personal
+                        Gestión de Personal
+                        <ChevronDown className="ml-2 h-4 w-4" />
                       </Button>
-                  </Link>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard/bulk-update-levels">
+                          <Layers className="mr-2 h-4 w-4" />
+                          <span>Gestión Masiva de Datos</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                         <Link href="/dashboard/bulk-add-employees">
+                          <Users className="mr-2 h-4 w-4" />
+                          <span>Carga Masiva de Personal</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/dashboard/delete-employee">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Eliminar Personal</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
                </div>
             </header>
             
