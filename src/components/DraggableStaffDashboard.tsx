@@ -187,7 +187,7 @@ export default function DraggableStaffDashboard({
             <DroppableOffice 
               key={office.id} 
               office={office}
-              employeeCount={(employeesByOffice[office.id] || []).length}
+              employees={employeesByOffice[office.id] || []}
             >
                 <SortableContext
                     items={(employeesByOffice[office.id] || []).map(e => e.id)}
