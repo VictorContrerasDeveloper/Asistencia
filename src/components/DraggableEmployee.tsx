@@ -13,7 +13,7 @@ const LevelAbbreviations: Record<EmployeeLevel, string> = {
     'Nivel 1': 'N1.',
     'Nivel 2': 'N2.',
     'Nivel intermedio': 'NIn.',
-    'Nivel Básico': 'NB.',
+    'Nivel Básico': 'Basic.',
 }
 
 const RolePrefixes: Partial<Record<EmployeeRole, string>> = {
@@ -46,7 +46,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
     zIndex: isDragging ? 100 : 'auto',
   };
   
-  const levelAbbreviation = LevelAbbreviations[employee.level] || 'NB.';
+  const levelAbbreviation = LevelAbbreviations[employee.level] || 'Basic.';
   const rolePrefix = RolePrefixes[employee.role];
   const displayPrefix = rolePrefix ? rolePrefix : levelAbbreviation;
 
