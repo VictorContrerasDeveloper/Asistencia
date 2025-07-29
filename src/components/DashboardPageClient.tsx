@@ -92,7 +92,7 @@ export default function DashboardPageClient({
                       <DropdownMenuItem asChild>
                         <Link href="/dashboard/bulk-update-levels">
                           <Layers className="mr-2 h-4 w-4" />
-                          <span>Gestión Masiva de Datos</span>
+                          <span>modificaciones masivas de datos</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
