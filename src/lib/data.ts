@@ -84,9 +84,9 @@ const STATIC_OFFICE_ORDER = [
   'Oficina Centro',
   'Oficina Maipu',
   'Oficina Gran Avenida',
-  'oficina Plaza Egaña',
+  'Oficina Plaza Egaña',
   'Oficina Mall plaza Norte',
-  'oficina Movil'
+  'Oficina Movil'
 ];
 
 export const getOffices = async (): Promise<Office[]> => {
