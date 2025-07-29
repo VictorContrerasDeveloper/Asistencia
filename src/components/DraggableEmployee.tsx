@@ -37,6 +37,12 @@ const LevelAbbreviations: Record<EmployeeLevel, string> = {
     'Nivel Básico': 'NB.',
 }
 
+const RolePrefixes: Partial<Record<EmployeeRole, string>> = {
+    'Supervisión': 'Sup.',
+    'Anfitrión': 'Anf.',
+    'Tablet': 'Tab.'
+};
+
 
 type DraggableEmployeeProps = {
   employee: Employee;
@@ -63,7 +69,8 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
   
   const RoleIcon = RoleIcons[employee.role] || User;
   const levelAbbreviation = LevelAbbreviations[employee.level] || 'NB.';
-  const supervisorPrefix = employee.role === 'Supervisión' ? 'Sup.' : '';
+  const rolePrefix = RolePrefixes[employee.role];
+  const displayPrefix = rolePrefix ? rolePrefix : levelAbbreviation;
 
 
   return (
@@ -83,7 +90,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
        >
          <RoleIcon className="h-3.5 w-3.5 text-muted-foreground" />
          <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
-          {supervisorPrefix ? supervisorPrefix : levelAbbreviation}
+          {displayPrefix}
          </span>
          <span className="truncate">{employee.name}</span>
        </div>
