@@ -61,10 +61,6 @@ export default function EditEmployeeModal({
         }
 
         await updateEmployee(employee.id, updates);
-        toast({
-            title: "Actualización exitosa",
-            description: `${employee.name} ha sido actualizado/a.`,
-        });
         onSuccess({ ...employee, ...updates});
     } catch (error) {
         toast({
