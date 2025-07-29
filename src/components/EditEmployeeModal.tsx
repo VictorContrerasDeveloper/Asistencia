@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Employee, updateEmployee, EmployeeRole, EmployeeLevel } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
@@ -33,12 +34,14 @@ export default function EditEmployeeModal({
     employee, 
 }: EditEmployeeModalProps) {
   const { toast } = useToast();
+  const [newName, setNewName] = useState(employee.name);
   const [newRole, setNewRole] = useState<EmployeeRole>(employee.role);
   const [newLevel, setNewLevel] = useState<EmployeeLevel>(employee.level || 'Nivel Básico');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
+      setNewName(employee.name);
       setNewRole(employee.role);
       setNewLevel(employee.level || 'Nivel Básico');
     }
@@ -46,17 +49,28 @@ export default function EditEmployeeModal({
 
 
   const handleSave = async () => {
-    if (newRole === employee.role && newLevel === employee.level) {
+    if (newName === employee.name && newRole === employee.role && newLevel === (employee.level || 'Nivel Básico')) {
         onClose();
+        return;
+    }
+    if (!newName.trim()) {
+        toast({
+            title: "Error",
+            description: "El nombre no puede estar vacío.",
+            variant: "destructive"
+        });
         return;
     }
     setIsSaving(true);
     try {
         const updates: Partial<Employee> = {};
+        if (newName !== employee.name) {
+            updates.name = newName;
+        }
         if (newRole !== employee.role) {
             updates.role = newRole;
         }
-        if (newLevel !== employee.level) {
+        if (newLevel !== (employee.level || 'Nivel Básico')) {
             updates.level = newLevel;
         }
 
@@ -79,10 +93,19 @@ export default function EditEmployeeModal({
         <DialogHeader>
           <DialogTitle>Editar a {employee.name}</DialogTitle>
           <DialogDescription>
-            Modifica el rol y/o el nivel para este ejecutivo.
+            Modifica los datos de este ejecutivo.
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-4">
+           <div className="space-y-2">
+             <Label htmlFor="new-name">Nombre</Label>
+             <Input
+                id="new-name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Nombre del ejecutivo"
+             />
+           </div>
           <div className="space-y-2">
              <Label htmlFor="new-role">Rol</Label>
              <Select value={newRole} onValueChange={(value) => setNewRole(value as EmployeeRole)}>
