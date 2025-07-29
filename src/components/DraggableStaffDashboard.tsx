@@ -117,6 +117,16 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
   
   const activeEmployee = useMemo(() => employees.find(e => e.id === activeId), [activeId, employees]);
 
+  const sortedOffices = useMemo(() => {
+    return [...offices]
+      .filter(o => !o.name.toLowerCase().includes('movil'))
+      .sort((a, b) => {
+        const countA = employeesByOffice[a.id]?.length || 0;
+        const countB = employeesByOffice[b.id]?.length || 0;
+        return countB - countA;
+      });
+  }, [offices, employeesByOffice]);
+
   return (
     <DndContext
       sensors={sensors}
@@ -125,7 +135,7 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
       onDragEnd={handleDragEnd}
     >
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 items-start">
-        {offices.filter(o => !o.name.toLowerCase().includes('movil')).map(office => (
+        {sortedOffices.map(office => (
           <DroppableOffice key={office.id} id={office.id}>
              <Card className="flex flex-col h-full">
                <CardHeader className="p-3">
