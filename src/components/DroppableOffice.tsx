@@ -3,16 +3,15 @@
 
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { Office, Employee, EmployeeRole, EmployeeLevel } from '@/lib/data';
+import { Office, Employee } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Separator } from './ui/separator';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-
+import { Label } from './ui/label';
 
 const OfficeHeaderSummary = ({ employees }: { employees: Employee[] }) => {
     const supervisorCount = employees.filter(e => e.role === 'Supervisión').length;
@@ -24,19 +23,23 @@ const OfficeHeaderSummary = ({ employees }: { employees: Employee[] }) => {
 
     if (employees.length === 0) return null;
 
+    const summaryItems = [
+      { label: 'Supervisores', count: supervisorCount },
+      { label: 'Nivel 2', count: nivel2Count },
+      { label: 'Nivel 1', count: nivel1Count },
+      { label: 'Nivel Intermedio', count: intermedioCount },
+      { label: 'Tablet', count: tabletCount },
+      { label: 'Anfitrión', count: anfitrionCount },
+    ];
+
     return (
-        <div className="text-sm font-normal flex items-center gap-1.5 flex-wrap">
-            <span>S: {supervisorCount}</span>
-            <Separator orientation="vertical" className="h-3" />
-            <span>N2: {nivel2Count}</span>
-            <Separator orientation="vertical" className="h-3" />
-            <span>N1: {nivel1Count}</span>
-            <Separator orientation="vertical" className="h-3" />
-            <span>Int: {intermedioCount}</span>
-            <Separator orientation="vertical" className="h-3" />
-            <span>T: {tabletCount}</span>
-            <Separator orientation="vertical" className="h-3" />
-            <span>A: {anfitrionCount}</span>
+        <div className="p-2 grid grid-cols-2 gap-x-4 gap-y-1">
+          {summaryItems.map(item => (
+            <div key={item.label} className="flex items-center justify-between">
+              <Label className="text-xs">{item.label}:</Label>
+              <span className="font-bold text-xs">{item.count}</span>
+            </div>
+          ))}
         </div>
     )
 }
@@ -69,7 +72,7 @@ export default function DroppableOffice({ office, children, employees, isOverlay
               <TooltipTrigger asChild>
                 <CardTitle className="text-base truncate cursor-default">{office.name} ({employees.length})</CardTitle>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="p-0">
                 <OfficeHeaderSummary employees={employees} />
               </TooltipContent>
             </Tooltip>
