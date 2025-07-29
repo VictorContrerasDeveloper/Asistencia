@@ -177,13 +177,14 @@ export default function DraggableStaffDashboard({
 
   return (
     <>
-    <TooltipProvider>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
+    <DndContext
+      id="staff-dashboard"
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <TooltipProvider>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
           {offices.map(office => (
               <DroppableOffice 
@@ -213,11 +214,11 @@ export default function DraggableStaffDashboard({
             </DroppableOffice>
           ))}
         </div>
-        <DragOverlay>
-          {activeItem ? <DraggableEmployee employee={activeItem as Employee} isOverlay /> : null}
-        </DragOverlay>
-      </DndContext>
-    </TooltipProvider>
+      </TooltipProvider>
+      <DragOverlay>
+        {activeItem ? <DraggableEmployee employee={activeItem as Employee} isOverlay /> : null}
+      </DragOverlay>
+    </DndContext>
     {selectedEmployee && (
         <EditEmployeeModal
             isOpen={isEditModalOpen}
