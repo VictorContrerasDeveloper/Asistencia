@@ -88,7 +88,7 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
       const newOfficeId = over.id as string; 
       
       if (activeEmployee && activeEmployee.officeId !== newOfficeId) {
-        const originalEmployees = employees;
+        const originalEmployees = [...employees];
         
         // Optimistic update
         const updatedEmployee = { ...activeEmployee, officeId: newOfficeId };
@@ -168,3 +168,4 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
     </DndContext>
   );
 }
+
