@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, Edit, PlusCircle, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Edit, PlusCircle, Trash2, Users, Layers } from 'lucide-react';
 import { Office, Employee, getEmployees } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import BulkUpdateNamesModal from '@/components/BulkUpdateNamesModal';
@@ -76,6 +76,12 @@ export default function DashboardPageClient({
                       <Edit />
                       Actualizar Nombres
                   </Button>
+                  <Link href="/dashboard/bulk-update-levels">
+                    <Button variant="secondary">
+                        <Layers />
+                        Actualizar Niveles
+                    </Button>
+                  </Link>
                   <Link href="/dashboard/delete-employee">
                       <Button variant="destructive">
                           <Trash2 />

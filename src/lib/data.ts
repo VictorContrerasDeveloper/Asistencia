@@ -224,6 +224,18 @@ export const bulkUpdateEmployeeNames = async (nameUpdates: string): Promise<{upd
     return { updated: updatedCount, notFound: [] };
 }
 
+export const bulkUpdateEmployeeLevels = async (updates: { employeeId: string, level: EmployeeLevel }[]): Promise<void> => {
+    if(updates.length === 0) {
+        return;
+    }
+    const batch = writeBatch(db);
+    updates.forEach(update => {
+        const employeeRef = doc(db, 'employees', update.employeeId);
+        batch.update(employeeRef, { level: update.level });
+    });
+    await batch.commit();
+}
+
 
 export const addEmployee = async (name: string, officeId: string, role: EmployeeRole) => {
   const newEmployee = {
