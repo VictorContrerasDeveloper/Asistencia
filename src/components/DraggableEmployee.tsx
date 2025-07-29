@@ -4,10 +4,10 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Employee, EmployeeRole } from '@/lib/data';
-import { GripVertical } from 'lucide-react';
+import { Employee, EmployeeLevel, EmployeeRole } from '@/lib/data';
+import { GripVertical, Shield, Tablet, User, Award, Star, Medal, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Shield, Tablet, User, ConciergeBell } from 'lucide-react';
+
 
 const DesktopIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg 
@@ -28,6 +28,13 @@ const RoleIcons: Record<EmployeeRole, React.ElementType> = {
     'Modulo': DesktopIcon,
     'Tablet': Tablet,
     'Anfitrión': User,
+}
+
+const LevelIcons: Record<EmployeeLevel, React.ElementType> = {
+    'Nivel 1': Medal,
+    'Nivel 2': Star,
+    'Nivel intermedio': Award,
+    'Nivel Básico': Minus,
 }
 
 
@@ -54,7 +61,9 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
     zIndex: isDragging ? 100 : 'auto',
   };
   
-  const Icon = RoleIcons[employee.role] || User;
+  const RoleIcon = RoleIcons[employee.role] || User;
+  const LevelIcon = LevelIcons[employee.level] || Minus;
+
 
   return (
     <div
@@ -71,7 +80,8 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
         className="flex items-center gap-2 truncate flex-1 cursor-pointer" 
         onClick={onNameClick}
        >
-         <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+         <RoleIcon className="h-3.5 w-3.5 text-muted-foreground" />
+         <LevelIcon className="h-3.5 w-3.5 text-muted-foreground" />
          <span className="truncate">{employee.name}</span>
        </div>
        <div {...attributes} {...listeners}>
