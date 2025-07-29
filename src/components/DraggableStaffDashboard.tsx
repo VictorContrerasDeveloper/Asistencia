@@ -45,6 +45,8 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
     setEmployees(initialEmployees);
   }, [initialEmployees]);
 
+  const officeMap = useMemo(() => new Map(offices.map(o => [o.id, o])), [offices]);
+
   const employeesByOffice = useMemo(() => {
     const grouped: Record<string, Employee[]> = {};
     offices.forEach(office => {
@@ -84,14 +86,15 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
     if (over && active.id !== over.id) {
       const activeEmployee = employees.find(e => e.id === active.id);
       
-      // over.id will be the officeId from DroppableOffice
       const newOfficeId = over.id as string; 
       
-      if (activeEmployee && activeEmployee.officeId !== newOfficeId) {
+      // Check if the drop target is a valid office droppable area
+      if (activeEmployee && activeEmployee.officeId !== newOfficeId && officeMap.has(newOfficeId)) {
         const originalEmployees = [...employees];
         
-        // Optimistic update
         const updatedEmployee = { ...activeEmployee, officeId: newOfficeId };
+        
+        // Optimistic update
         setEmployees(prev => prev.map(e => e.id === active.id ? updatedEmployee : e));
         
         try {
@@ -146,9 +149,11 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
                         items={(employeesByOffice[office.id] || []).map(e => e.id)}
                         strategy={verticalListSortingStrategy}
                     >
-                        {(employeesByOffice[office.id] || []).map(employee => (
-                            <DraggableEmployee key={employee.id} employee={employee} />
-                        ))}
+                        <div className="space-y-1">
+                            {(employeesByOffice[office.id] || []).map(employee => (
+                                <DraggableEmployee key={employee.id} employee={employee} />
+                            ))}
+                        </div>
                     </SortableContext>
                     {(employeesByOffice[office.id] || []).length === 0 && (
                         <div className="text-sm text-muted-foreground text-center py-4">
@@ -168,4 +173,3 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
     </DndContext>
   );
 }
-
