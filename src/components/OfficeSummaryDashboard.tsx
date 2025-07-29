@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import OfficeSummaryTable from './OfficeSummaryTable';
 import TheoreticalStaffingTable from './TheoreticalStaffingTable';
 
-const TABLE_ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Tablet', 'Anfitrión'];
 const STAFFING_ROLES_ORDER: EmployeeRole[] = ['Modulo', 'Tablet', 'Anfitrión', 'Supervisión'];
 
 type OfficeSummary = {
@@ -43,7 +42,6 @@ export default function OfficeSummaryDashboard({ offices, employees }: { offices
 
   return (
     <div className="space-y-8">
-       <OfficeSummaryTable offices={officeSummaries} roles={TABLE_ROLES_ORDER} />
        <TheoreticalStaffingTable offices={officeSummaries} roles={STAFFING_ROLES_ORDER} />
     </div>
   );
