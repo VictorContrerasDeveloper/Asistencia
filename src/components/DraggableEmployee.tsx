@@ -63,6 +63,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
   
   const RoleIcon = RoleIcons[employee.role] || User;
   const levelAbbreviation = LevelAbbreviations[employee.level] || 'NB.';
+  const supervisorPrefix = employee.role === 'Supervisión' ? 'Sup.' : '';
 
 
   return (
@@ -81,7 +82,10 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
         onClick={onNameClick}
        >
          <RoleIcon className="h-3.5 w-3.5 text-muted-foreground" />
-         <span className="text-muted-foreground font-semibold text-xs w-6">{levelAbbreviation}</span>
+         <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
+          {supervisorPrefix && <span className="mr-1">{supervisorPrefix}</span>}
+          {levelAbbreviation}
+         </span>
          <span className="truncate">{employee.name}</span>
        </div>
        <div {...attributes} {...listeners}>
