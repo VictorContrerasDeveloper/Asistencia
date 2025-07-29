@@ -19,7 +19,6 @@ import {
 } from '@dnd-kit/sortable';
 import { Office, Employee, EmployeeRole, updateEmployee } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import DroppableOffice from './DroppableOffice';
 import DraggableEmployee from './DraggableEmployee';
@@ -132,7 +131,6 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
                <CardHeader className="p-3">
                  <CardTitle className="text-base truncate">{office.name} ({employeesByOffice[office.id]?.length || 0})</CardTitle>
                </CardHeader>
-               <ScrollArea className="h-96">
                 <CardContent className="p-3 pt-0">
                     <SortableContext
                         items={(employeesByOffice[office.id] || []).map(e => e.id)}
@@ -148,7 +146,6 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
                         </div>
                     )}
                  </CardContent>
-               </ScrollArea>
              </Card>
           </DroppableOffice>
         ))}
