@@ -342,7 +342,7 @@ export default function ManualEntryPage() {
                     <CardHeader className="flex flex-row items-center justify-center p-4 text-center">
                         <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-0">
+                    <CardContent className="px-4">
                         {loading ? (
                         <div className="p-6">
                             <Skeleton className="h-40 w-full" />
