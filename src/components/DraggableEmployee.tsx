@@ -83,8 +83,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
        >
          <RoleIcon className="h-3.5 w-3.5 text-muted-foreground" />
          <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
-          {supervisorPrefix && <span className="mr-1">{supervisorPrefix}</span>}
-          {levelAbbreviation}
+          {supervisorPrefix ? supervisorPrefix : levelAbbreviation}
          </span>
          <span className="truncate">{employee.name}</span>
        </div>
