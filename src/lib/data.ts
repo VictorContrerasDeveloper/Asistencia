@@ -167,8 +167,9 @@ export const updateEmployee = async (employeeId: string, updates: Partial<Employ
     
     const finalUpdates: { [key: string]: any } = {};
     for(const key in updates) {
-        if(updates[key as keyof Employee] !== undefined) {
-            finalUpdates[key] = updates[key as keyof Employee];
+        const value = updates[key as keyof Employee];
+        if(value !== undefined) {
+            finalUpdates[key] = value;
         }
     }
 

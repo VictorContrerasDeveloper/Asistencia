@@ -11,11 +11,13 @@ import {
   DragEndEvent,
   DragOverlay,
   UniqueIdentifier,
-  DragStartEvent
+  DragStartEvent,
+  DragOverEvent
 } from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
+  arrayMove,
 } from '@dnd-kit/sortable';
 import { Office, Employee, EmployeeRole, updateEmployee } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,8 +46,9 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
   useEffect(() => {
     setEmployees(initialEmployees);
   }, [initialEmployees]);
-
+  
   const officeMap = useMemo(() => new Map(offices.map(o => [o.id, o])), [offices]);
+  const employeeMap = useMemo(() => new Map(employees.map(e => [e.id, e])), [employees]);
 
   const employeesByOffice = useMemo(() => {
     const grouped: Record<string, Employee[]> = {};
@@ -80,25 +83,39 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
+     setActiveId(null);
     const { active, over } = event;
-    setActiveId(null);
 
-    if (over && active.id !== over.id) {
-      const activeEmployee = employees.find(e => e.id === active.id);
-      
-      const newOfficeId = over.id as string; 
-      
-      // Check if the drop target is a valid office droppable area
-      if (activeEmployee && activeEmployee.officeId !== newOfficeId && officeMap.has(newOfficeId)) {
+    if (!over) return;
+    
+    const activeEmployee = employeeMap.get(active.id as string);
+    if (!activeEmployee) return;
+
+    // Find the target office
+    let targetOfficeId: string | null = null;
+    if (officeMap.has(over.id as string)) {
+        targetOfficeId = over.id as string;
+    } else {
+        const overEmployee = employeeMap.get(over.id as string);
+        if (overEmployee) {
+            targetOfficeId = overEmployee.officeId;
+        }
+    }
+    
+    if (!targetOfficeId) return;
+
+
+    if (activeEmployee.officeId !== targetOfficeId) {
         const originalEmployees = [...employees];
         
-        const updatedEmployee = { ...activeEmployee, officeId: newOfficeId };
-        
+        const updatedEmployee = { ...activeEmployee, officeId: targetOfficeId };
+
         // Optimistic update
-        setEmployees(prev => prev.map(e => e.id === active.id ? updatedEmployee : e));
+        const newEmployees = employees.map(e => e.id === active.id ? updatedEmployee : e);
+        setEmployees(newEmployees);
         
         try {
-          await updateEmployee(active.id as string, { officeId: newOfficeId });
+          await updateEmployee(active.id as string, { officeId: targetOfficeId });
           onEmployeeUpdate(updatedEmployee);
            toast({
                 title: "Reasignación Exitosa",
@@ -114,7 +131,6 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
             variant: "destructive",
           });
         }
-      }
     }
   };
   

@@ -44,7 +44,7 @@ export default function DraggableEmployee({ employee, isOverlay }: DraggableEmpl
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: employee.id });
+  } = useSortable({ id: employee.id, data: {type: 'Employee', employee} });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -65,14 +65,12 @@ export default function DraggableEmployee({ employee, isOverlay }: DraggableEmpl
         isOverlay && "bg-muted shadow-lg",
         isDragging && "cursor-grabbing"
       )}
-      {...attributes}
-      {...listeners}
     >
-       <div className="flex items-center gap-2 truncate">
+       <div className="flex items-center gap-2 truncate" {...attributes} {...listeners}>
          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
          <span className="truncate">{employee.name}</span>
        </div>
-       <GripVertical className="h-4 w-4 text-muted-foreground/50" />
+       <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" {...attributes} {...listeners} />
     </div>
   );
 }
