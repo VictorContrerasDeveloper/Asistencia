@@ -91,6 +91,11 @@ export default function TheoreticalStaffingTable({ offices, roles }: Theoretical
 
     try {
       await updateOfficeStaffing(officeId, newTheoreticalStaffing);
+      toast({
+        title: "Dotación Guardada",
+        description: "Se ha guardado la dotación teórica.",
+        duration: 2000,
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -110,19 +115,19 @@ export default function TheoreticalStaffingTable({ offices, roles }: Theoretical
           <Table>
             <TableHeader className="bg-primary text-primary-foreground">
               <TableRow>
-                <TableHead className="font-bold text-primary-foreground">Oficina Comercial</TableHead>
+                <TableHead className="font-bold text-primary-foreground p-2">Oficina Comercial</TableHead>
                 {roles.map(role => (
-                  <TableHead key={role} className="text-center font-bold text-primary-foreground">{role}</TableHead>
+                  <TableHead key={role} className="text-center font-bold text-primary-foreground p-2">{role}</TableHead>
                 ))}
-                <TableHead className="text-right font-bold text-primary-foreground">Acciones</TableHead>
+                <TableHead className="text-right font-bold text-primary-foreground p-2">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {offices.map(office => (
                 <TableRow key={office.id}>
-                  <TableCell className="font-medium">{office.name}</TableCell>
+                  <TableCell className="font-medium p-2">{office.name}</TableCell>
                   {roles.map(role => (
-                    <TableCell key={role}>
+                    <TableCell key={role} className="p-2">
                       <Input
                         id={`staffing-${office.id}-${role}`}
                         type="number"
@@ -134,8 +139,8 @@ export default function TheoreticalStaffingTable({ offices, roles }: Theoretical
                       />
                     </TableCell>
                   ))}
-                  <TableCell className="text-right">
-                    <Button size="sm" className="h-8" onClick={() => handleSaveStaffing(office.id)}>
+                  <TableCell className="text-right p-2">
+                    <Button size="sm" className="h-8 px-3" onClick={() => handleSaveStaffing(office.id)}>
                       <Save className="h-4 w-4 mr-2"/>
                       Guardar
                     </Button>
