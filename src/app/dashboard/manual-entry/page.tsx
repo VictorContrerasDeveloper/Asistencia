@@ -41,28 +41,28 @@ export default function ManualEntryPage() {
   const [isSavingDay, setIsSavingDay] = useState(false);
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
   const { toast } = useToast();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
   const manualEntryTableRef = React.useRef<{ getSummaryData: () => any; clearRealStaffing: () => void; }>(null);
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
   const [isClearAlertOpen, setClearAlertOpen] = useState(false);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const [fetchedOffices, fetchedEmployees, fetchedSummaries] = await Promise.all([
-      getOffices(),
-      getEmployees(),
-      getDailySummaries(),
-    ]);
-    const filteredOffices = fetchedOffices.filter(office => !office.name.toLowerCase().includes('movil'));
-    setOffices(filteredOffices);
-    setEmployees(fetchedEmployees);
-    setDailySummaries(fetchedSummaries);
-    setLoading(false);
-  }
-
   useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const [fetchedOffices, fetchedEmployees, fetchedSummaries] = await Promise.all([
+        getOffices(),
+        getEmployees(),
+        getDailySummaries(),
+      ]);
+      const filteredOffices = fetchedOffices.filter(office => !office.name.toLowerCase().includes('movil'));
+      setOffices(filteredOffices);
+      setEmployees(fetchedEmployees);
+      setDailySummaries(fetchedSummaries);
+      setLoading(false);
+    }
     fetchData();
+    setSelectedDate(new Date());
   }, []);
 
   const handleAbsenceUpdated = (updatedEmployee: Employee) => {
@@ -204,6 +204,7 @@ export default function ManualEntryPage() {
   };
   
   const handleSaveDay = async () => {
+    if (!selectedDate) return;
     setIsSavingDay(true);
     if(manualEntryTableRef.current) {
       try {
@@ -277,13 +278,13 @@ export default function ManualEntryPage() {
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={selectedDate}
+                  selected={selectedDate || undefined}
                   onSelect={(date) => date && setSelectedDate(date)}
                   initialFocus
                 />
               </PopoverContent>
             </Popover>
-            <Button onClick={handleSaveDay} disabled={isSavingDay}>
+            <Button onClick={handleSaveDay} disabled={isSavingDay || !selectedDate}>
                 <Save className="mr-2 h-4 w-4" />
                 {isSavingDay ? 'Guardando...' : 'Guardar Día'}
             </Button>
