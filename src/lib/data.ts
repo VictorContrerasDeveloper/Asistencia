@@ -185,43 +185,18 @@ export const updateEmployee = async (employeeId: string, updates: Partial<Employ
     await updateDoc(employeeRef, finalUpdates);
 };
 
-export const bulkUpdateEmployeeNames = async (nameUpdates: string): Promise<{updated: number, notFound: string[]}> => {
-    const lines = nameUpdates.split('\n').filter(line => line.trim() !== '');
-    if(lines.length === 0) {
-        return { updated: 0, notFound: [] };
+export const bulkUpdateEmployeeNames = async (updates: { employeeId: string, name: string }[]): Promise<void> => {
+    if (updates.length === 0) {
+        return;
     }
 
-    const allEmployees = await getEmployees();
-    const employeeMapByName = new Map(allEmployees.map(emp => [emp.name.trim().toLowerCase(), emp]));
-    
     const batch = writeBatch(db);
-    let updatedCount = 0;
-    const notFound: string[] = [];
-
-    for(const line of lines) {
-        const parts = line.split('>');
-        if(parts.length !== 2) continue; // Skip malformed lines
-
-        const oldName = parts[0].trim();
-        const newName = parts[1].trim();
-
-        if(!oldName || !newName) continue;
-
-        const employee = employeeMapByName.get(oldName.toLowerCase());
-
-        if(employee) {
-            const employeeRef = doc(db, 'employees', employee.id);
-            batch.update(employeeRef, { name: newName });
-            updatedCount++;
-        } else {
-            notFound.push(oldName);
-        }
-    }
-
-    if(updatedCount > 0) {
-      await batch.commit();
-    }
-    return { updated: updatedCount, notFound: [] };
+    updates.forEach(update => {
+        const employeeRef = doc(db, 'employees', update.employeeId);
+        batch.update(employeeRef, { name: update.name });
+    });
+    
+    await batch.commit();
 }
 
 export const bulkUpdateEmployeeLevels = async (updates: { employeeId: string, level: EmployeeLevel }[]): Promise<void> => {

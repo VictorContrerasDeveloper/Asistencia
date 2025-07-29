@@ -2,11 +2,10 @@
 "use client";
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, PlusCircle, Trash2, Users, Layers } from 'lucide-react';
-import { Office, Employee, getEmployees } from '@/lib/data';
+import { Office, Employee, getEmployees, getOffices } from '@/lib/data';
 import { Button } from '@/components/ui/button';
-import BulkUpdateNamesModal from '@/components/BulkUpdateNamesModal';
 import AddEmployeeModal from './AddEmployeeModal';
 import TheoreticalStaffingTable from './TheoreticalStaffingTable';
 import DraggableStaffDashboard from './DraggableStaffDashboard';
@@ -24,16 +23,17 @@ export default function DashboardPageClient({
     allEmployees: allEmployeesProp, 
     offices: officesProp,
 }: DashboardPageClientProps) {
-  const [isUpdateModalOpen, setUpdateModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [employees, setEmployees] = useState(allEmployeesProp);
   const [offices, setOffices] = useState<Office[]>(officesProp);
 
   const refetchAllData = async () => {
-     const [allEmployeesData] = await Promise.all([
+     const [allEmployeesData, allOfficesData] = await Promise.all([
        getEmployees(),
+       getOffices(),
      ]);
      setEmployees(allEmployeesData);
+     setOffices(allOfficesData);
   }
 
   const officeHeader = (
@@ -106,11 +106,6 @@ export default function DashboardPageClient({
           </>
       </main>
     </div>
-    <BulkUpdateNamesModal 
-      isOpen={isUpdateModalOpen}
-      onClose={() => setUpdateModalOpen(false)}
-      onSuccess={refetchAllData}
-    />
     <AddEmployeeModal
         isOpen={isAddModalOpen}
         onClose={() => setAddModalOpen(false)}
