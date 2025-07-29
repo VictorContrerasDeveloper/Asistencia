@@ -12,6 +12,7 @@ const OfficeHeaderSummary = ({ employees }: { employees: Employee[] }) => {
     const supervisorCount = employees.filter(e => e.role === 'Supervisión').length;
     const nivel2Count = employees.filter(e => e.level === 'Nivel 2').length;
     const nivel1Count = employees.filter(e => e.level === 'Nivel 1').length;
+    const intermedioCount = employees.filter(e => e.level === 'Nivel intermedio').length;
     const tabletCount = employees.filter(e => e.role === 'Tablet').length;
     const anfitrionCount = employees.filter(e => e.role === 'Anfitrión').length;
 
@@ -24,6 +25,8 @@ const OfficeHeaderSummary = ({ employees }: { employees: Employee[] }) => {
             <span>N2: {nivel2Count}</span>
             <Separator orientation="vertical" className="h-3" />
             <span>N1: {nivel1Count}</span>
+            <Separator orientation="vertical" className="h-3" />
+            <span>Int: {intermedioCount}</span>
             <Separator orientation="vertical" className="h-3" />
             <span>T: {tabletCount}</span>
             <Separator orientation="vertical" className="h-3" />
