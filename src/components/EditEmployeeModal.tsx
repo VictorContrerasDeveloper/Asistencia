@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Employee, updateEmployee, EmployeeRole, EmployeeLevel } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { Pencil } from 'lucide-react';
 
 type EditEmployeeModalProps = {
   isOpen: boolean;
@@ -38,12 +39,14 @@ export default function EditEmployeeModal({
   const [newRole, setNewRole] = useState<EmployeeRole>(employee.role);
   const [newLevel, setNewLevel] = useState<EmployeeLevel>(employee.level || 'Nivel Básico');
   const [isSaving, setIsSaving] = useState(false);
+  const [isNameEditable, setIsNameEditable] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setNewName(employee.name);
       setNewRole(employee.role);
       setNewLevel(employee.level || 'Nivel Básico');
+      setIsNameEditable(false);
     }
   }, [isOpen, employee]);
 
@@ -99,12 +102,18 @@ export default function EditEmployeeModal({
         <div className="py-4 space-y-4">
            <div className="space-y-2">
              <Label htmlFor="new-name">Nombre</Label>
-             <Input
-                id="new-name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="Nombre del ejecutivo"
-             />
+             <div className="flex items-center gap-2">
+                <Input
+                    id="new-name"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Nombre del ejecutivo"
+                    disabled={!isNameEditable}
+                />
+                <Button variant="outline" size="icon" onClick={() => setIsNameEditable(true)} className="shrink-0">
+                    <Pencil className="h-4 w-4" />
+                </Button>
+             </div>
            </div>
           <div className="space-y-2">
              <Label htmlFor="new-role">Rol</Label>
