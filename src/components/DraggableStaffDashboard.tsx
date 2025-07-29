@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import DroppableOffice from './DroppableOffice';
 import DraggableEmployee from './DraggableEmployee';
 import EditEmployeeModal from './EditEmployeeModal';
+import { TooltipProvider } from './ui/tooltip';
 
 
 type DraggableStaffDashboardProps = {
@@ -176,45 +177,47 @@ export default function DraggableStaffDashboard({
 
   return (
     <>
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
-        {offices.map(office => (
-            <DroppableOffice 
-              key={office.id} 
-              office={office}
-              employees={employeesByOffice[office.id] || []}
-            >
-                <SortableContext
-                    items={(employeesByOffice[office.id] || []).map(e => e.id)}
-                    strategy={verticalListSortingStrategy}
-                >
-                    <div className="space-y-1">
-                        {(employeesByOffice[office.id] || []).map(employee => (
-                            <DraggableEmployee 
-                              key={employee.id} 
-                              employee={employee} 
-                              onNameClick={() => handleOpenEditModal(employee)}
-                            />
-                        ))}
-                    </div>
-                </SortableContext>
-                {(employeesByOffice[office.id] || []).length === 0 && (
-                    <div className="text-sm text-muted-foreground text-center py-4">
-                        Sin personal
-                    </div>
-                )}
-          </DroppableOffice>
-        ))}
-      </div>
-      <DragOverlay>
-        {activeItem ? <DraggableEmployee employee={activeItem as Employee} isOverlay /> : null}
-      </DragOverlay>
-    </DndContext>
+    <TooltipProvider>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
+          {offices.map(office => (
+              <DroppableOffice 
+                key={office.id} 
+                office={office}
+                employees={employeesByOffice[office.id] || []}
+              >
+                  <SortableContext
+                      items={(employeesByOffice[office.id] || []).map(e => e.id)}
+                      strategy={verticalListSortingStrategy}
+                  >
+                      <div className="space-y-1">
+                          {(employeesByOffice[office.id] || []).map(employee => (
+                              <DraggableEmployee 
+                                key={employee.id} 
+                                employee={employee} 
+                                onNameClick={() => handleOpenEditModal(employee)}
+                              />
+                          ))}
+                      </div>
+                  </SortableContext>
+                  {(employeesByOffice[office.id] || []).length === 0 && (
+                      <div className="text-sm text-muted-foreground text-center py-4">
+                          Sin personal
+                      </div>
+                  )}
+            </DroppableOffice>
+          ))}
+        </div>
+        <DragOverlay>
+          {activeItem ? <DraggableEmployee employee={activeItem as Employee} isOverlay /> : null}
+        </DragOverlay>
+      </DndContext>
+    </TooltipProvider>
     {selectedEmployee && (
         <EditEmployeeModal
             isOpen={isEditModalOpen}
