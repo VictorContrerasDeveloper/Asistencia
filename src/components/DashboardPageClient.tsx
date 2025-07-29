@@ -45,11 +45,14 @@ export default function DashboardPageClient({
   )
 
   const handleEmployeeUpdated = (updatedEmployee: Employee) => {
-    setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
-  }
-
-  const handleOfficeOrderChange = (reorderedOffices: Office[]) => {
-    setOffices(reorderedOffices);
+    setEmployees(prev => {
+        const newEmployees = prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e);
+        // Also refetch offices in case employee was moved to a new office that wasn't rendered
+        if(updatedEmployee.officeId !== employees.find(e => e.id === updatedEmployee.id)?.officeId) {
+            refetchAllData();
+        }
+        return newEmployees;
+    });
   }
 
   return (
@@ -101,7 +104,6 @@ export default function DashboardPageClient({
                   offices={offices} 
                   employees={employees} 
                   onEmployeeUpdate={handleEmployeeUpdated}
-                  onOfficeOrderChange={handleOfficeOrderChange}
                 />
               </TabsContent>
               <TabsContent value="theoretical">

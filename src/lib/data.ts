@@ -21,7 +21,6 @@ import {
 export type Office = {
   id: string;
   name: string;
-  order?: number;
   theoreticalStaffing?: {
     [key in EmployeeRole]?: number;
   };
@@ -81,15 +80,29 @@ export function slugify(text: string): string {
     .replace(/-+$/, ""); // Trim - from end of text
 }
 
+const STATIC_OFFICE_ORDER = [
+  'Oficina Centro',
+  'Oficina Maipu',
+  'Oficina Gran Avenida',
+  'oficina Plaza Egaña',
+  'Oficina Mall plaza Norte',
+  'oficina Movil'
+];
+
 export const getOffices = async (): Promise<Office[]> => {
     const snapshot = await getDocs(query(officesCollection));
     const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
+    
     return offices.sort((a, b) => {
-        if (a.order !== undefined && b.order !== undefined) {
-            return a.order - b.order;
+        const indexA = STATIC_OFFICE_ORDER.indexOf(a.name);
+        const indexB = STATIC_OFFICE_ORDER.indexOf(b.name);
+
+        if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB;
         }
-        if (a.order !== undefined) return -1;
-        if (b.order !== undefined) return 1;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        
         return a.name.localeCompare(b.name);
     });
 };
@@ -116,15 +129,6 @@ export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing
   const officeRef = doc(db, 'offices', officeId);
   await updateDoc(officeRef, { theoreticalStaffing });
 }
-
-export const updateOfficeOrder = async (updates: { id: string, order: number }[]) => {
-  const batch = writeBatch(db);
-  updates.forEach(update => {
-    const officeRef = doc(db, 'offices', update.id);
-    batch.update(officeRef, { order: update.order });
-  });
-  await batch.commit();
-};
 
 export const clearAllRealStaffing = async (officeIds: string[]) => {
     const batch = writeBatch(db);
