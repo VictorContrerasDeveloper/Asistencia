@@ -27,7 +27,7 @@ type ManualEntryTableProps = {
   employees: Employee[];
 };
 
-const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
+const DISPLAY_ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
 const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
 type RealStaffingValues = {
@@ -57,7 +57,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
     offices.forEach(office => {
       initialStaffing[office.id] = {};
-      ROLES.forEach(role => {
+      DISPLAY_ROLES.forEach(role => {
         const realValue = office.realStaffing?.[role];
         initialStaffing[office.id][role] = realValue !== undefined && realValue !== 0 ? realValue.toString() : '';
       });
@@ -69,7 +69,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
     
     setRealStaffing(initialStaffing);
     setAttendance(initialAttendance);
-    inputRefs.current = new Array(offices.length * ROLES.length);
+    inputRefs.current = new Array(offices.length * DISPLAY_ROLES.length);
   }, [offices, employees]);
 
     useImperativeHandle(ref, () => ({
@@ -107,7 +107,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                 const clearedStaffing: RealStaffingValues = {};
                 offices.forEach(office => {
                     clearedStaffing[office.id] = {};
-                    ROLES.forEach(role => {
+                    DISPLAY_ROLES.forEach(role => {
                         clearedStaffing[office.id][role] = '';
                     });
                 });
@@ -259,14 +259,14 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
         <TableHeader className="bg-primary text-primary-foreground">
            <TableRow className="border-0 h-auto">
               <TableHead rowSpan={2} className={'sticky left-0 bg-primary border-b-2 border-primary font-bold text-primary-foreground text-center align-middle h-auto p-1 border-r border-primary'}>Oficina Comercial</TableHead>
-              {ROLES.map((role) => (
+              {DISPLAY_ROLES.map((role) => (
                 <TableHead key={role} colSpan={2} className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>{role}</TableHead>
               ))}
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1'}>Ausentes</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
-              {ROLES.map((role, index) => (
+              {DISPLAY_ROLES.map((role, index) => (
                 <React.Fragment key={role}>
                     <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 px-1'}>Real</TableHead>
                     <TableHead className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto w-14 px-1 border-r border-primary'}>Teóri.</TableHead>
@@ -353,8 +353,8 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                         </Popover>
                     </div>
                 </TableCell>
-                {ROLES.map((role, roleIndex) => {
-                    const refIndex = officeIndex * ROLES.length + roleIndex;
+                {DISPLAY_ROLES.map((role, roleIndex) => {
+                    const refIndex = officeIndex * DISPLAY_ROLES.length + roleIndex;
                     const realValue = realStaffing[office.id]?.[role] ?? '';
                     const theoreticalValue = office.theoreticalStaffing?.[role] || 0;
                     const isDeficit = realValue !== '' && Number(realValue) < theoreticalValue;
@@ -403,4 +403,5 @@ export default ManualEntryTable;
     
 
     
+
 
