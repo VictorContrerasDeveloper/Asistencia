@@ -38,8 +38,8 @@ const ROLE_ORDER: Record<EmployeeRole, number> = {
 };
 
 const LEVEL_ORDER: Record<EmployeeLevel, number> = {
-    'Nivel 1': 1,
-    'Nivel 2': 2,
+    'Nivel 2': 1,
+    'Nivel 1': 2,
     'Nivel intermedio': 3,
     'Nivel Básico': 4,
 };
