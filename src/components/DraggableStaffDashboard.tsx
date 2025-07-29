@@ -12,18 +12,18 @@ import {
   DragOverlay,
   UniqueIdentifier,
   DragStartEvent,
-  DragOverEvent
 } from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
-  arrayMove,
 } from '@dnd-kit/sortable';
 import { Office, Employee, EmployeeRole, updateEmployee } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import DroppableOffice from './DroppableOffice';
 import DraggableEmployee from './DraggableEmployee';
+import EditEmployeeModal from './EditEmployeeModal';
+
 
 type DraggableStaffDashboardProps = {
   offices: Office[];
@@ -42,6 +42,9 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
   const { toast } = useToast();
   const [employees, setEmployees] = useState(initialEmployees);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
   useEffect(() => {
     setEmployees(initialEmployees);
@@ -83,7 +86,7 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
-     setActiveId(null);
+    setActiveId(null);
     const { active, over } = event;
 
     if (!over) return;
@@ -91,8 +94,8 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
     const activeEmployee = employeeMap.get(active.id as string);
     if (!activeEmployee) return;
 
-    // Find the target office
     let targetOfficeId: string | null = null;
+
     if (officeMap.has(over.id as string)) {
         targetOfficeId = over.id as string;
     } else {
@@ -101,16 +104,15 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
             targetOfficeId = overEmployee.officeId;
         }
     }
+
+    if (!targetOfficeId || !officeMap.has(targetOfficeId)) {
+        return;
+    }
     
-    if (!targetOfficeId || !officeMap.has(targetOfficeId)) return;
-
-
     if (activeEmployee.officeId !== targetOfficeId) {
         const originalEmployees = [...employees];
-        
         const updatedEmployee = { ...activeEmployee, officeId: targetOfficeId };
-
-        // Optimistic update
+        
         const newEmployees = employees.map(e => e.id === active.id ? updatedEmployee : e);
         setEmployees(newEmployees);
         
@@ -123,7 +125,6 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
                 duration: 2000,
            });
         } catch (error) {
-          // Revert on error
           setEmployees(originalEmployees);
           toast({
             title: "Error de Reasignación",
@@ -146,7 +147,18 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
       });
   }, [offices, employeesByOffice]);
 
+  const handleOpenEditModal = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = (updatedEmployee: Employee) => {
+    onEmployeeUpdate(updatedEmployee);
+    setIsEditModalOpen(false);
+  }
+
   return (
+    <>
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
@@ -167,7 +179,11 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
                     >
                         <div className="space-y-1">
                             {(employeesByOffice[office.id] || []).map(employee => (
-                                <DraggableEmployee key={employee.id} employee={employee} />
+                                <DraggableEmployee 
+                                  key={employee.id} 
+                                  employee={employee} 
+                                  onNameClick={() => handleOpenEditModal(employee)}
+                                />
                             ))}
                         </div>
                     </SortableContext>
@@ -187,5 +203,15 @@ export default function DraggableStaffDashboard({ offices, employees: initialEmp
         ) : null}
       </DragOverlay>
     </DndContext>
+    {selectedEmployee && (
+        <EditEmployeeModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            onSuccess={handleEditSuccess}
+            employee={selectedEmployee}
+        />
+    )}
+    </>
   );
 }
+

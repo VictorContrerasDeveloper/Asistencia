@@ -32,6 +32,7 @@ export type Office = {
 export type AttendanceStatus = 'Presente' | 'Ausente' | 'Atrasado';
 export type AbsenceReason = 'Inasistencia' | 'Licencia médica' | 'Vacaciones' | 'Otro' | null;
 export type EmployeeRole = 'Modulo' | 'Anfitrión' | 'Tablet' | 'Supervisión';
+export type EmployeeLevel = 'Nivel 1' | 'Nivel 2' | 'Nivel intermedio' | 'Nivel Básico';
 
 export type Employee = {
   id:string;
@@ -40,7 +41,8 @@ export type Employee = {
   status: AttendanceStatus;
   absenceReason: AbsenceReason;
   role: EmployeeRole;
-  absenceEndDate?: string;
+  level: EmployeeLevel;
+  absenceEndDate?: string | null;
 };
 
 export type DailySummary = {
@@ -230,6 +232,7 @@ export const addEmployee = async (name: string, officeId: string, role: Employee
     status: 'Presente',
     absenceReason: null,
     role: role || 'Modulo',
+    level: 'Nivel Básico',
     absenceEndDate: null
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
@@ -250,6 +253,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       status: 'Presente',
       absenceReason: null,
       role: 'Modulo',
+      level: 'Nivel Básico',
       absenceEndDate: null
     };
     const docRef = doc(employeesCollection);

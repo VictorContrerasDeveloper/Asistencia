@@ -34,9 +34,10 @@ const RoleIcons: Record<EmployeeRole, React.ElementType> = {
 type DraggableEmployeeProps = {
   employee: Employee;
   isOverlay?: boolean;
+  onNameClick?: () => void;
 };
 
-export default function DraggableEmployee({ employee, isOverlay }: DraggableEmployeeProps) {
+export default function DraggableEmployee({ employee, isOverlay, onNameClick }: DraggableEmployeeProps) {
   const {
     attributes,
     listeners,
@@ -66,11 +67,16 @@ export default function DraggableEmployee({ employee, isOverlay }: DraggableEmpl
         isDragging && "cursor-grabbing"
       )}
     >
-       <div className="flex items-center gap-2 truncate" {...attributes} {...listeners}>
+       <div 
+        className="flex items-center gap-2 truncate flex-1 cursor-pointer" 
+        onClick={onNameClick}
+       >
          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
          <span className="truncate">{employee.name}</span>
        </div>
-       <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" {...attributes} {...listeners} />
+       <div {...attributes} {...listeners}>
+        <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
+       </div>
     </div>
   );
 }
