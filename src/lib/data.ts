@@ -81,12 +81,13 @@ export function slugify(text: string): string {
 }
 
 const STATIC_OFFICE_ORDER = [
-  'Oficina Centro',
-  'Oficina Maipu',
-  'Oficina Gran Avenida',
-  'Oficina Plaza Egaña',
-  'Oficina Mall plaza Norte',
-  'Oficina Movil'
+  'Of. Com. Centro',
+  'Of. Com. Maipu',
+  'Of. Com. Providencia',
+  'Of. Com. Gran Avenida',
+  'Of. Com. Plaza Egaña',
+  'Of. Com. Mall Plaza Norte',
+  'Of. Com. Movil'
 ];
 
 export const getOffices = async (): Promise<Office[]> => {
