@@ -62,7 +62,7 @@ export default function DashboardPageClient({
           <>
              <header className="flex items-center p-4 border-b bg-card justify-center flex-col md:flex-row md:justify-between mb-8">
                {officeHeader}
-               <div className="flex items-center gap-2 mt-4 md:mt-0 flex-wrap justify-center">
+               <div className="flex items-center gap-2 mt-4 md:mt-0 flex-wrap justify-center md:justify-end">
                   <Link href="/">
                     <Button variant="outline">
                       <ArrowLeft />
