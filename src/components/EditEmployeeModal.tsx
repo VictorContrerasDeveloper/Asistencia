@@ -14,7 +14,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Employee, updateEmployee, EmployeeRole, EmployeeLevel } from '@/lib/data';
+import { Employee, updateEmployee, EmployeeRole, EmployeeLevel, Office } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Pencil } from 'lucide-react';
 
@@ -23,6 +23,7 @@ type EditEmployeeModalProps = {
   onClose: () => void;
   onSuccess: (employee: Employee) => void;
   employee: Employee;
+  offices: Office[];
 };
 
 const ROLES: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Anfitrión'];
@@ -33,11 +34,13 @@ export default function EditEmployeeModal({
     onClose, 
     onSuccess, 
     employee, 
+    offices,
 }: EditEmployeeModalProps) {
   const { toast } = useToast();
   const [newName, setNewName] = useState(employee.name);
   const [newRole, setNewRole] = useState<EmployeeRole>(employee.role);
   const [newLevel, setNewLevel] = useState<EmployeeLevel>(employee.level || 'Nivel Básico');
+  const [newOfficeId, setNewOfficeId] = useState(employee.officeId);
   const [isSaving, setIsSaving] = useState(false);
   const [isNameEditable, setIsNameEditable] = useState(false);
 
@@ -46,13 +49,14 @@ export default function EditEmployeeModal({
       setNewName(employee.name);
       setNewRole(employee.role);
       setNewLevel(employee.level || 'Nivel Básico');
+      setNewOfficeId(employee.officeId);
       setIsNameEditable(false);
     }
   }, [isOpen, employee]);
 
 
   const handleSave = async () => {
-    if (newName === employee.name && newRole === employee.role && newLevel === (employee.level || 'Nivel Básico')) {
+    if (newName === employee.name && newRole === employee.role && newLevel === (employee.level || 'Nivel Básico') && newOfficeId === employee.officeId) {
         onClose();
         return;
     }
@@ -75,6 +79,9 @@ export default function EditEmployeeModal({
         }
         if (newLevel !== (employee.level || 'Nivel Básico')) {
             updates.level = newLevel;
+        }
+        if (newOfficeId !== employee.officeId) {
+            updates.officeId = newOfficeId;
         }
 
         await updateEmployee(employee.id, updates);
@@ -114,6 +121,21 @@ export default function EditEmployeeModal({
                     <Pencil className="h-4 w-4" />
                 </Button>
              </div>
+           </div>
+           <div className="space-y-2">
+             <Label htmlFor="new-office">Oficina</Label>
+             <Select value={newOfficeId} onValueChange={setNewOfficeId}>
+                <SelectTrigger id="new-office">
+                    <SelectValue placeholder="Selecciona una oficina" />
+                </SelectTrigger>
+                <SelectContent>
+                    {offices.map((office) => (
+                        <SelectItem key={office.id} value={office.id}>
+                            {office.name}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+             </Select>
            </div>
           <div className="space-y-2">
              <Label htmlFor="new-role">Rol</Label>

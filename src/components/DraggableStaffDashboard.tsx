@@ -98,21 +98,26 @@ export default function DraggableStaffDashboard({
 
     if (!over) return;
     
-    const activeEmployee = employeeMap.get(active.id as string);
-    if (!activeEmployee) return;
+    const activeIdStr = active.id as string;
+    const overIdStr = over.id as string;
+    
+    const activeIsEmployee = employeeMap.has(activeIdStr);
+    
+    if (!activeIsEmployee) return;
 
-    const overId = over.id as string;
+    const activeEmployee = employeeMap.get(activeIdStr)!;
+
     const overData = over.data.current;
     
     let targetOfficeId: string | null = null;
     
     if (overData?.type === 'Office') {
-      targetOfficeId = overId;
+      targetOfficeId = overIdStr;
     } else if (overData?.type === 'Employee') {
-      const overEmployee = employeeMap.get(overId);
+      const overEmployee = employeeMap.get(overIdStr);
       targetOfficeId = overEmployee?.officeId || null;
-    } else if (officeMap.has(over.id as string)) {
-      targetOfficeId = over.id as string;
+    } else if (officeMap.has(overIdStr)) {
+      targetOfficeId = overIdStr;
     }
 
 
@@ -138,9 +143,9 @@ export default function DraggableStaffDashboard({
     }
   }
   
-  const activeEmployee = useMemo(() => {
+  const activeItem = useMemo(() => {
     if (!activeId) return null;
-    return employeeMap.get(activeId as string);
+    return employeeMap.get(activeId as string) || null;
   }, [activeId, employeeMap]);
 
 
@@ -162,37 +167,37 @@ export default function DraggableStaffDashboard({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
-          {offices.map(office => (
-             <DroppableOffice 
-                key={office.id} 
-                office={office}
-                employeeCount={(employeesByOffice[office.id] || []).length}
-              >
-                  <SortableContext
-                      items={(employeesByOffice[office.id] || []).map(e => e.id)}
-                      strategy={verticalListSortingStrategy}
-                  >
-                      <div className="space-y-1">
-                          {(employeesByOffice[office.id] || []).map(employee => (
-                              <DraggableEmployee 
-                                key={employee.id} 
-                                employee={employee} 
-                                onNameClick={() => handleOpenEditModal(employee)}
-                              />
-                          ))}
-                      </div>
-                  </SortableContext>
-                  {(employeesByOffice[office.id] || []).length === 0 && (
-                      <div className="text-sm text-muted-foreground text-center py-4">
-                          Sin personal
-                      </div>
-                  )}
-            </DroppableOffice>
-          ))}
-        </div>
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
+        {offices.map(office => (
+            <DroppableOffice 
+              key={office.id} 
+              office={office}
+              employeeCount={(employeesByOffice[office.id] || []).length}
+            >
+                <SortableContext
+                    items={(employeesByOffice[office.id] || []).map(e => e.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <div className="space-y-1">
+                        {(employeesByOffice[office.id] || []).map(employee => (
+                            <DraggableEmployee 
+                              key={employee.id} 
+                              employee={employee} 
+                              onNameClick={() => handleOpenEditModal(employee)}
+                            />
+                        ))}
+                    </div>
+                </SortableContext>
+                {(employeesByOffice[office.id] || []).length === 0 && (
+                    <div className="text-sm text-muted-foreground text-center py-4">
+                        Sin personal
+                    </div>
+                )}
+          </DroppableOffice>
+        ))}
+      </div>
       <DragOverlay>
-        {activeEmployee ? <DraggableEmployee employee={activeEmployee} isOverlay /> : null}
+        {activeItem ? <DraggableEmployee employee={activeItem as Employee} isOverlay /> : null}
       </DragOverlay>
     </DndContext>
     {selectedEmployee && (
@@ -201,6 +206,7 @@ export default function DraggableStaffDashboard({
             onClose={() => setIsEditModalOpen(false)}
             onSuccess={handleEditSuccess}
             employee={selectedEmployee}
+            offices={offices}
         />
     )}
     </>
