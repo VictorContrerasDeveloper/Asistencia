@@ -3,10 +3,16 @@
 
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { Office, Employee } from '@/lib/data';
+import { Office, Employee, EmployeeRole, EmployeeLevel } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 const OfficeHeaderSummary = ({ employees }: { employees: Employee[] }) => {
     const supervisorCount = employees.filter(e => e.role === 'Supervisión').length;
@@ -19,7 +25,7 @@ const OfficeHeaderSummary = ({ employees }: { employees: Employee[] }) => {
     if (employees.length === 0) return null;
 
     return (
-        <div className="text-xs text-muted-foreground font-normal flex items-center gap-1.5 flex-wrap">
+        <div className="text-sm font-normal flex items-center gap-1.5 flex-wrap">
             <span>S: {supervisorCount}</span>
             <Separator orientation="vertical" className="h-3" />
             <span>N2: {nivel2Count}</span>
@@ -59,8 +65,14 @@ export default function DroppableOffice({ office, children, employees, isOverlay
           className={cn("flex flex-col h-full", isOverlay && "shadow-lg")}
        >
          <CardHeader className="p-3 space-y-1">
-           <CardTitle className="text-base truncate">{office.name} ({employees.length})</CardTitle>
-           <OfficeHeaderSummary employees={employees} />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CardTitle className="text-base truncate cursor-default">{office.name} ({employees.length})</CardTitle>
+              </TooltipTrigger>
+              <TooltipContent>
+                <OfficeHeaderSummary employees={employees} />
+              </TooltipContent>
+            </Tooltip>
          </CardHeader>
           <CardContent className="p-3 pt-0">
               {children}
