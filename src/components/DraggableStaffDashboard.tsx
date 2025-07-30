@@ -29,6 +29,7 @@ type DraggableStaffDashboardProps = {
   offices: Office[];
   employees: Employee[];
   onEmployeeUpdate: (employee: Employee) => void;
+  onRefreshData: () => Promise<void>;
 };
 
 const ROLE_ORDER: Record<EmployeeRole, number> = {
@@ -49,6 +50,7 @@ export default function DraggableStaffDashboard({
   offices: initialOffices, 
   employees: initialEmployees, 
   onEmployeeUpdate,
+  onRefreshData,
 }: DraggableStaffDashboardProps) {
   const { toast } = useToast();
   const [employees, setEmployees] = useState(initialEmployees);
@@ -142,14 +144,16 @@ export default function DraggableStaffDashboard({
     }
     
     if (activeEmployee.officeId !== targetOfficeId) {
-        const updatedEmployee = { ...activeEmployee, officeId: targetOfficeId };
-        
-        onEmployeeUpdate(updatedEmployee); // Optimistic update
+        toast({
+          title: "Reasignando...",
+          description: `Moviendo a ${activeEmployee.name}.`,
+          duration: 3000,
+        });
         
         try {
           await updateEmployee(active.id as string, { officeId: targetOfficeId, absenceEndDate: null });
+          await onRefreshData();
         } catch (error) {
-          onEmployeeUpdate(activeEmployee); // Revert optimistic update
           toast({
             title: "Error de Reasignación",
             description: `No se pudo mover a ${activeEmployee.name}.`,

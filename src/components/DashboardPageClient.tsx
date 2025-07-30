@@ -123,6 +123,7 @@ export default function DashboardPageClient({
                   offices={offices} 
                   employees={employees} 
                   onEmployeeUpdate={handleEmployeeUpdated}
+                  onRefreshData={refetchAllData}
                 />
               </TabsContent>
               <TabsContent value="theoretical">
