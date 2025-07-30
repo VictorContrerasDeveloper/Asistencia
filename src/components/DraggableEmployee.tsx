@@ -5,7 +5,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Employee, EmployeeLevel, EmployeeRole } from '@/lib/data';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 
@@ -27,9 +27,10 @@ type DraggableEmployeeProps = {
   employee: Employee;
   isOverlay?: boolean;
   onNameClick?: () => void;
+  isUpdating?: boolean;
 };
 
-export default function DraggableEmployee({ employee, isOverlay, onNameClick }: DraggableEmployeeProps) {
+export default function DraggableEmployee({ employee, isOverlay, onNameClick, isUpdating }: DraggableEmployeeProps) {
   const {
     attributes,
     listeners,
@@ -71,9 +72,13 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick }: 
          </span>
          <span className="truncate">{employee.name}</span>
        </div>
-       <div {...attributes} {...listeners}>
-        <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
-       </div>
+       {isUpdating ? (
+          <Loader2 className="h-4 w-4 text-muted-foreground/50 animate-spin" />
+        ) : (
+          <div {...attributes} {...listeners}>
+            <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
+          </div>
+        )}
     </div>
   );
 }

@@ -56,6 +56,7 @@ export default function DraggableStaffDashboard({
   const [employees, setEmployees] = useState(initialEmployees);
   const [offices, setOffices] = useState(initialOffices);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [updatingEmployeeId, setUpdatingEmployeeId] = useState<string | null>(null);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -140,32 +141,26 @@ export default function DraggableStaffDashboard({
     }
   
     if (activeEmployee.officeId !== targetOfficeId) {
-      const originalEmployees = employees;
+      const originalEmployees = [...employees];
       
-      // Optimistic UI update
       const updatedEmployees = employees.map(emp => 
         emp.id === active.id ? { ...emp, officeId: targetOfficeId! } : emp
       );
       setEmployees(updatedEmployees);
-  
-      toast({
-        title: "Reasignando...",
-        description: `Moviendo a ${activeEmployee.name}.`,
-        duration: 3000,
-      });
+      setUpdatingEmployeeId(active.id as string);
   
       try {
         await updateEmployee(active.id as string, { officeId: targetOfficeId });
-        // Optionally call onRefreshData if other external changes are expected
-        // await onRefreshData(); 
+        await onRefreshData();
       } catch (error) {
-        // Revert UI on failure
         setEmployees(originalEmployees);
         toast({
           title: "Error de Reasignación",
           description: `No se pudo mover a ${activeEmployee.name}. Se revirtió el cambio.`,
           variant: "destructive",
         });
+      } finally {
+        setUpdatingEmployeeId(null);
       }
     }
   }
@@ -189,7 +184,7 @@ export default function DraggableStaffDashboard({
   return (
     <>
     <DndContext
-      id="staff-dashboard-context"
+      id="staff-dashboard-dnd-context"
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
@@ -213,6 +208,7 @@ export default function DraggableStaffDashboard({
                                 key={employee.id} 
                                 employee={employee} 
                                 onNameClick={() => handleOpenEditModal(employee)}
+                                isUpdating={employee.id === updatingEmployeeId}
                               />
                           ))}
                       </div>
