@@ -113,22 +113,19 @@ export default function DraggableStaffDashboard({
   const handleDragEnd = async (event: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = event;
-
+  
     if (!over) return;
-    
+  
     const activeIdStr = active.id as string;
     const overIdStr = over.id as string;
-    
+  
     const activeIsEmployee = employeeMap.has(activeIdStr);
-    
     if (!activeIsEmployee) return;
-
+  
     const activeEmployee = employeeMap.get(activeIdStr)!;
-
     const overData = over.data.current;
-    
+  
     let targetOfficeId: string | null = null;
-    
     if (overData?.type === 'Office') {
       targetOfficeId = overIdStr;
     } else if (overData?.type === 'Employee') {
@@ -137,29 +134,39 @@ export default function DraggableStaffDashboard({
     } else if (officeMap.has(overIdStr)) {
       targetOfficeId = overIdStr;
     }
-
-
+  
     if (!targetOfficeId || !officeMap.has(targetOfficeId)) {
-        return;
+      return;
     }
-    
+  
     if (activeEmployee.officeId !== targetOfficeId) {
+      const originalEmployees = employees;
+      
+      // Optimistic UI update
+      const updatedEmployees = employees.map(emp => 
+        emp.id === active.id ? { ...emp, officeId: targetOfficeId! } : emp
+      );
+      setEmployees(updatedEmployees);
+  
+      toast({
+        title: "Reasignando...",
+        description: `Moviendo a ${activeEmployee.name}.`,
+        duration: 3000,
+      });
+  
+      try {
+        await updateEmployee(active.id as string, { officeId: targetOfficeId });
+        // Optionally call onRefreshData if other external changes are expected
+        // await onRefreshData(); 
+      } catch (error) {
+        // Revert UI on failure
+        setEmployees(originalEmployees);
         toast({
-          title: "Reasignando...",
-          description: `Moviendo a ${activeEmployee.name}.`,
-          duration: 3000,
+          title: "Error de Reasignación",
+          description: `No se pudo mover a ${activeEmployee.name}. Se revirtió el cambio.`,
+          variant: "destructive",
         });
-        
-        try {
-          await updateEmployee(active.id as string, { officeId: targetOfficeId, absenceEndDate: null });
-          await onRefreshData();
-        } catch (error) {
-          toast({
-            title: "Error de Reasignación",
-            description: `No se pudo mover a ${activeEmployee.name}.`,
-            variant: "destructive",
-          });
-        }
+      }
     }
   }
   
@@ -182,7 +189,7 @@ export default function DraggableStaffDashboard({
   return (
     <>
     <DndContext
-      id="staff-dashboard"
+      id="staff-dashboard-context"
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
