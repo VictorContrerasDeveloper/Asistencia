@@ -52,6 +52,7 @@ const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacacio
 type GroupedEmployees = {
   active: Employee[];
   prolongedAbsence: Employee[];
+  dailyAbsence: Employee[];
 }
 
 export default function DraggableStaffDashboard({ 
@@ -81,18 +82,18 @@ export default function DraggableStaffDashboard({
   const employeeMap = useMemo(() => new Map(employees.map(e => [e.id, e])), [employees]);
 
   const employeesByOffice = useMemo(() => {
-    const groupedByOffice: Record<string, { active: Employee[], prolongedAbsence: Employee[] }> = {};
+    const groupedByOffice: Record<string, GroupedEmployees> = {};
     
-    // Initialize with empty arrays for all offices
     offices.forEach(office => {
-        groupedByOffice[office.id] = { active: [], prolongedAbsence: [] };
+        groupedByOffice[office.id] = { active: [], prolongedAbsence: [], dailyAbsence: [] };
     });
 
-    // Group employees
     employees.forEach(emp => {
       const officeGroup = groupedByOffice[emp.officeId];
       if (officeGroup) {
-        if (emp.status === 'Ausente' && PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason)) {
+        if (emp.absenceReason === 'Inasistencia') {
+          officeGroup.dailyAbsence.push(emp);
+        } else if (PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason)) {
           officeGroup.prolongedAbsence.push(emp);
         } else {
           officeGroup.active.push(emp);
@@ -100,20 +101,21 @@ export default function DraggableStaffDashboard({
       }
     });
 
-    // Sort employees within each group
-    for (const officeId in groupedByOffice) {
-        const sorter = (a: Employee, b: Employee) => {
-            const roleA = ROLE_ORDER[a.role] || 99;
-            const roleB = ROLE_ORDER[b.role] || 99;
-            if(roleA !== roleB) return roleA - roleB;
-            
-            const levelA = LEVEL_ORDER[a.level || 'Nivel Básico'] || 99;
-            const levelB = LEVEL_ORDER[b.level || 'Nivel Básico'] || 99;
-            if (levelA !== levelB) return levelA - levelB;
+    const sorter = (a: Employee, b: Employee) => {
+        const roleA = ROLE_ORDER[a.role] || 99;
+        const roleB = ROLE_ORDER[b.role] || 99;
+        if(roleA !== roleB) return roleA - roleB;
+        
+        const levelA = LEVEL_ORDER[a.level || 'Nivel Básico'] || 99;
+        const levelB = LEVEL_ORDER[b.level || 'Nivel Básico'] || 99;
+        if (levelA !== levelB) return levelA - levelB;
 
-            return a.name.localeCompare(b.name);
-        };
+        return a.name.localeCompare(b.name);
+    };
+
+    for (const officeId in groupedByOffice) {
         groupedByOffice[officeId].active.sort(sorter);
+        groupedByOffice[officeId].dailyAbsence.sort(sorter);
         groupedByOffice[officeId].prolongedAbsence.sort(sorter);
     }
     
@@ -201,7 +203,11 @@ export default function DraggableStaffDashboard({
   const allEmployeeIdsInOffice = (officeId: string): string[] => {
     const groups = employeesByOffice[officeId];
     if (!groups) return [];
-    return [...groups.active.map(e => e.id), ...groups.prolongedAbsence.map(e => e.id)];
+    return [
+        ...groups.active.map(e => e.id), 
+        ...groups.dailyAbsence.map(e => e.id),
+        ...groups.prolongedAbsence.map(e => e.id)
+    ];
   }
 
   return (
@@ -216,8 +222,13 @@ export default function DraggableStaffDashboard({
       <TooltipProvider>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
           {offices.map(office => {
-              const { active: activeEmployees, prolongedAbsence: prolongedAbsenceEmployees } = employeesByOffice[office.id] || { active: [], prolongedAbsence: [] };
-              const totalEmployees = activeEmployees.length + prolongedAbsenceEmployees.length;
+              const { active: activeEmployees, prolongedAbsence: prolongedAbsenceEmployees, dailyAbsence: dailyAbsenceEmployees } = employeesByOffice[office.id] || { active: [], prolongedAbsence: [], dailyAbsence: [] };
+              const totalEmployees = activeEmployees.length + prolongedAbsenceEmployees.length + dailyAbsenceEmployees.length;
+
+              const hasContent = activeEmployees.length > 0;
+              const hasDailyAbsence = dailyAbsenceEmployees.length > 0;
+              const hasProlongedAbsence = prolongedAbsenceEmployees.length > 0;
+
 
               return (
               <DroppableOffice 
@@ -238,22 +249,41 @@ export default function DraggableStaffDashboard({
                                 isUpdating={employee.id === updatingEmployeeId}
                               />
                           ))}
-                          {prolongedAbsenceEmployees.length > 0 && activeEmployees.length > 0 && (
-                            <Separator className="my-2" />
+
+                          {hasDailyAbsence && (
+                            <>
+                                {hasContent && <Separator className="my-2" />}
+                                <div className="text-xs font-semibold text-muted-foreground px-1 mb-1">
+                                    Ausencia del Día
+                                </div>
+                                {dailyAbsenceEmployees.map(employee => (
+                                    <DraggableEmployee 
+                                        key={employee.id} 
+                                        employee={employee} 
+                                        onNameClick={() => handleOpenEditModal(employee)}
+                                        isUpdating={employee.id === updatingEmployeeId}
+                                    />
+                                ))}
+                            </>
                           )}
-                          {prolongedAbsenceEmployees.length > 0 && (
-                            <div className="text-xs font-semibold text-muted-foreground px-1 mb-1">
-                                Ausencias Prolongadas
-                            </div>
+                          
+                          {hasProlongedAbsence && (
+                            <>
+                                {(hasContent || hasDailyAbsence) && <Separator className="my-2" />}
+                                <div className="text-xs font-semibold text-muted-foreground px-1 mb-1">
+                                    Ausencias Prolongadas
+                                </div>
+                                {prolongedAbsenceEmployees.map(employee => (
+                                  <DraggableEmployee 
+                                    key={employee.id} 
+                                    employee={employee} 
+                                    onNameClick={() => handleOpenEditModal(employee)}
+                                    isUpdating={employee.id === updatingEmployeeId}
+                                  />
+                                ))}
+                            </>
                           )}
-                           {prolongedAbsenceEmployees.map(employee => (
-                              <DraggableEmployee 
-                                key={employee.id} 
-                                employee={employee} 
-                                onNameClick={() => handleOpenEditModal(employee)}
-                                isUpdating={employee.id === updatingEmployeeId}
-                              />
-                          ))}
+                          
                       </div>
                   </SortableContext>
                   {totalEmployees === 0 && (

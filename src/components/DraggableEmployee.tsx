@@ -65,8 +65,8 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
         "hover:bg-muted/80",
         isOverlay && "bg-muted shadow-lg",
         isDragging && "cursor-grabbing",
-        isProlongedAbsence && "text-red-600 dark:text-red-500 italic",
-        isDailyAbsence && "text-muted-foreground italic"
+        isDailyAbsence && "text-red-600 dark:text-red-500 italic",
+        isProlongedAbsence && "text-muted-foreground italic"
       )}
     >
        <div 
