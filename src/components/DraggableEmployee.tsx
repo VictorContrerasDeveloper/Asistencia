@@ -4,7 +4,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Employee, EmployeeLevel, EmployeeRole } from '@/lib/data';
+import { Employee, EmployeeLevel, EmployeeRole, AbsenceReason } from '@/lib/data';
 import { GripVertical, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +21,8 @@ const RolePrefixes: Partial<Record<EmployeeRole, string>> = {
     'Anfitrión': 'Anf.',
     'Tablet': 'Tab.'
 };
+
+const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
 
 type DraggableEmployeeProps = {
@@ -50,7 +52,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
   const levelAbbreviation = LevelAbbreviations[employee.level] || 'Basic.';
   const rolePrefix = RolePrefixes[employee.role];
   const displayPrefix = rolePrefix ? rolePrefix : levelAbbreviation;
-
+  const isProlongedAbsence = PROLONGED_ABSENCE_REASONS.includes(employee.absenceReason);
 
   return (
     <div
@@ -60,7 +62,8 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
         "flex items-center justify-between p-1 rounded-md bg-card border border-transparent text-sm font-medium",
         "hover:bg-muted/80",
         isOverlay && "bg-muted shadow-lg",
-        isDragging && "cursor-grabbing"
+        isDragging && "cursor-grabbing",
+        isProlongedAbsence && "text-muted-foreground italic"
       )}
     >
        <div 

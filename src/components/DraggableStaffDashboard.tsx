@@ -17,12 +17,13 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Office, Employee, EmployeeRole, EmployeeLevel, updateEmployee } from '@/lib/data';
+import { Office, Employee, EmployeeRole, EmployeeLevel, updateEmployee, AbsenceReason } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import DroppableOffice from './DroppableOffice';
 import DraggableEmployee from './DraggableEmployee';
 import EditEmployeeModal from './EditEmployeeModal';
 import { TooltipProvider } from './ui/tooltip';
+import { Separator } from './ui/separator';
 
 
 type DraggableStaffDashboardProps = {
@@ -45,6 +46,13 @@ const LEVEL_ORDER: Record<EmployeeLevel, number> = {
     'Nivel 1': 3,
     'Nivel Básico': 4,
 };
+
+const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
+
+type GroupedEmployees = {
+  active: Employee[];
+  prolongedAbsence: Employee[];
+}
 
 export default function DraggableStaffDashboard({ 
   offices: initialOffices, 
@@ -73,34 +81,43 @@ export default function DraggableStaffDashboard({
   const employeeMap = useMemo(() => new Map(employees.map(e => [e.id, e])), [employees]);
 
   const employeesByOffice = useMemo(() => {
-    const grouped: Record<string, Employee[]> = {};
+    const groupedByOffice: Record<string, { active: Employee[], prolongedAbsence: Employee[] }> = {};
+    
+    // Initialize with empty arrays for all offices
     offices.forEach(office => {
-        grouped[office.id] = [];
+        groupedByOffice[office.id] = { active: [], prolongedAbsence: [] };
     });
+
+    // Group employees
     employees.forEach(emp => {
-      if (grouped[emp.officeId]) {
-        grouped[emp.officeId].push(emp);
+      const officeGroup = groupedByOffice[emp.officeId];
+      if (officeGroup) {
+        if (emp.status === 'Ausente' && PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason)) {
+          officeGroup.prolongedAbsence.push(emp);
+        } else {
+          officeGroup.active.push(emp);
+        }
       }
     });
-    for (const officeId in grouped) {
-        grouped[officeId].sort((a, b) => {
+
+    // Sort employees within each group
+    for (const officeId in groupedByOffice) {
+        const sorter = (a: Employee, b: Employee) => {
             const roleA = ROLE_ORDER[a.role] || 99;
             const roleB = ROLE_ORDER[b.role] || 99;
-            if(roleA !== roleB) {
-                return roleA - roleB;
-            }
+            if(roleA !== roleB) return roleA - roleB;
             
             const levelA = LEVEL_ORDER[a.level || 'Nivel Básico'] || 99;
             const levelB = LEVEL_ORDER[b.level || 'Nivel Básico'] || 99;
-
-            if (levelA !== levelB) {
-                return levelA - levelB;
-            }
+            if (levelA !== levelB) return levelA - levelB;
 
             return a.name.localeCompare(b.name);
-        });
+        };
+        groupedByOffice[officeId].active.sort(sorter);
+        groupedByOffice[officeId].prolongedAbsence.sort(sorter);
     }
-    return grouped;
+    
+    return groupedByOffice;
   }, [employees, offices]);
 
   const sensors = useSensors(
@@ -151,7 +168,7 @@ export default function DraggableStaffDashboard({
   
       try {
         await updateEmployee(active.id as string, { officeId: targetOfficeId });
-        await onRefreshData();
+        // No need to call onRefreshData if we are manually updating state
       } catch (error) {
         setEmployees(originalEmployees);
         toast({
@@ -181,6 +198,12 @@ export default function DraggableStaffDashboard({
     setIsEditModalOpen(false);
   }
 
+  const allEmployeeIdsInOffice = (officeId: string): string[] => {
+    const groups = employeesByOffice[officeId];
+    if (!groups) return [];
+    return [...groups.active.map(e => e.id), ...groups.prolongedAbsence.map(e => e.id)];
+  }
+
   return (
     <>
     <DndContext
@@ -192,18 +215,33 @@ export default function DraggableStaffDashboard({
     >
       <TooltipProvider>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
-          {offices.map(office => (
+          {offices.map(office => {
+              const { active: activeEmployees, prolongedAbsence: prolongedAbsenceEmployees } = employeesByOffice[office.id] || { active: [], prolongedAbsence: [] };
+              const totalEmployees = activeEmployees.length + prolongedAbsenceEmployees.length;
+
+              return (
               <DroppableOffice 
                 key={office.id} 
                 office={office}
-                employees={employeesByOffice[office.id] || []}
+                employeeCount={totalEmployees}
               >
                   <SortableContext
-                      items={(employeesByOffice[office.id] || []).map(e => e.id)}
+                      items={allEmployeeIdsInOffice(office.id)}
                       strategy={verticalListSortingStrategy}
                   >
                       <div className="space-y-1">
-                          {(employeesByOffice[office.id] || []).map(employee => (
+                          {activeEmployees.map(employee => (
+                              <DraggableEmployee 
+                                key={employee.id} 
+                                employee={employee} 
+                                onNameClick={() => handleOpenEditModal(employee)}
+                                isUpdating={employee.id === updatingEmployeeId}
+                              />
+                          ))}
+                          {prolongedAbsenceEmployees.length > 0 && activeEmployees.length > 0 && (
+                            <Separator className="my-2" />
+                          )}
+                           {prolongedAbsenceEmployees.map(employee => (
                               <DraggableEmployee 
                                 key={employee.id} 
                                 employee={employee} 
@@ -213,13 +251,13 @@ export default function DraggableStaffDashboard({
                           ))}
                       </div>
                   </SortableContext>
-                  {(employeesByOffice[office.id] || []).length === 0 && (
+                  {totalEmployees === 0 && (
                       <div className="text-sm text-muted-foreground text-center py-4">
                           Sin personal
                       </div>
                   )}
             </DroppableOffice>
-          ))}
+          )})}
         </div>
       </TooltipProvider>
       <DragOverlay>
