@@ -184,7 +184,14 @@ export const getEmployees = async (officeId?: string): Promise<Employee[]> => {
     q = query(employeesCollection, where('officeId', '==', officeId));
   }
   const snapshot = await getDocs(q);
-  const employees = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+  const employees = snapshot.docs.map(doc => {
+    const data = doc.data();
+    return { 
+      id: doc.id, 
+      ...data,
+      level: data.level || 'Nivel Básico' // Ensure level has a default value
+    } as Employee
+  });
   return employees.sort((a,b) => a.name.localeCompare(b.name));
 };
 
@@ -236,14 +243,14 @@ export const bulkUpdateEmployeeLevels = async (updates: { employeeId: string, le
 }
 
 
-export const addEmployee = async (name: string, officeId: string, role: EmployeeRole) => {
+export const addEmployee = async (name: string, officeId: string, role: EmployeeRole, level: EmployeeLevel) => {
   const newEmployee = {
     name,
     officeId,
     status: 'Presente',
     absenceReason: null,
     role: role || 'Modulo',
-    level: 'Nivel Básico',
+    level: level || 'Nivel Básico',
     absenceEndDate: null
   };
   const docRef = await addDoc(employeesCollection, newEmployee);

@@ -14,7 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getOffices, addEmployee, Office, EmployeeRole } from '@/lib/data';
+import { getOffices, addEmployee, Office, EmployeeRole, EmployeeLevel } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
 
 type AddEmployeeModalProps = {
@@ -24,12 +24,15 @@ type AddEmployeeModalProps = {
 };
 
 const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet', 'Supervisión'];
+const LEVELS: EmployeeLevel[] = ['Nivel 1', 'Nivel 2', 'Nivel intermedio', 'Nivel Básico'];
+
 
 export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmployeeModalProps) {
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [officeId, setOfficeId] = useState('');
   const [role, setRole] = useState<EmployeeRole>('Modulo');
+  const [level, setLevel] = useState<EmployeeLevel>('Nivel Básico');
   const [offices, setOffices] = useState<Office[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -47,6 +50,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
     setName('');
     setOfficeId('');
     setRole('Modulo');
+    setLevel('Nivel Básico');
   }
 
   const handleClose = () => {
@@ -56,7 +60,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !officeId || !role) {
+    if (!name || !officeId || !role || !level) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos.",
@@ -66,7 +70,7 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
     }
     setIsSaving(true);
     try {
-        await addEmployee(name, officeId, role);
+        await addEmployee(name, officeId, role, level);
         toast({
             title: "Personal Agregado",
             description: `${name} ha sido agregado/a exitosamente.`
@@ -134,6 +138,21 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
                 </SelectContent>
             </Select>
           </div>
+           <div className="space-y-2">
+                <Label htmlFor="level">Nivel</Label>
+                <Select value={level} onValueChange={(value) => setLevel(value as EmployeeLevel)} required>
+                    <SelectTrigger id="level">
+                        <SelectValue placeholder="Selecciona un nivel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {LEVELS.map((level) => (
+                            <SelectItem key={level} value={level}>
+                                {level}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
           <DialogFooter className="pt-4">
               <Button variant="outline" type="button" onClick={handleClose}>
                     Cancelar

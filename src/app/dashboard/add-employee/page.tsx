@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { getOffices, addEmployee, Office, EmployeeRole } from '@/lib/data';
+import { getOffices, addEmployee, Office, EmployeeRole, EmployeeLevel } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
 
 const ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet', 'Supervisión'];
+const LEVELS: EmployeeLevel[] = ['Nivel 1', 'Nivel 2', 'Nivel intermedio', 'Nivel Básico'];
+
 
 export default function AddEmployeePage() {
   const router = useRouter();
@@ -21,6 +23,7 @@ export default function AddEmployeePage() {
   const [name, setName] = useState('');
   const [officeId, setOfficeId] = useState('');
   const [role, setRole] = useState<EmployeeRole>('Modulo');
+  const [level, setLevel] = useState<EmployeeLevel>('Nivel Básico');
   const [offices, setOffices] = useState<Office[]>([]);
 
   useEffect(() => {
@@ -33,7 +36,7 @@ export default function AddEmployeePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !officeId || !role) {
+    if (!name || !officeId || !role || !level) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos.",
@@ -41,7 +44,7 @@ export default function AddEmployeePage() {
       });
       return;
     }
-    await addEmployee(name, officeId, role);
+    await addEmployee(name, officeId, role, level);
     router.push('/dashboard/general');
   };
 
@@ -102,6 +105,21 @@ export default function AddEmployeePage() {
                         {ROLES.map((role) => (
                             <SelectItem key={role} value={role}>
                                 {role}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="level">Nivel</Label>
+                <Select value={level} onValueChange={(value) => setLevel(value as EmployeeLevel)} required>
+                    <SelectTrigger id="level">
+                        <SelectValue placeholder="Selecciona un nivel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {LEVELS.map((level) => (
+                            <SelectItem key={level} value={level}>
+                                {level}
                             </SelectItem>
                         ))}
                     </SelectContent>
