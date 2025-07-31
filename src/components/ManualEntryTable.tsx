@@ -268,7 +268,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
               ))}
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary whitespace-nowrap'}>Ausencia del día</TableHead>
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 whitespace-nowrap bg-red-900/50'}>Ausencias prolongadas</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 whitespace-nowrap'}>Ausencias prolongadas</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
               {DISPLAY_ROLES.map((role, index) => (
@@ -416,5 +416,6 @@ export default ManualEntryTable;
 
 
     
+
 
 

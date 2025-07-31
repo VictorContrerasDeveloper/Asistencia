@@ -67,7 +67,7 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
                             <TableHead key={role} className="text-center font-bold text-primary p-1 text-sm">{role}</TableHead>
                         ))}
                         <TableHead className="font-bold text-primary p-1 text-sm whitespace-nowrap">Ausencia del día</TableHead>
-                        <TableHead className="font-bold text-primary p-1 text-sm whitespace-nowrap bg-red-900/50">Ausencias prolongadas</TableHead>
+                        <TableHead className="font-bold text-primary p-1 text-sm whitespace-nowrap">Ausencias prolongadas</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -97,4 +97,5 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
     </Accordion>
   );
 }
+
 
