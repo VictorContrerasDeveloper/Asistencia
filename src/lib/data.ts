@@ -189,7 +189,7 @@ export const getEmployees = async (officeId?: string): Promise<Employee[]> => {
     return { 
       id: doc.id, 
       ...data,
-      level: data.level || 'Nivel Básico' // Ensure level has a default value
+      level: data.level || 'Nivel Básico'
     } as Employee
   });
   return employees.sort((a,b) => a.name.localeCompare(b.name));

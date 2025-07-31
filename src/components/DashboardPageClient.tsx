@@ -50,11 +50,11 @@ export default function DashboardPageClient({
       'Nombre': emp.name,
       'Oficina': officeMap.get(emp.officeId) || 'Sin Asignar',
       'Rol': emp.role,
-      'Nivel': emp.level,
+      'Nivel': emp.level || 'Nivel Básico',
       'Estado': emp.status,
     }));
 
-    const csv = Papa.unparse(dataToExport);
+    const csv = Papa.unparse(dataToExport, { delimiter: ';' });
     const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
