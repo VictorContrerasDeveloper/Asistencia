@@ -268,7 +268,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
               ))}
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>Atrasos</TableHead>
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary whitespace-nowrap'}>Ausencia del día</TableHead>
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 whitespace-nowrap'}>Ausencias prolongadas</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 whitespace-nowrap bg-red-900/50'}>Ausencias prolongadas</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
               {DISPLAY_ROLES.map((role, index) => (
@@ -393,7 +393,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                   <TableCell className={'text-center text-xs p-1 border-r border-primary'}>
                     {getEmployeeNamesByStatus(office.id, 'Ausente')}
                   </TableCell>
-                   <TableCell className={'text-center text-xs p-1'}>
+                   <TableCell className={'text-center text-xs p-1 bg-red-100 dark:bg-red-950/30'}>
                     {getEmployeeNamesForProlongedAbsence(office.id)}
                   </TableCell>
                 </TableRow>
@@ -416,4 +416,5 @@ export default ManualEntryTable;
 
 
     
+
 
