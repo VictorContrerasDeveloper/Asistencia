@@ -14,9 +14,15 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Employee, updateEmployee, EmployeeRole, EmployeeLevel, Office } from '@/lib/data';
+import { Employee, updateEmployee, EmployeeRole, EmployeeLevel, Office, AttendanceStatus, AbsenceReason } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { Pencil } from 'lucide-react';
+import { CalendarIcon, Pencil } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { formatInTimeZone } from 'date-fns-tz';
 
 type EditEmployeeModalProps = {
   isOpen: boolean;
@@ -28,6 +34,9 @@ type EditEmployeeModalProps = {
 
 const ROLES: EmployeeRole[] = ['Supervisión', 'Modulo', 'Tablet', 'Anfitrión'];
 const LEVELS: EmployeeLevel[] = ['Nivel 1', 'Nivel 2', 'Nivel intermedio', 'Nivel Básico'];
+const STATUSES: AttendanceStatus[] = ['Presente', 'Atrasado', 'Ausente'];
+const ABSENCE_REASONS: Exclude<AbsenceReason, null>[] = ['Inasistencia', 'Licencia médica', 'Vacaciones', 'Otro'];
+const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
 export default function EditEmployeeModal({ 
     isOpen, 
@@ -41,6 +50,10 @@ export default function EditEmployeeModal({
   const [newRole, setNewRole] = useState<EmployeeRole>(employee.role);
   const [newLevel, setNewLevel] = useState<EmployeeLevel>(employee.level || 'Nivel Básico');
   const [newOfficeId, setNewOfficeId] = useState(employee.officeId);
+  const [newStatus, setNewStatus] = useState<AttendanceStatus>(employee.status);
+  const [newAbsenceReason, setNewAbsenceReason] = useState<AbsenceReason>(employee.absenceReason);
+  const [newAbsenceEndDate, setNewAbsenceEndDate] = useState<Date | undefined>();
+
   const [isSaving, setIsSaving] = useState(false);
   const [isNameEditable, setIsNameEditable] = useState(false);
 
@@ -50,13 +63,43 @@ export default function EditEmployeeModal({
       setNewRole(employee.role);
       setNewLevel(employee.level || 'Nivel Básico');
       setNewOfficeId(employee.officeId);
+      setNewStatus(employee.status);
+      setNewAbsenceReason(employee.absenceReason);
+      setNewAbsenceEndDate(employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined);
       setIsNameEditable(false);
     }
   }, [isOpen, employee]);
 
+  const handleStatusChange = (status: AttendanceStatus) => {
+    setNewStatus(status);
+    if(status !== 'Ausente') {
+      setNewAbsenceReason(null);
+      setNewAbsenceEndDate(undefined);
+    } else {
+      if(!newAbsenceReason) {
+          setNewAbsenceReason('Inasistencia');
+      }
+    }
+  }
+  
+  const handleReasonChange = (reason: AbsenceReason) => {
+      setNewAbsenceReason(reason);
+      if(!PROLONGED_ABSENCE_REASONS.includes(reason)) {
+          setNewAbsenceEndDate(undefined);
+      }
+  }
+
 
   const handleSave = async () => {
-    if (newName === employee.name && newRole === employee.role && newLevel === (employee.level || 'Nivel Básico') && newOfficeId === employee.officeId) {
+    const hasChanged = newName !== employee.name ||
+                     newRole !== employee.role ||
+                     newLevel !== (employee.level || 'Nivel Básico') ||
+                     newOfficeId !== employee.officeId ||
+                     newStatus !== employee.status ||
+                     newAbsenceReason !== employee.absenceReason ||
+                     (newAbsenceEndDate ? formatInTimeZone(newAbsenceEndDate, 'UTC', 'yyyy-MM-dd') : null) !== (employee.absenceEndDate || null);
+
+    if (!hasChanged) {
         onClose();
         return;
     }
@@ -71,17 +114,18 @@ export default function EditEmployeeModal({
     setIsSaving(true);
     try {
         const updates: Partial<Employee> = {};
-        if (newName !== employee.name) {
-            updates.name = newName;
-        }
-        if (newRole !== employee.role) {
-            updates.role = newRole;
-        }
-        if (newLevel !== (employee.level || 'Nivel Básico')) {
-            updates.level = newLevel;
-        }
-        if (newOfficeId !== employee.officeId) {
-            updates.officeId = newOfficeId;
+        if (newName !== employee.name) updates.name = newName;
+        if (newRole !== employee.role) updates.role = newRole;
+        if (newLevel !== (employee.level || 'Nivel Básico')) updates.level = newLevel;
+        if (newOfficeId !== employee.officeId) updates.officeId = newOfficeId;
+        if (newStatus !== employee.status) updates.status = newStatus;
+        
+        if (newStatus === 'Ausente') {
+           updates.absenceReason = newAbsenceReason;
+           updates.absenceEndDate = newAbsenceEndDate ? formatInTimeZone(newAbsenceEndDate, 'UTC', 'yyyy-MM-dd') : null
+        } else {
+            updates.absenceReason = null;
+            updates.absenceEndDate = null;
         }
 
         await updateEmployee(employee.id, updates);
@@ -99,14 +143,14 @@ export default function EditEmployeeModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar a {employee.name}</DialogTitle>
           <DialogDescription>
             Modifica los datos de este ejecutivo.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-2">
+        <div className="space-y-4">
            <div className="space-y-1">
              <Label htmlFor="new-name">Nombre</Label>
              <div className="flex items-center gap-2">
@@ -167,6 +211,71 @@ export default function EditEmployeeModal({
                 </SelectContent>
              </Select>
           </div>
+          <div className="space-y-1">
+             <Label htmlFor="new-status">Estado</Label>
+             <Select value={newStatus} onValueChange={(value) => handleStatusChange(value as AttendanceStatus)}>
+                <SelectTrigger id="new-status">
+                    <SelectValue placeholder="Selecciona un estado" />
+                </SelectTrigger>
+                <SelectContent>
+                    {STATUSES.map((status) => (
+                        <SelectItem key={status} value={status}>
+                            {status}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+             </Select>
+          </div>
+
+          {newStatus === 'Ausente' && (
+              <>
+                <div className="space-y-1">
+                  <Label htmlFor="new-absence-reason">Motivo Ausencia</Label>
+                  <Select value={newAbsenceReason || ''} onValueChange={(value) => handleReasonChange(value as AbsenceReason)}>
+                      <SelectTrigger id="new-absence-reason">
+                          <SelectValue placeholder="Selecciona un motivo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {ABSENCE_REASONS.map((reason) => (
+                              <SelectItem key={reason} value={reason}>
+                                  {reason}
+                              </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+                </div>
+                
+                {newAbsenceReason && PROLONGED_ABSENCE_REASONS.includes(newAbsenceReason) && (
+                    <div className="space-y-1">
+                        <Label htmlFor="new-absence-endDate">Fecha de Término</Label>
+                         <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                variant={"outline"}
+                                className={cn(
+                                    "w-full justify-start text-left font-normal",
+                                    !newAbsenceEndDate && "text-muted-foreground"
+                                )}
+                                >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {newAbsenceEndDate ? format(newAbsenceEndDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                mode="single"
+                                selected={newAbsenceEndDate}
+                                onSelect={setNewAbsenceEndDate}
+                                initialFocus
+                                locale={es}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                )}
+              </>
+          )}
+
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancelar</Button>
