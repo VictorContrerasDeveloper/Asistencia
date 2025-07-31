@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
-import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason, updateEmployee, clearAllRealStaffing } from '@/lib/data';
+import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason, updateEmployee } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -99,28 +99,6 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
             });
             return summaryData;
         },
-        clearRealStaffing: async () => {
-            try {
-                const officeIds = offices.map(o => o.id);
-                await clearAllRealStaffing(officeIds);
-                
-                const clearedStaffing: RealStaffingValues = {};
-                offices.forEach(office => {
-                    clearedStaffing[office.id] = {};
-                    DISPLAY_ROLES.forEach(role => {
-                        clearedStaffing[office.id][role] = '';
-                    });
-                });
-                setRealStaffing(clearedStaffing);
-
-            } catch (error) {
-                 toast({
-                    title: "Error",
-                    description: "No se pudo limpiar la dotación en la base de datos.",
-                    variant: "destructive",
-                });
-            }
-        }
     }));
   
   const assignedEmployeesByOffice = useMemo(() => {
@@ -405,3 +383,6 @@ export default ManualEntryTable;
     
 
 
+
+
+    

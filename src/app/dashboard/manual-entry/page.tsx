@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon, Trash2, Eraser, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary, deleteDailySummary } from '@/lib/data';
+import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
 import ManualEntryTable from '@/components/ManualEntryTable';
 import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
 import DailySummaryTable from '@/components/DailySummaryTable';
@@ -43,7 +43,7 @@ export default function ManualEntryPage() {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
-  const manualEntryTableRef = React.useRef<{ getSummaryData: () => any; clearRealStaffing: () => void; }>(null);
+  const manualEntryTableRef = React.useRef<{ getSummaryData: () => any }>(null);
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
   const [isClearAlertOpen, setClearAlertOpen] = useState(false);
 
@@ -244,11 +244,31 @@ export default function ManualEntryPage() {
     }
   };
 
-  const handleClearRealStaffing = () => {
-    if (manualEntryTableRef.current) {
-      manualEntryTableRef.current.clearRealStaffing();
+  const handleClearRealStaffing = async () => {
+    try {
+        const officeIds = offices.map(o => o.id);
+        await clearAllRealStaffing(officeIds);
+        
+        const clearedOffices = offices.map(office => ({
+            ...office,
+            realStaffing: {
+                Modulo: 0,
+                Anfitrión: 0,
+                Tablet: 0,
+                Supervisión: 0,
+            }
+        }));
+        setOffices(clearedOffices);
+
+    } catch (error) {
+         toast({
+            title: "Error",
+            description: "No se pudo limpiar la dotación en la base de datos.",
+            variant: "destructive",
+        });
+    } finally {
+        setClearAlertOpen(false);
     }
-    setClearAlertOpen(false);
   };
 
 
@@ -423,3 +443,5 @@ export default function ManualEntryPage() {
     </>
   );
 }
+
+    
