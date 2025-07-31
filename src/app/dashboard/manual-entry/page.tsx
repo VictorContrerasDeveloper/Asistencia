@@ -317,7 +317,7 @@ export default function ManualEntryPage() {
             <Card id="manual-entry-summary" className="w-full overflow-hidden">
               <div className="border-b">
                 <CardHeader className="flex flex-row items-center justify-center p-4">
-                  <CardTitle>Resumen dotacion Of. Com. Helpbank</CardTitle>
+                  <CardTitle className="underline">Resumen dotacion Of. Com. Helpbank</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4">
                   {loading ? (
@@ -443,5 +443,7 @@ export default function ManualEntryPage() {
     </>
   );
 }
+
+    
 
     
