@@ -241,6 +241,11 @@ export default function DraggableStaffDashboard({
                           {prolongedAbsenceEmployees.length > 0 && activeEmployees.length > 0 && (
                             <Separator className="my-2" />
                           )}
+                          {prolongedAbsenceEmployees.length > 0 && (
+                            <div className="text-xs font-semibold text-muted-foreground px-1 mb-1">
+                                Ausencias Prolongadas
+                            </div>
+                          )}
                            {prolongedAbsenceEmployees.map(employee => (
                               <DraggableEmployee 
                                 key={employee.id} 
