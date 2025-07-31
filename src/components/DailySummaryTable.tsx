@@ -66,8 +66,8 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
                         {ROLES.map(role => (
                             <TableHead key={role} className="text-center font-bold text-primary p-1 text-sm">{role}</TableHead>
                         ))}
-                        <TableHead className="font-bold text-primary p-1 text-sm">Ausentes</TableHead>
-                        <TableHead className="font-bold text-primary p-1 text-sm">Aus. Prolongadas</TableHead>
+                        <TableHead className="font-bold text-primary p-1 text-sm whitespace-nowrap">Ausencia del día</TableHead>
+                        <TableHead className="font-bold text-primary p-1 text-sm whitespace-nowrap">Ausencias prolongadas</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -97,3 +97,4 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
     </Accordion>
   );
 }
+
