@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, PlusCircle, Trash2, Users, Layers, ChevronDown, UserPlus } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Users, Layers, ChevronDown, UserPlus, Download } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -16,6 +16,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { format } from 'date-fns';
+import Papa from 'papaparse';
 
 
 type DashboardPageClientProps = {
@@ -40,6 +42,30 @@ export default function DashboardPageClient({
      ]);
      setEmployees(allEmployeesData);
      setOffices(allOfficesData);
+  }
+
+  const handleExport = () => {
+    const officeMap = new Map(offices.map(o => [o.id, o.name]));
+    const dataToExport = employees.map(emp => ({
+      'Nombre': emp.name,
+      'Oficina': officeMap.get(emp.officeId) || 'Sin Asignar',
+      'Rol': emp.role,
+      'Nivel': emp.level,
+      'Estado': emp.status,
+    }));
+
+    const csv = Papa.unparse(dataToExport);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    const formattedDate = format(new Date(), 'dd-MM-yyyy_HH-mm');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Reporte-asistencia_${formattedDate}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   const officeHeader = (
@@ -110,6 +136,10 @@ export default function DashboardPageClient({
                     </DropdownMenuContent>
                   </DropdownMenu>
 
+                  <Button variant="outline" onClick={handleExport}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Exportar a CSV
+                  </Button>
                </div>
             </header>
             
