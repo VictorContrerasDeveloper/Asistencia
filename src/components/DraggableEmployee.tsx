@@ -52,7 +52,9 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
   const levelAbbreviation = LevelAbbreviations[employee.level] || 'Basic.';
   const rolePrefix = RolePrefixes[employee.role];
   const displayPrefix = rolePrefix ? rolePrefix : levelAbbreviation;
+  
   const isProlongedAbsence = PROLONGED_ABSENCE_REASONS.includes(employee.absenceReason);
+  const isDailyAbsence = employee.absenceReason === 'Inasistencia';
 
   return (
     <div
@@ -63,7 +65,8 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
         "hover:bg-muted/80",
         isOverlay && "bg-muted shadow-lg",
         isDragging && "cursor-grabbing",
-        isProlongedAbsence && "text-muted-foreground italic"
+        isProlongedAbsence && "text-red-600 dark:text-red-500 italic",
+        isDailyAbsence && "text-muted-foreground italic"
       )}
     >
        <div 
