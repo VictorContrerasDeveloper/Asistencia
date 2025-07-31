@@ -67,6 +67,7 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
                             <TableHead key={role} className="text-center font-bold text-primary p-1 text-sm">{role}</TableHead>
                         ))}
                         <TableHead className="font-bold text-primary p-1 text-sm">Ausentes</TableHead>
+                        <TableHead className="font-bold text-primary p-1 text-sm">Aus. Prolongadas</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -84,6 +85,7 @@ export default function DailySummaryTable({ summaries, onDelete }: DailySummaryT
                                     )
                                 })}
                                  <TableCell className="text-xs p-1">{officeData.absent || '-'}</TableCell>
+                                 <TableCell className="text-xs p-1">{officeData.prolongedAbsences || '-'}</TableCell>
                             </TableRow>
                         )
                     })}

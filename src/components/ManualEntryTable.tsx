@@ -81,6 +81,11 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                     .filter(emp => emp.officeId === office.id && officeAttendance[emp.id] === 'Ausente' && !PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason))
                     .map(emp => emp.name)
                     .join(' / ');
+                
+                const prolongedAbsenceNames = employees
+                    .filter(emp => emp.officeId === office.id && PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason))
+                    .map(emp => emp.name)
+                    .join(' / ');
 
                 summaryData[office.id] = {
                     name: office.name,
@@ -95,6 +100,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                       Tablet: office.theoreticalStaffing?.Tablet || 0,
                     },
                     absent: absentEmployeeNames || "",
+                    prolongedAbsences: prolongedAbsenceNames || "",
                 };
             });
             return summaryData;
@@ -217,6 +223,26 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
     );
   }
 
+  const getEmployeeNamesForProlongedAbsence = (officeId: string): React.ReactElement | "-" => {
+    const officeEmployees = employees.filter(emp => emp.officeId === officeId);
+    const names = officeEmployees
+        .filter(emp => PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason))
+        .map(emp => emp.name);
+
+    if(names.length === 0) return "-";
+    
+    return (
+      <span className="inline-flex items-center flex-wrap justify-center">
+        {names.map((name, index) => (
+          <React.Fragment key={name}>
+            <span>{name}</span>
+            {index < names.length - 1 && <span className="font-extrabold text-base mx-1">/</span>}
+          </React.Fragment>
+        ))}
+      </span>
+    );
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, currentIndex: number) => {
       if(e.key === 'Enter') {
           e.preventDefault();
@@ -241,7 +267,8 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                 <TableHead key={role} colSpan={2} className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>{role}</TableHead>
               ))}
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>Atrasos</TableHead>
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1'}>Ausentes</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>Ausentes</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1'}>Aus. Prolongadas</TableHead>
           </TableRow>
           <TableRow className="border-0 h-auto">
               {DISPLAY_ROLES.map((role, index) => (
@@ -363,8 +390,11 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
                  <TableCell className={'text-center text-xs p-1 border-r border-primary'}>
                     {getEmployeeNamesByStatus(office.id, 'Atrasado')}
                   </TableCell>
-                  <TableCell className={'text-center text-xs p-1'}>
+                  <TableCell className={'text-center text-xs p-1 border-r border-primary'}>
                     {getEmployeeNamesByStatus(office.id, 'Ausente')}
+                  </TableCell>
+                   <TableCell className={'text-center text-xs p-1'}>
+                    {getEmployeeNamesForProlongedAbsence(office.id)}
                   </TableCell>
                 </TableRow>
             );

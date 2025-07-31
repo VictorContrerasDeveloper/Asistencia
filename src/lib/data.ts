@@ -58,6 +58,7 @@ export type DailySummary = {
         [key in EmployeeRole]?: number;
       };
       absent: string;
+      prolongedAbsences: string;
     };
   };
 };
@@ -137,6 +138,7 @@ export const clearAllRealStaffing = async (officeIds: string[]) => {
         Modulo: 0,
         Anfitrión: 0,
         Tablet: 0,
+        Supervisión: 0,
     };
     officeIds.forEach(id => {
         const officeRef = doc(db, 'offices', id);
