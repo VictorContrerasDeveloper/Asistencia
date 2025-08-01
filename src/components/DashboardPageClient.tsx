@@ -24,7 +24,6 @@ import { Calendar } from '@/components/ui/calendar';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import html2canvas from 'html2canvas';
 import EditTheoreticalStaffingModal from './EditTheoreticalStaffingModal';
 
@@ -363,9 +362,10 @@ export default function DashboardPageClient({
             </header>
             
             <Tabs defaultValue="staffing" className="w-full">
-              <TabsList className='mb-4 grid w-full grid-cols-2'>
+              <TabsList className='mb-4 grid w-full grid-cols-3'>
                 <TabsTrigger value="staffing">Dotación Asignada</TabsTrigger>
                 <TabsTrigger value="report">Reporte Diario</TabsTrigger>
+                <TabsTrigger value="absences">Ausencias Prolongadas</TabsTrigger>
               </TabsList>
               <TabsContent value="staffing">
                 <DraggableStaffDashboard 
@@ -438,36 +438,6 @@ export default function DashboardPageClient({
                     </CardFooter>
                   </Card>
 
-                  <Card id="prolonged-absence-summary" className="w-full overflow-hidden">
-                      <div className="border-b">
-                          <CardHeader className="flex flex-row items-center justify-center p-4 text-center">
-                              <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
-                          </CardHeader>
-                          <CardContent className="px-4">
-                              {loading ? (
-                              <div className="p-6">
-                                  <Skeleton className="h-40 w-full" />
-                              </div>
-                              ) : (
-                                  <ProlongedAbsenceTable 
-                                      offices={manualOffices} 
-                                      employees={employees}
-                                      onEmployeeReinstated={handleEmployeeReinstated}
-                                      onAbsenceUpdated={handleAbsenceUpdated}
-                                  />
-                              )}
-                          </CardContent>
-                      </div>
-                      <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
-                          <Button size="icon" variant="ghost" onClick={() => setIsAbsenceModalOpen(true)} title="Agregar Ausencia">
-                              <PlusCircle className="h-5 w-5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence} title="Copiar Imagen de Ausencias">
-                              <Camera className="h-5 w-5" />
-                          </Button>
-                      </CardFooter>
-                  </Card>
-
                   <Card id="daily-summary" className="w-full overflow-hidden">
                     <CardHeader className="items-center">
                       <CardTitle>Resumen Diario Guardado</CardTitle>
@@ -480,6 +450,37 @@ export default function DashboardPageClient({
                       )}
                     </CardContent>
                   </Card>
+              </TabsContent>
+              <TabsContent value="absences" className="space-y-8">
+                 <Card id="prolonged-absence-summary" className="w-full overflow-hidden">
+                    <div className="border-b">
+                        <CardHeader className="flex flex-row items-center justify-center p-4 text-center">
+                            <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
+                        </CardHeader>
+                        <CardContent className="px-4">
+                            {loading ? (
+                            <div className="p-6">
+                                <Skeleton className="h-40 w-full" />
+                            </div>
+                            ) : (
+                                <ProlongedAbsenceTable 
+                                    offices={manualOffices} 
+                                    employees={employees}
+                                    onEmployeeReinstated={handleEmployeeReinstated}
+                                    onAbsenceUpdated={handleAbsenceUpdated}
+                                />
+                            )}
+                        </CardContent>
+                    </div>
+                    <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
+                        <Button size="icon" variant="ghost" onClick={() => setIsAbsenceModalOpen(true)} title="Agregar Ausencia">
+                            <PlusCircle className="h-5 w-5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence} title="Copiar Imagen de Ausencias">
+                            <Camera className="h-5 w-5" />
+                        </Button>
+                    </CardFooter>
+                </Card>
               </TabsContent>
             </Tabs>
           </>
