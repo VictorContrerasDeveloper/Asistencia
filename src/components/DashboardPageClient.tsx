@@ -23,6 +23,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import html2canvas from 'html2canvas';
 import EditTheoreticalStaffingModal from './EditTheoreticalStaffingModal';
 import SaveDayModal from './SaveDayModal';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 type DashboardPageClientProps = {
   office: { name: string; id: string; };
@@ -384,10 +385,6 @@ export default function DashboardPageClient({
                         <Pencil className="mr-2 h-4 w-4" />
                         Editar Dotación Teórica
                     </Button>
-                    <Button onClick={() => setIsSaveDayModalOpen(true)} disabled={isSavingDay}>
-                        <Save className="mr-2 h-4 w-4" />
-                        Guardar Día
-                    </Button>
                   </div>
 
                   <Card id="manual-entry-summary" className="w-full overflow-hidden">
@@ -408,14 +405,40 @@ export default function DashboardPageClient({
                       </CardContent>
                     </div>
                     <CardFooter className="flex justify-end items-center p-2 exclude-from-image bg-card">
-                        <div className="flex items-center gap-2">
-                          <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)} title="Limpiar Ingresos">
-                            <Eraser className="h-5 w-5" />
-                          </Button>
-                          <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary} title="Copiar Imagen del Resumen">
-                            <Camera className="h-5 w-5" />
-                          </Button>
-                        </div>
+                        <TooltipProvider>
+                          <div className="flex items-center gap-2">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button size="icon" variant="ghost" onClick={() => setIsSaveDayModalOpen(true)} disabled={isSavingDay}>
+                                    <Save className="h-5 w-5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Guardar Día</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)}>
+                                    <Eraser className="h-5 w-5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Limpiar Ingresos</p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary}>
+                                    <Camera className="h-5 w-5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Copiar Imagen del Resumen</p>
+                                </TooltipContent>
+                              </Tooltip>
+                          </div>
+                        </TooltipProvider>
                     </CardFooter>
                   </Card>
 
