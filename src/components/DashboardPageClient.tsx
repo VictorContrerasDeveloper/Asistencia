@@ -121,12 +121,6 @@ export default function DashboardPageClient({
                           <span>modificaciones masivas de datos</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                         <Link href="/dashboard/bulk-add-employees">
-                          <Users className="mr-2 h-4 w-4" />
-                          <span>Carga Masiva de Personal</span>
-                        </Link>
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
 
