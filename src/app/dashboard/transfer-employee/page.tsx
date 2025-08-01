@@ -116,7 +116,7 @@ export default function TransferEmployeePage() {
       <div className="flex flex-col min-h-screen bg-background">
          <header className="flex items-center justify-between p-4 border-b bg-card">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard/manual-entry">
+            <Link href="/dashboard/general">
               <Button variant="outline" size="icon">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
