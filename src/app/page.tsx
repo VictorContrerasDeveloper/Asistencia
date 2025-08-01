@@ -28,9 +28,6 @@ export default async function Home() {
               Ir al Panel de Control
            </Button>
          </Link>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Accede al panel unificado para gestionar toda la información.
-          </p>
       </div>
     </main>
   );
