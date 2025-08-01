@@ -127,12 +127,6 @@ export default function DashboardPageClient({
                           <span>Carga Masiva de Personal</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard/delete-employee">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Eliminar Personal</span>
-                        </Link>
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
 

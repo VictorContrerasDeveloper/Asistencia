@@ -195,8 +195,8 @@ export default function DraggableStaffDashboard({
     setIsEditModalOpen(true);
   };
 
-  const handleEditSuccess = (updatedEmployee: Employee) => {
-    onEmployeeUpdate(updatedEmployee);
+  const handleEditSuccess = () => {
+    onRefreshData();
     setIsEditModalOpen(false);
   }
 

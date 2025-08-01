@@ -14,20 +14,30 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Employee, updateEmployee, EmployeeRole, EmployeeLevel, Office, AttendanceStatus, AbsenceReason } from '@/lib/data';
+import { Employee, updateEmployee, deleteEmployee, EmployeeRole, EmployeeLevel, Office, AttendanceStatus, AbsenceReason } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarIcon, Pencil } from 'lucide-react';
+import { CalendarIcon, Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { formatInTimeZone } from 'date-fns-tz';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 type EditEmployeeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (employee: Employee) => void;
+  onSuccess: () => void;
   employee: Employee;
   offices: Office[];
 };
@@ -56,6 +66,7 @@ export default function EditEmployeeModal({
 
   const [isSaving, setIsSaving] = useState(false);
   const [isNameEditable, setIsNameEditable] = useState(false);
+  const [isAlertOpen, setAlertOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -129,7 +140,7 @@ export default function EditEmployeeModal({
         }
 
         await updateEmployee(employee.id, updates);
-        onSuccess({ ...employee, ...updates});
+        onSuccess();
     } catch (error) {
         toast({
             title: "Error",
@@ -141,7 +152,29 @@ export default function EditEmployeeModal({
     }
   };
 
+  const handleDelete = async () => {
+    setIsSaving(true);
+    try {
+        await deleteEmployee(employee.id);
+        toast({
+            title: "Personal Eliminado",
+            description: `${employee.name} ha sido eliminado/a permanentemente.`,
+        });
+        onSuccess();
+    } catch (error) {
+        toast({
+            title: "Error de Eliminación",
+            description: "No se pudo eliminar al ejecutivo.",
+            variant: "destructive"
+        });
+    } finally {
+        setIsSaving(false);
+        setAlertOpen(false);
+    }
+  }
+
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -277,13 +310,38 @@ export default function EditEmployeeModal({
           )}
 
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Guardando...' : 'Confirmar Cambios'}
+        <DialogFooter className="justify-between pt-4">
+           <Button variant="destructive" onClick={() => setAlertOpen(true)} disabled={isSaving}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Eliminar
           </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving ? 'Guardando...' : 'Confirmar Cambios'}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={isAlertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+            Esta acción no se puede deshacer. Esto eliminará permanentemente a 
+            <strong> {employee.name}</strong> y todos sus datos asociados.
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+            Sí, eliminar
+            </AlertDialogAction>
+        </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
