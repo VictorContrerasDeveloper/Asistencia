@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Camera, Save, CalendarIcon, Eraser, PlusCircle, Pencil } from 'lucide-react';
+import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Camera, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -19,13 +19,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Skeleton } from '@/components/ui/skeleton';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
 import { useToast } from "@/hooks/use-toast";
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { es } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import html2canvas from 'html2canvas';
 import EditTheoreticalStaffingModal from './EditTheoreticalStaffingModal';
+import SaveDayModal from './SaveDayModal';
 
 type DashboardPageClientProps = {
   office: { name: string; id: string; };
@@ -51,7 +48,7 @@ export default function DashboardPageClient({
   const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
   const [isSavingDay, setIsSavingDay] = useState(false);
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [isSaveDayModalOpen, setIsSaveDayModalOpen] = useState(false);
   const manualEntryTableRef = React.useRef<{ getSummaryData: () => any }>(null);
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
   const [isClearAlertOpen, setClearAlertOpen] = useState(false);
@@ -247,15 +244,18 @@ export default function DashboardPageClient({
     }
   };
   
-  const handleSaveDay = async () => {
-    if (!selectedDate) return;
+  const handleConfirmSaveDay = async (date: Date) => {
     setIsSavingDay(true);
     if(manualEntryTableRef.current) {
       try {
         const summaryData = manualEntryTableRef.current.getSummaryData();
-        await saveDailySummary(selectedDate, summaryData);
+        await saveDailySummary(date, summaryData);
         const fetchedSummaries = await getDailySummaries();
         setDailySummaries(fetchedSummaries);
+        toast({
+          title: "Reporte Guardado",
+          description: `El resumen del día ${format(date, 'PPP')} ha sido guardado.`,
+        });
       } catch (error) {
          toast({
           title: "Error",
@@ -264,7 +264,10 @@ export default function DashboardPageClient({
         });
       } finally {
         setIsSavingDay(false);
+        setIsSaveDayModalOpen(false);
       }
+    } else {
+       setIsSavingDay(false);
     }
   };
 
@@ -381,31 +384,9 @@ export default function DashboardPageClient({
                         <Pencil className="mr-2 h-4 w-4" />
                         Editar Dotación Teórica
                     </Button>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "justify-start text-left font-normal",
-                            !selectedDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate || undefined}
-                          onSelect={(date) => date && setSelectedDate(date)}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <Button onClick={handleSaveDay} disabled={isSavingDay || !selectedDate}>
+                    <Button onClick={() => setIsSaveDayModalOpen(true)} disabled={isSavingDay}>
                         <Save className="mr-2 h-4 w-4" />
-                        {isSavingDay ? 'Guardando...' : 'Guardar Día'}
+                        Guardar Día
                     </Button>
                   </div>
 
@@ -503,6 +484,12 @@ export default function DashboardPageClient({
         onSuccess={refetchAllData}
         offices={offices}
       />
+    <SaveDayModal
+        isOpen={isSaveDayModalOpen}
+        onClose={() => setIsSaveDayModalOpen(false)}
+        onSave={handleConfirmSaveDay}
+        isSaving={isSavingDay}
+     />
      <AlertDialog open={!!summaryToDelete} onOpenChange={(isOpen) => !isOpen && setSummaryToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
