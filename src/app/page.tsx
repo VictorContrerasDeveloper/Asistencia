@@ -1,11 +1,22 @@
 
+"use client"
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Globe, FilePen, LayoutDashboard } from 'lucide-react';
+import { Globe, FilePen, LayoutDashboard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default async function Home() {
+export default function Home() {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleClick = () => {
+    setIsLoading(true);
+    router.push('/dashboard/general');
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">
@@ -22,12 +33,19 @@ export default async function Home() {
       </div>
 
       <div className="w-full max-w-md text-center">
-         <Link href="/dashboard/general" className="group">
-           <Button size="lg" className="w-full text-lg py-8">
-              <LayoutDashboard className="mr-4 h-6 w-6" />
-              Ir al Panel de Control
+           <Button size="lg" className="w-full text-lg py-8" onClick={handleClick} disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-4 h-6 w-6 animate-spin" />
+                  Cargando...
+                </>
+              ) : (
+                <>
+                  <LayoutDashboard className="mr-4 h-6 w-6" />
+                  Ir al Panel de Control
+                </>
+              )}
            </Button>
-         </Link>
       </div>
     </main>
   );
