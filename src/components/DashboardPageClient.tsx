@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, PlusCircle, Trash2, Users, Layers, ChevronDown, UserPlus, Download, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Users, Layers, ChevronDown, UserPlus, Download } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -34,7 +34,6 @@ export default function DashboardPageClient({
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [employees, setEmployees] = useState(allEmployeesProp);
   const [offices, setOffices] = useState<Office[]>(officesProp);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const refetchAllData = async () => {
      const [allEmployeesData, allOfficesData] = await Promise.all([
@@ -43,12 +42,6 @@ export default function DashboardPageClient({
      ]);
      setEmployees(allEmployeesData);
      setOffices(allOfficesData);
-  }
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await refetchAllData();
-    setIsRefreshing(false);
   }
 
   const handleExport = () => {
@@ -128,10 +121,6 @@ export default function DashboardPageClient({
                   <Button variant="outline" onClick={handleExport}>
                     <Download className="mr-2 h-4 w-4" />
                     Exportar a CSV
-                  </Button>
-                  <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-                    <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    {isRefreshing ? 'Refrescando...' : 'Refrescar'}
                   </Button>
                </div>
             </header>
