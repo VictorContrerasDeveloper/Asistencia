@@ -41,6 +41,8 @@ export default function DashboardPageClient({
   const [offices, setOffices] = useState<Office[]>(officesProp);
   const [dailySummaries, setDailySummaries] = useState<DailySummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('staffing');
+
 
   // Manual Entry States
   const { toast } = useToast();
@@ -248,14 +250,16 @@ export default function DashboardPageClient({
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  <Button variant="outline" onClick={handleExport}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Exportar a CSV
-                  </Button>
+                  {activeTab === 'staffing' && (
+                    <Button variant="outline" onClick={handleExport}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Exportar a CSV
+                    </Button>
+                  )}
                </div>
             </header>
             
-            <Tabs defaultValue="staffing" className="w-full">
+            <Tabs defaultValue="staffing" className="w-full" onValueChange={setActiveTab} value={activeTab}>
                <TabsList className='mb-0 grid w-full grid-cols-3 bg-transparent p-0 border-b border-gray-200 rounded-none'>
                 <TabsTrigger value="staffing" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Dotación Asignada</TabsTrigger>
                 <TabsTrigger value="report" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Reporte Diario</TabsTrigger>
