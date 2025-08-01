@@ -11,12 +11,12 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">
        <div className="w-full max-w-md text-center mb-8">
          <Image
-            src="https://placehold.co/600x400.png"
-            alt="Hero image for attendance control"
+            src="https://firebasestorage.googleapis.com/v0/b/attendance-hero-av2o3.firebasestorage.app/o/Helpbank.avif?alt=media&token=98d20f3c-619f-427b-bde3-46efdf9da64d"
+            alt="Helpbank Logo"
             width={600}
             height={400}
             className="rounded-lg shadow-md mb-8"
-            data-ai-hint="office teamwork"
+            priority
           />
         <h1 className="text-4xl sm:text-5xl font-bold text-primary tracking-tight">Control de Asistencia</h1>
         <p className="mt-4 text-lg text-muted-foreground">
