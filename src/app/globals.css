@@ -87,6 +87,13 @@ body {
   }
 }
 
+@layer components {
+    [role="tablist"] [role="tab"][data-state="active"] {
+        @apply border-b-2 border-primary -mb-px text-primary;
+    }
+}
+
+
 /* Hide arrows from number inputs */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
@@ -97,3 +104,5 @@ input[type=number]::-webkit-outer-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+    

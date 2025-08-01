@@ -256,12 +256,12 @@ export default function DashboardPageClient({
             </header>
             
             <Tabs defaultValue="staffing" className="w-full">
-              <TabsList className='mb-4 grid w-full grid-cols-3'>
+              <TabsList className='mb-0 grid w-full grid-cols-3 bg-transparent p-0 border-b border-destructive rounded-none'>
                 <TabsTrigger value="staffing">Dotación Asignada</TabsTrigger>
                 <TabsTrigger value="report">Reporte Diario</TabsTrigger>
                 <TabsTrigger value="absences">Ausencias Prolongadas</TabsTrigger>
               </TabsList>
-              <TabsContent value="staffing">
+              <TabsContent value="staffing" className="mt-6">
                 <DraggableStaffDashboard 
                   offices={offices} 
                   employees={employees} 
@@ -269,7 +269,7 @@ export default function DashboardPageClient({
                   onRefreshData={refetchAllData}
                 />
               </TabsContent>
-              <TabsContent value="report" className="space-y-8">
+              <TabsContent value="report" className="space-y-8 mt-6">
                   <Card id="manual-entry-summary" className="w-full overflow-hidden">
                     <div className="border-b">
                       <CardHeader className="flex flex-row items-center justify-center p-4">
@@ -338,7 +338,7 @@ export default function DashboardPageClient({
                     </CardContent>
                   </Card>
               </TabsContent>
-              <TabsContent value="absences" className="space-y-8">
+              <TabsContent value="absences" className="space-y-8 mt-6">
                  <Card id="prolonged-absence-summary" className="w-full overflow-hidden">
                     <div className="border-b">
                         <CardHeader className="flex flex-row items-center justify-center p-4 text-center">
@@ -428,3 +428,5 @@ export default function DashboardPageClient({
     </>
   );
 }
+
+    
