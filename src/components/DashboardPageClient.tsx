@@ -219,12 +219,11 @@ export default function DashboardPageClient({
 
 
   return (
-    <>
+    <TooltipProvider>
     <div className="flex flex-col h-screen bg-background text-foreground">
        <main className="flex-1 overflow-auto p-4 md:p-8">
           <>
-             <header className="flex flex-col items-center justify-center p-4 border-b bg-card mb-8 gap-4">
-               {officeHeader}
+             <header className="flex flex-col md:flex-row items-center justify-between p-4 border-b bg-card mb-8 gap-4">
                <div className="flex items-center gap-2 flex-wrap justify-center">
                   <Link href="/">
                     <Button variant="outline">
@@ -236,12 +235,19 @@ export default function DashboardPageClient({
                       <UserPlus />
                       <span>Agregar Personal</span>
                   </Button>
-
+               </div>
+               <div className="flex items-center gap-2">
                   {activeTab === 'staffing' && (
-                    <Button variant="outline" onClick={handleExport}>
-                      <Download className="mr-2 h-4 w-4" />
-                      Exportar a CSV
-                    </Button>
+                     <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={handleExport}>
+                                <Download />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                           <p>Exportar a CSV</p>
+                        </TooltipContent>
+                    </Tooltip>
                   )}
                </div>
             </header>
@@ -416,6 +422,6 @@ export default function DashboardPageClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </TooltipProvider>
   );
 }
