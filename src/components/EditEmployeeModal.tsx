@@ -197,6 +197,9 @@ export default function EditEmployeeModal({
                 <Button variant="outline" size="icon" onClick={() => setIsNameEditable(true)} className="shrink-0">
                     <Pencil className="h-4 w-4" />
                 </Button>
+                <Button variant="destructive" size="icon" onClick={() => setAlertOpen(true)} disabled={isSaving}>
+                    <Trash2 className="h-4 w-4" />
+                </Button>
              </div>
            </div>
            <div className="space-y-1">
@@ -310,11 +313,7 @@ export default function EditEmployeeModal({
           )}
 
         </div>
-        <DialogFooter className="justify-between pt-4">
-           <Button variant="destructive" onClick={() => setAlertOpen(true)} disabled={isSaving}>
-            <Trash2 className="mr-2 h-4 w-4" />
-            Eliminar
-          </Button>
+        <DialogFooter className="justify-end pt-4">
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancelar</Button>
             <Button onClick={handleSave} disabled={isSaving}>
