@@ -9,7 +9,7 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">
-       <div className="w-full max-w-md text-center mb-8">
+       <div className="w-full max-w-2xl text-center mb-8">
          <Image
             src="https://firebasestorage.googleapis.com/v0/b/attendance-hero-av2o3.firebasestorage.app/o/Helpbank.avif?alt=media&token=98d20f3c-619f-427b-bde3-46efdf9da64d"
             alt="Helpbank Logo"
@@ -18,7 +18,7 @@ export default async function Home() {
             className="rounded-lg shadow-md mb-8 mx-auto"
             priority
           />
-        <h1 className="text-4xl sm:text-5xl font-bold text-primary tracking-tight">Gestion de asignación y asistencia del personal</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight">Gestion de asignación y asistencia del personal</h1>
         <p className="mt-4 text-lg text-muted-foreground">
           Una solución centralizada para gestionar la asistencia diaria del personal.
         </p>
