@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Office, EmployeeRole } from '@/lib/data';
 import TheoreticalStaffingTable from './TheoreticalStaffingTable';
-import { useToast } from './use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 
 type EditTheoreticalStaffingModalProps = {
