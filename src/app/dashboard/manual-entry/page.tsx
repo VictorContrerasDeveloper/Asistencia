@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Camera, PlusCircle, Save, CalendarIcon, Trash2, Eraser, Shuffle } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Save, CalendarIcon, Trash2, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { getOffices, Office, getEmployees, Employee, saveDailySummary, getDailySummaries, DailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
@@ -11,7 +11,6 @@ import ManualEntryTable from '@/components/ManualEntryTable';
 import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
 import DailySummaryTable from '@/components/DailySummaryTable';
 import { Skeleton } from '@/components/ui/skeleton';
-import html2canvas from 'html2canvas';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
 import { useToast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -29,15 +28,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function ManualEntryPage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [dailySummaries, setDailySummaries] = useState<DailySummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
   const [isSavingDay, setIsSavingDay] = useState(false);
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
   const { toast } = useToast();
@@ -98,113 +94,6 @@ export default function ManualEntryPage() {
     });
     setIsAbsenceModalOpen(false);
   }
-
-  const copyCanvasToClipboard = async (canvas: HTMLCanvasElement) => {
-     canvas.toBlob(async (blob) => {
-        if(blob) {
-            try {
-                await navigator.clipboard.write([
-                    new ClipboardItem({ 'image/png': blob })
-                ]);
-            } catch (err) {
-                 console.error("Failed to copy image to clipboard", err);
-            }
-        }
-      }, 'image/png');
-  }
-
-  const handleGenerateSummaryImage = async () => {
-    setIsGeneratingSummary(true);
-    const summaryTable = document.getElementById('manual-entry-summary');
-    if (!summaryTable) {
-        setIsGeneratingSummary(false);
-        return;
-    }
-
-    const inputs = summaryTable.querySelectorAll('input[type="number"]');
-    const originalValues: { el: HTMLElement, originalContent: string, originalPadding: string }[] = [];
-
-    const elementsToHide = summaryTable.querySelectorAll('.exclude-from-image');
-    elementsToHide.forEach(el => {
-      const htmlEl = el as HTMLElement;
-      htmlEl.style.display = 'none';
-    });
-    
-    inputs.forEach((input) => {
-      const inputEl = input as HTMLInputElement;
-      const cell = inputEl.parentElement as HTMLTableCellElement;
-      
-      if (cell) {
-        originalValues.push({ el: cell, originalContent: cell.innerHTML, originalPadding: cell.style.padding });
-
-        const value = inputEl.value || '0';
-        const isDeficit = inputEl.className.includes('bg-red-600');
-        
-        const centeredContent = `
-          <div class="w-full h-7 flex items-center justify-center rounded-md ${isDeficit ? 'bg-red-600 text-white' : ''}">
-            ${value}
-          </div>
-        `;
-
-        cell.innerHTML = centeredContent;
-        cell.style.padding = '0';
-      }
-    });
-
-    const officeCells = summaryTable.querySelectorAll('td.font-medium');
-     officeCells.forEach(cell => {
-        const htmlCell = cell as HTMLElement;
-        originalValues.push({ el: htmlCell, originalContent: htmlCell.innerHTML, originalPadding: htmlCell.style.padding });
-        htmlCell.style.padding = '0.25rem'; 
-     });
-
-
-    try {
-      const canvas = await html2canvas(summaryTable, { scale: 2, backgroundColor: null });
-      await copyCanvasToClipboard(canvas);
-    } catch (error) {
-       console.error("Error generating summary image:", error);
-    } finally {
-        originalValues.forEach(item => {
-          item.el.innerHTML = item.originalContent;
-          item.el.style.padding = item.originalPadding;
-        });
-        elementsToHide.forEach(el => {
-          const htmlEl = el as HTMLElement;
-          htmlEl.style.display = '';
-        });
-        setIsGeneratingSummary(false);
-    }
-  };
-
-
-  const handleGenerateAbsenceImage = async () => {
-    setIsGeneratingAbsence(true);
-    const absenceTable = document.getElementById('prolonged-absence-summary');
-     if (!absenceTable) {
-        setIsGeneratingAbsence(false);
-        return;
-    }
-    
-    const elementsToHide = absenceTable.querySelectorAll('.exclude-from-image');
-    const originalDisplays: { el: HTMLElement, display: string}[] = [];
-    
-    elementsToHide.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
-        htmlEl.style.display = 'none';
-    });
-
-    try {
-      const canvas = await html2canvas(absenceTable, { scale: 2, backgroundColor: null });
-      await copyCanvasToClipboard(canvas);
-    } catch (error) {
-       console.error("Error generating absence image:", error);
-    } finally {
-        originalDisplays.forEach(item => item.el.style.display = item.display);
-        setIsGeneratingAbsence(false);
-    }
-  };
   
   const handleSaveDay = async () => {
     if (!selectedDate) return;
@@ -332,26 +221,10 @@ export default function ManualEntryPage() {
                 </CardContent>
               </div>
                <CardFooter className="flex justify-between items-center p-2 exclude-from-image bg-card">
-                 <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                         <Link href="/dashboard/transfer-employee">
-                          <Button variant="ghost" size="icon">
-                              <Shuffle className="h-5 w-5" />
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Modificar asignación de dotacion</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div></div>
                   <div className="flex items-center gap-2">
                     <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)} title="Limpiar Ingresos">
                       <Eraser className="h-5 w-5" />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary} title="Copiar Imagen del Resumen">
-                      <Camera className="h-5 w-5" />
                     </Button>
                   </div>
               </CardFooter>
@@ -380,9 +253,6 @@ export default function ManualEntryPage() {
                 <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
                      <Button size="icon" variant="ghost" onClick={() => setIsAbsenceModalOpen(true)} title="Agregar Ausencia">
                         <PlusCircle className="h-5 w-5" />
-                    </Button>
-                     <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence} title="Copiar Imagen de Ausencias">
-                        <Camera className="h-5 w-5" />
                     </Button>
                 </CardFooter>
             </Card>

@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Camera, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
+import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -12,15 +12,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { format } from 'date-fns';
 import Papa from 'papaparse';
-import ManualEntryTable from '@/components/ManualEntryTable';
-import ProlongedAbsenceTable from '@/components/ProlongedAbsenceTable';
-import DailySummaryTable from '@/components/DailySummaryTable';
+import ManualEntryTable from './ManualEntryTable';
+import ProlongedAbsenceTable from './ProlongedAbsenceTable';
+import DailySummaryTable from './DailySummaryTable';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import AddAbsenceModal from '@/components/AddAbsenceModal';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import html2canvas from 'html2canvas';
 import EditTheoreticalStaffingModal from './EditTheoreticalStaffingModal';
 import SaveDayModal from './SaveDayModal';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
@@ -45,8 +44,6 @@ export default function DashboardPageClient({
 
   // Manual Entry States
   const { toast } = useToast();
-  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
-  const [isGeneratingAbsence, setIsGeneratingAbsence] = useState(false);
   const [isSavingDay, setIsSavingDay] = useState(false);
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
   const [isSaveDayModalOpen, setIsSaveDayModalOpen] = useState(false);
@@ -137,113 +134,6 @@ export default function DashboardPageClient({
     });
     setIsAbsenceModalOpen(false);
   }
-
-  const copyCanvasToClipboard = async (canvas: HTMLCanvasElement) => {
-     canvas.toBlob(async (blob) => {
-        if(blob) {
-            try {
-                await navigator.clipboard.write([
-                    new ClipboardItem({ 'image/png': blob })
-                ]);
-            } catch (err) {
-                 console.error("Failed to copy image to clipboard", err);
-            }
-        }
-      }, 'image/png');
-  }
-
-  const handleGenerateSummaryImage = async () => {
-    setIsGeneratingSummary(true);
-    const summaryTable = document.getElementById('manual-entry-summary');
-    if (!summaryTable) {
-        setIsGeneratingSummary(false);
-        return;
-    }
-
-    const inputs = summaryTable.querySelectorAll('input[type="number"]');
-    const originalValues: { el: HTMLElement, originalContent: string, originalPadding: string }[] = [];
-
-    const elementsToHide = summaryTable.querySelectorAll('.exclude-from-image');
-    elementsToHide.forEach(el => {
-      const htmlEl = el as HTMLElement;
-      htmlEl.style.display = 'none';
-    });
-    
-    inputs.forEach((input) => {
-      const inputEl = input as HTMLInputElement;
-      const cell = inputEl.parentElement as HTMLTableCellElement;
-      
-      if (cell) {
-        originalValues.push({ el: cell, originalContent: cell.innerHTML, originalPadding: cell.style.padding });
-
-        const value = inputEl.value || '0';
-        const isDeficit = inputEl.className.includes('bg-red-600');
-        
-        const centeredContent = `
-          <div class="w-full h-7 flex items-center justify-center rounded-md ${isDeficit ? 'bg-red-600 text-white' : ''}">
-            ${value}
-          </div>
-        `;
-
-        cell.innerHTML = centeredContent;
-        cell.style.padding = '0';
-      }
-    });
-
-    const officeCells = summaryTable.querySelectorAll('td.font-medium');
-     officeCells.forEach(cell => {
-        const htmlCell = cell as HTMLElement;
-        originalValues.push({ el: htmlCell, originalContent: htmlCell.innerHTML, originalPadding: htmlCell.style.padding });
-        htmlCell.style.padding = '0.25rem'; 
-     });
-
-
-    try {
-      const canvas = await html2canvas(summaryTable, { scale: 2, backgroundColor: null });
-      await copyCanvasToClipboard(canvas);
-    } catch (error) {
-       console.error("Error generating summary image:", error);
-    } finally {
-        originalValues.forEach(item => {
-          item.el.innerHTML = item.originalContent;
-          item.el.style.padding = item.originalPadding;
-        });
-        elementsToHide.forEach(el => {
-          const htmlEl = el as HTMLElement;
-          htmlEl.style.display = '';
-        });
-        setIsGeneratingSummary(false);
-    }
-  };
-
-
-  const handleGenerateAbsenceImage = async () => {
-    setIsGeneratingAbsence(true);
-    const absenceTable = document.getElementById('prolonged-absence-summary');
-     if (!absenceTable) {
-        setIsGeneratingAbsence(false);
-        return;
-    }
-    
-    const elementsToHide = absenceTable.querySelectorAll('.exclude-from-image');
-    const originalDisplays: { el: HTMLElement, display: string}[] = [];
-    
-    elementsToHide.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        originalDisplays.push({el: htmlEl, display: htmlEl.style.display });
-        htmlEl.style.display = 'none';
-    });
-
-    try {
-      const canvas = await html2canvas(absenceTable, { scale: 2, backgroundColor: null });
-      await copyCanvasToClipboard(canvas);
-    } catch (error) {
-       console.error("Error generating absence image:", error);
-    } finally {
-        originalDisplays.forEach(item => item.el.style.display = item.display);
-        setIsGeneratingAbsence(false);
-    }
-  };
   
   const handleConfirmSaveDay = async (date: Date) => {
     setIsSavingDay(true);
@@ -427,16 +317,6 @@ export default function DashboardPageClient({
                                   <p>Limpiar Ingresos</p>
                                 </TooltipContent>
                               </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button size="icon" variant="ghost" onClick={handleGenerateSummaryImage} disabled={isGeneratingSummary}>
-                                    <Camera className="h-5 w-5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Copiar Imagen del Resumen</p>
-                                </TooltipContent>
-                              </Tooltip>
                           </div>
                         </TooltipProvider>
                     </CardFooter>
@@ -479,9 +359,6 @@ export default function DashboardPageClient({
                     <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
                         <Button size="icon" variant="ghost" onClick={() => setIsAbsenceModalOpen(true)} title="Agregar Ausencia">
                             <PlusCircle className="h-5 w-5" />
-                        </Button>
-                        <Button size="icon" variant="ghost" onClick={handleGenerateAbsenceImage} disabled={isGeneratingAbsence} title="Copiar Imagen de Ausencias">
-                            <Camera className="h-5 w-5" />
                         </Button>
                     </CardFooter>
                 </Card>
