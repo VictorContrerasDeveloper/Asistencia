@@ -3,13 +3,12 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
+import { ArrowLeft, UserPlus, Download, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
 import DraggableStaffDashboard from './DraggableStaffDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { format } from 'date-fns';
 import Papa from 'papaparse';
 import ManualEntryTable from './ManualEntryTable';
@@ -233,22 +232,10 @@ export default function DashboardPageClient({
                       Volver a Paneles
                     </Button>
                   </Link>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="secondary">
-                        <Layers />
-                        Gestión de Personal
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                       <DropdownMenuItem onClick={() => setAddModalOpen(true)}>
-                          <UserPlus className="mr-2 h-4 w-4" />
-                          <span>Agregar Personal</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button variant="secondary" onClick={() => setAddModalOpen(true)}>
+                      <UserPlus />
+                      <span>Agregar Personal</span>
+                  </Button>
 
                   {activeTab === 'staffing' && (
                     <Button variant="outline" onClick={handleExport}>
@@ -260,11 +247,11 @@ export default function DashboardPageClient({
             </header>
             
             <Tabs defaultValue="staffing" className="w-full" onValueChange={setActiveTab} value={activeTab}>
-               <TabsList className='mb-0 grid w-full grid-cols-3 bg-transparent p-0 border-b border-gray-200 rounded-none'>
-                <TabsTrigger value="staffing" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Dotación Asignada</TabsTrigger>
-                <TabsTrigger value="report" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Reporte Diario</TabsTrigger>
-                <TabsTrigger value="absences" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Ausencias Prolongadas</TabsTrigger>
-              </TabsList>
+                <TabsList className='mb-0 grid w-full grid-cols-3 bg-transparent p-0 border-b border-destructive rounded-none'>
+                  <TabsTrigger value="staffing" className="data-[state=active]:border-b-2 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Dotación Asignada</TabsTrigger>
+                  <TabsTrigger value="report" className="data-[state=active]:border-b-2 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Reporte Diario</TabsTrigger>
+                  <TabsTrigger value="absences" className="data-[state=active]:border-b-2 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Ausencias Prolongadas</TabsTrigger>
+                </TabsList>
               <TabsContent value="staffing" className="mt-6">
                 <DraggableStaffDashboard 
                   offices={offices} 
