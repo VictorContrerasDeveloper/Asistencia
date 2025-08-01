@@ -256,10 +256,10 @@ export default function DashboardPageClient({
             </header>
             
             <Tabs defaultValue="staffing" className="w-full">
-              <TabsList className='mb-0 grid w-full grid-cols-3 bg-transparent p-0 border-b border-destructive rounded-none'>
-                <TabsTrigger value="staffing">Dotación Asignada</TabsTrigger>
-                <TabsTrigger value="report">Reporte Diario</TabsTrigger>
-                <TabsTrigger value="absences">Ausencias Prolongadas</TabsTrigger>
+               <TabsList className='mb-0 grid w-full grid-cols-3 bg-transparent p-0 border-b border-gray-200 rounded-none'>
+                <TabsTrigger value="staffing" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Dotación Asignada</TabsTrigger>
+                <TabsTrigger value="report" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Reporte Diario</TabsTrigger>
+                <TabsTrigger value="absences" className="data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground">Ausencias Prolongadas</TabsTrigger>
               </TabsList>
               <TabsContent value="staffing" className="mt-6">
                 <DraggableStaffDashboard 
@@ -428,5 +428,3 @@ export default function DashboardPageClient({
     </>
   );
 }
-
-    
