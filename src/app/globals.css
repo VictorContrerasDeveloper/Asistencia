@@ -89,7 +89,7 @@ body {
 
 @layer components {
     [role="tablist"] [role="tab"][data-state="active"] {
-        @apply border-b-2 border-primary -mb-px text-primary bg-background shadow-none;
+        @apply -mb-px text-primary bg-white shadow-none font-bold;
     }
 }
 

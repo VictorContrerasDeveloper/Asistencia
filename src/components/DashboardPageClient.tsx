@@ -254,9 +254,9 @@ export default function DashboardPageClient({
             
             <Tabs defaultValue="staffing" className="w-full" onValueChange={setActiveTab} value={activeTab}>
                 <TabsList className='mb-0 grid w-full grid-cols-3 bg-transparent p-0 border-b border-destructive rounded-none'>
-                  <TabsTrigger value="staffing" className="data-[state=active]:border-b-2 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Dotación Asignada</TabsTrigger>
-                  <TabsTrigger value="report" className="data-[state=active]:border-b-2 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Reporte Diario</TabsTrigger>
-                  <TabsTrigger value="absences" className="data-[state=active]:border-b-2 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Ausencias Prolongadas</TabsTrigger>
+                  <TabsTrigger value="staffing" className="data-[state=active]:border-b-4 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Dotación Asignada</TabsTrigger>
+                  <TabsTrigger value="report" className="data-[state=active]:border-b-4 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Reporte Diario</TabsTrigger>
+                  <TabsTrigger value="absences" className="data-[state=active]:border-b-4 data-[state=active]:border-destructive data-[state=active]:-mb-px data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-muted-foreground data-[state=active]:bg-background data-[state=active]:shadow-none rounded-none">Ausencias Prolongadas</TabsTrigger>
                 </TabsList>
               <TabsContent value="staffing" className="mt-6">
                 <DraggableStaffDashboard 
