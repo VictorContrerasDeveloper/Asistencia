@@ -270,13 +270,6 @@ export default function DashboardPageClient({
                 />
               </TabsContent>
               <TabsContent value="report" className="space-y-8">
-                 <div className="flex items-center justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsEditStaffingModalOpen(true)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Editar Dotación Teórica
-                    </Button>
-                  </div>
-
                   <Card id="manual-entry-summary" className="w-full overflow-hidden">
                     <div className="border-b">
                       <CardHeader className="flex flex-row items-center justify-center p-4">
@@ -297,6 +290,16 @@ export default function DashboardPageClient({
                     <CardFooter className="flex justify-end items-center p-2 exclude-from-image bg-card">
                         <TooltipProvider>
                           <div className="flex items-center gap-2">
+                               <Tooltip>
+                                <TooltipTrigger asChild>
+                                   <Button size="icon" variant="ghost" onClick={() => setIsEditStaffingModalOpen(true)}>
+                                      <Pencil className="h-5 w-5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Editar Dotación Teórica</p>
+                                </TooltipContent>
+                              </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Button size="icon" variant="ghost" onClick={() => setIsSaveDayModalOpen(true)} disabled={isSavingDay}>
