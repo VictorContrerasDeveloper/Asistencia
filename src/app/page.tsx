@@ -18,7 +18,7 @@ export default async function Home() {
             className="rounded-lg shadow-md mb-8 mx-auto"
             priority
           />
-        <h1 className="text-4xl sm:text-5xl font-bold text-primary tracking-tight">Control de Asistencia</h1>
+        <h1 className="text-4xl sm:text-5xl font-bold text-primary tracking-tight">Gestion de asignación y asistencia del personal</h1>
         <p className="mt-4 text-lg text-muted-foreground">
           Una solución centralizada para gestionar la asistencia diaria del personal.
         </p>
