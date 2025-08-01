@@ -13,9 +13,9 @@ export default async function Home() {
          <Image
             src="https://firebasestorage.googleapis.com/v0/b/attendance-hero-av2o3.firebasestorage.app/o/Helpbank.avif?alt=media&token=98d20f3c-619f-427b-bde3-46efdf9da64d"
             alt="Helpbank Logo"
-            width={600}
-            height={400}
-            className="rounded-lg shadow-md mb-8"
+            width={400}
+            height={267}
+            className="rounded-lg shadow-md mb-8 mx-auto"
             priority
           />
         <h1 className="text-4xl sm:text-5xl font-bold text-primary tracking-tight">Control de Asistencia</h1>
