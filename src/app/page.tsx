@@ -19,9 +19,6 @@ export default async function Home() {
             priority
           />
         <h1 className="text-3xl sm:text-4xl font-bold text-primary tracking-tight">Gestion de asignación y asistencia del personal</h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Una solución centralizada para gestionar la asistencia diaria del personal.
-        </p>
       </div>
 
       <div className="w-full max-w-md text-center">
