@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Camera, Save, CalendarIcon, Eraser, Shuffle, PlusCircle, Pencil } from 'lucide-react';
+import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Camera, Save, CalendarIcon, Eraser, PlusCircle, Pencil } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -426,21 +426,7 @@ export default function DashboardPageClient({
                         )}
                       </CardContent>
                     </div>
-                    <CardFooter className="flex justify-between items-center p-2 exclude-from-image bg-card">
-                      <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Link href="/dashboard/transfer-employee">
-                                <Button variant="ghost" size="icon">
-                                    <Shuffle className="h-5 w-5" />
-                                </Button>
-                              </Link>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Modificar asignación de dotacion</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                    <CardFooter className="flex justify-end items-center p-2 exclude-from-image bg-card">
                         <div className="flex items-center gap-2">
                           <Button size="icon" variant="ghost" onClick={() => setClearAlertOpen(true)} title="Limpiar Ingresos">
                             <Eraser className="h-5 w-5" />
