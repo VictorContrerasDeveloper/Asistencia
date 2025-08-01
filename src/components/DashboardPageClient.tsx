@@ -3,11 +3,10 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Layers, ChevronDown, UserPlus, Download, Camera, Save, CalendarIcon, Eraser, Shuffle, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Layers, ChevronDown, UserPlus, Download, Camera, Save, CalendarIcon, Eraser, Shuffle, PlusCircle, Pencil } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
-import TheoreticalStaffingTable from './TheoreticalStaffingTable';
 import DraggableStaffDashboard from './DraggableStaffDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -27,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import html2canvas from 'html2canvas';
+import EditTheoreticalStaffingModal from './EditTheoreticalStaffingModal';
 
 type DashboardPageClientProps = {
   office: { name: string; id: string; };
@@ -40,6 +40,7 @@ export default function DashboardPageClient({
     offices: officesProp,
 }: DashboardPageClientProps) {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isEditStaffingModalOpen, setIsEditStaffingModalOpen] = useState(false);
   const [employees, setEmployees] = useState(allEmployeesProp);
   const [offices, setOffices] = useState<Office[]>(officesProp);
   const [dailySummaries, setDailySummaries] = useState<DailySummary[]>([]);
@@ -362,9 +363,8 @@ export default function DashboardPageClient({
             </header>
             
             <Tabs defaultValue="staffing" className="w-full">
-              <TabsList className='mb-4 grid w-full grid-cols-3'>
+              <TabsList className='mb-4 grid w-full grid-cols-2'>
                 <TabsTrigger value="staffing">Dotación Asignada</TabsTrigger>
-                <TabsTrigger value="theoretical">Dotación Teórica</TabsTrigger>
                 <TabsTrigger value="report">Reporte Diario</TabsTrigger>
               </TabsList>
               <TabsContent value="staffing">
@@ -375,11 +375,12 @@ export default function DashboardPageClient({
                   onRefreshData={refetchAllData}
                 />
               </TabsContent>
-              <TabsContent value="theoretical">
-                 <TheoreticalStaffingTable offices={offices} roles={['Modulo', 'Tablet', 'Anfitrión', 'Supervisión']} />
-              </TabsContent>
               <TabsContent value="report" className="space-y-8">
                  <div className="flex items-center justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsEditStaffingModalOpen(true)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Editar Dotación Teórica
+                    </Button>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -509,6 +510,12 @@ export default function DashboardPageClient({
         onAbsenceAdded={handleAbsenceAdded}
         allEmployees={employees}
     />
+     <EditTheoreticalStaffingModal
+        isOpen={isEditStaffingModalOpen}
+        onClose={() => setIsEditStaffingModalOpen(false)}
+        onSuccess={refetchAllData}
+        offices={offices}
+      />
      <AlertDialog open={!!summaryToDelete} onOpenChange={(isOpen) => !isOpen && setSummaryToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
