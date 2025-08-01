@@ -115,12 +115,6 @@ export default function DashboardPageClient({
                           <UserPlus className="mr-2 h-4 w-4" />
                           <span>Agregar Personal</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard/bulk-update-levels">
-                          <Layers className="mr-2 h-4 w-4" />
-                          <span>modificaciones masivas de datos</span>
-                        </Link>
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
 
