@@ -51,26 +51,31 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
   const [attendance, setAttendance] = useState<OfficeAttendanceState>({});
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Effect for initializing and updating real staffing based on `offices` prop
   useEffect(() => {
     const initialStaffing: RealStaffingValues = {};
-    const initialAttendance: OfficeAttendanceState = {};
-
     offices.forEach(office => {
       initialStaffing[office.id] = {};
       DISPLAY_ROLES.forEach(role => {
         const realValue = office.realStaffing?.[role];
         initialStaffing[office.id][role] = realValue !== undefined && realValue !== 0 ? realValue.toString() : '';
       });
+    });
+    setRealStaffing(initialStaffing);
+    inputRefs.current = new Array(offices.length * DISPLAY_ROLES.length);
+  }, [offices]);
+
+  // Effect for initializing and updating attendance based on `employees` prop
+  useEffect(() => {
+    const initialAttendance: OfficeAttendanceState = {};
+     offices.forEach(office => {
       initialAttendance[office.id] = {};
        (employees.filter(e => e.officeId === office.id)).forEach(emp => {
         initialAttendance[office.id][emp.id] = emp.status;
       });
     });
-    
-    setRealStaffing(initialStaffing);
     setAttendance(initialAttendance);
-    inputRefs.current = new Array(offices.length * DISPLAY_ROLES.length);
-  }, [offices, employees]);
+  }, [employees, offices]);
 
     useImperativeHandle(ref, () => ({
         getSummaryData: () => {
@@ -416,6 +421,7 @@ export default ManualEntryTable;
 
 
     
+
 
 
 
