@@ -51,6 +51,20 @@ const RolePrefixes: Partial<Record<EmployeeRole, string>> = {
     'Tablet': 'Tab.'
 };
 
+const ROLE_ORDER: Record<EmployeeRole, number> = {
+    'Supervisión': 1,
+    'Modulo': 2,
+    'Tablet': 3,
+    'Anfitrión': 4,
+};
+
+const LEVEL_ORDER: Record<EmployeeLevel, number> = {
+    'Nivel 2': 1,
+    'Nivel intermedio': 2,
+    'Nivel 1': 3,
+    'Nivel Básico': 4,
+};
+
 
 const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onAttendanceChange }: ManualEntryTableProps, ref) => {
   const { toast } = useToast();
@@ -160,7 +174,18 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
   }
 
   const getAssignedEmployees = (officeId: string) => {
-    return (assignedEmployeesByOffice[officeId] || []).sort((a,b) => a.name.localeCompare(b.name));
+     const sorter = (a: Employee, b: Employee) => {
+        const roleA = ROLE_ORDER[a.role] || 99;
+        const roleB = ROLE_ORDER[b.role] || 99;
+        if(roleA !== roleB) return roleA - roleB;
+        
+        const levelA = LEVEL_ORDER[a.level || 'Nivel Básico'] || 99;
+        const levelB = LEVEL_ORDER[b.level || 'Nivel Básico'] || 99;
+        if (levelA !== levelB) return levelA - levelB;
+
+        return a.name.localeCompare(b.name);
+    };
+    return (assignedEmployeesByOffice[officeId] || []).sort(sorter);
   };
   
   const getEmployeeNamesByStatus = (officeId: string, status: AttendanceStatus): React.ReactElement | "-" => {
@@ -238,7 +263,7 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
               {DISPLAY_ROLES.map((role) => (
                 <TableHead key={role} colSpan={2} className={'text-center font-bold text-primary-foreground border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>{role}</TableHead>
               ))}
-              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary'}>Atrasos/Diferidos</TableHead>
+              <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary whitespace-nowrap'}>Atrasos/Diferidos</TableHead>
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 border-r border-primary whitespace-nowrap'}>Ausencia del día</TableHead>
               <TableHead rowSpan={2} className={'text-center font-bold text-primary-foreground align-middle border-b-2 border-primary py-0 h-auto px-1 whitespace-nowrap'}>Ausencias prolongadas</TableHead>
           </TableRow>
@@ -385,3 +410,5 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
 
 ManualEntryTable.displayName = 'ManualEntryTable';
 export default ManualEntryTable;
+
+    
