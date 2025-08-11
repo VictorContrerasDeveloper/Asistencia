@@ -73,11 +73,11 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
         className="flex items-center gap-2 truncate flex-1 cursor-pointer" 
         onClick={onNameClick}
        >
-        {employee.employmentType === 'Part-Time' && <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" title="Part-Time" />}
          <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
           {displayPrefix}
          </span>
          <span className="truncate">{employee.name}</span>
+         {employee.employmentType === 'Part-Time' && <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" title="Part-Time" />}
        </div>
        {isUpdating ? (
           <Loader2 className="h-4 w-4 text-muted-foreground/50 animate-spin" />
