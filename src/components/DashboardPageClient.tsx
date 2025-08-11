@@ -16,7 +16,7 @@ import ProlongedAbsenceTable from './ProlongedAbsenceTable';
 import DailySummaryTable from './DailySummaryTable';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import AddAbsenceModal from '@/components/AddAbsenceModal';
+import AddAbsenceModal from './AddAbsenceModal';
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import EditTheoreticalStaffingModal from './EditTheoreticalStaffingModal';
@@ -95,13 +95,7 @@ export default function DashboardPageClient({
   }
 
   const handleEmployeeUpdated = (updatedEmployee: Employee) => {
-    setEmployees(prev => {
-        const newEmployees = prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e);
-        if(updatedEmployee.officeId !== employees.find(e => e.id === updatedEmployee.id)?.officeId) {
-            refetchAllData();
-        }
-        return newEmployees;
-    });
+    setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
   }
 
   // Manual Entry functions

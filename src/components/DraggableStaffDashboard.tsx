@@ -162,10 +162,9 @@ export default function DraggableStaffDashboard({
     if (activeEmployee.officeId !== targetOfficeId) {
       const originalEmployees = [...employees];
       
-      const updatedEmployees = employees.map(emp => 
-        emp.id === active.id ? { ...emp, officeId: targetOfficeId! } : emp
-      );
-      setEmployees(updatedEmployees);
+      const updatedEmployee = { ...activeEmployee, officeId: targetOfficeId };
+      onEmployeeUpdate(updatedEmployee);
+
       setUpdatingEmployeeId(active.id as string);
   
       try {
@@ -303,7 +302,7 @@ export default function DraggableStaffDashboard({
         <EditEmployeeModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
-            onSuccess={handleEditSuccess}
+            onSuccess={onRefreshData}
             employee={selectedEmployee}
             offices={offices}
         />
