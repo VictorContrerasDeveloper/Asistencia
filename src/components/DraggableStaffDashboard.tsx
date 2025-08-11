@@ -389,7 +389,7 @@ export default function DraggableStaffDashboard({
       <DragOverlay>
         {activeItem ? (
             activeType === 'Employee' ? <DraggableEmployee employee={activeItem as Employee} isOverlay /> :
-            activeType === 'Office' ? <div className="w-64"><DroppableOffice office={activeItem as Office} isOverlay employeeCount={(activeItem as Office).employees?.length || 0} /></div> : null
+            activeType === 'Office' ? <div className="w-64"><DroppableOffice office={activeItem as Office} isOverlay employeeCount={0} /></div> : null
         ) : null}
       </DragOverlay>
     </DndContext>

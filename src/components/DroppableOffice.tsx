@@ -16,7 +16,7 @@ type DroppableOfficeProps = {
   dragHandleProps?: any;
 };
 
-export default function DroppableOffice({ office, children, employeeCount, isOverlay, dragHandleProps }: DroppableOfficeProps) {
+export default function DroppableOffice({ office, children, isOverlay, dragHandleProps }: DroppableOfficeProps) {
   const {setNodeRef} = useDroppable({
     id: office.id,
     data: {
@@ -32,7 +32,7 @@ export default function DroppableOffice({ office, children, employeeCount, isOve
           className={cn("flex flex-col h-full", isOverlay && "shadow-lg")}
        >
          <CardHeader className="p-3 space-y-1 flex flex-row items-center justify-between cursor-default">
-            <CardTitle className="text-base truncate">{office.name} ({employeeCount})</CardTitle>
+            <CardTitle className="text-base truncate">{office.name}</CardTitle>
             <div {...dragHandleProps} className="cursor-grab p-1">
                 <GripVertical className="h-5 w-5 text-muted-foreground/60" />
             </div>
