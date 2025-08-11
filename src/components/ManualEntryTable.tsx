@@ -14,7 +14,7 @@ import {
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users, CalendarDays } from 'lucide-react';
+import { Users, CalendarDays, Clock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
@@ -309,6 +309,7 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
                                                                 {getEmployeePrefix(emp)}
                                                             </span>
                                                             <span className="truncate">{emp.name}</span>
+                                                            {emp.employmentType === 'Part-Time' && <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" title="Part-Time" />}
                                                         </Label>
                                                         <div className="flex items-center space-x-4">
                                                             <div className="flex items-center space-x-2">
@@ -344,6 +345,7 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
                                                                         {getEmployeePrefix(emp)}
                                                                     </span>
                                                                     <span className="truncate">{emp.name}</span>
+                                                                     {emp.employmentType === 'Part-Time' && <Clock className="ml-2 h-3.5 w-3.5 text-blue-500 shrink-0" title="Part-Time" />}
                                                                 </Label>
                                                                 <p className='text-xs text-muted-foreground italic'>({emp.absenceReason})</p>
                                                             </div>
