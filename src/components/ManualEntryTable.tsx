@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
-import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason, updateEmployee } from '@/lib/data';
+import { type EmployeeRole, type Office, type Employee, AttendanceStatus, updateOfficeRealStaffing, AbsenceReason, updateEmployee, EmployeeLevel } from '@/lib/data';
 import {
   Table,
   TableBody,
@@ -37,6 +37,20 @@ type RealStaffingValues = {
     [key in EmployeeRole]?: string;
   };
 };
+
+const LevelAbbreviations: Record<EmployeeLevel, string> = {
+    'Nivel 1': 'Ej1.',
+    'Nivel 2': 'Ej2.',
+    'Nivel intermedio': 'Int.',
+    'Nivel Básico': 'Basic.',
+}
+
+const RolePrefixes: Partial<Record<EmployeeRole, string>> = {
+    'Supervisión': 'Sup.',
+    'Anfitrión': 'Anf.',
+    'Tablet': 'Tab.'
+};
+
 
 const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onAttendanceChange }: ManualEntryTableProps, ref) => {
   const { toast } = useToast();
@@ -209,6 +223,12 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
       }
   }
 
+  const getEmployeePrefix = (employee: Employee) => {
+      const levelAbbreviation = LevelAbbreviations[employee.level] || 'Basic.';
+      const rolePrefix = RolePrefixes[employee.role];
+      return rolePrefix ? rolePrefix : levelAbbreviation;
+  }
+
   return (
     <div className="overflow-x-auto border-t">
       <Table>
@@ -260,7 +280,10 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
                                                 {activeEmployees.map(emp => (
                                                     <div key={emp.id} className="flex items-center justify-between">
                                                         <Label htmlFor={`attendance-${office.id}-${emp.id}`} className="flex-1 cursor-pointer flex items-center gap-2">
-                                                            {emp.name}
+                                                            <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
+                                                                {getEmployeePrefix(emp)}
+                                                            </span>
+                                                            <span className="truncate">{emp.name}</span>
                                                         </Label>
                                                         <div className="flex items-center space-x-4">
                                                             <div className="flex items-center space-x-2">
@@ -292,7 +315,10 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
                                                             <div key={emp.id} className="flex items-center justify-between">
                                                                 <Label className="flex-1 flex items-center gap-2 text-muted-foreground italic">
                                                                     <CalendarDays className="h-4 w-4" />
-                                                                    {emp.name}
+                                                                    <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
+                                                                        {getEmployeePrefix(emp)}
+                                                                    </span>
+                                                                    <span className="truncate">{emp.name}</span>
                                                                 </Label>
                                                                 <p className='text-xs text-muted-foreground italic'>({emp.absenceReason})</p>
                                                             </div>
