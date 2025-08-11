@@ -14,7 +14,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Employee, updateEmployee, deleteEmployee, EmployeeRole, EmployeeLevel, Office, AttendanceStatus, AbsenceReason, WorkMode } from '@/lib/data';
+import { Employee, updateEmployee, deleteEmployee, EmployeeRole, EmployeeLevel, Office, AttendanceStatus, AbsenceReason, WorkMode, EmploymentType } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { CalendarIcon, Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -48,6 +48,7 @@ const STATUSES: AttendanceStatus[] = ['Presente', 'Atrasado', 'Ausente'];
 const ABSENCE_REASONS: Exclude<AbsenceReason, null>[] = ['Inasistencia', 'Licencia médica', 'Vacaciones', 'Otro'];
 const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 const WORK_MODES: WorkMode[] = ['Operaciones', 'Administrativo'];
+const EMPLOYMENT_TYPES: EmploymentType[] = ['Full-Time', 'Part-Time'];
 
 export default function EditEmployeeModal({ 
     isOpen, 
@@ -65,6 +66,7 @@ export default function EditEmployeeModal({
   const [newAbsenceReason, setNewAbsenceReason] = useState<AbsenceReason>(employee.absenceReason);
   const [newAbsenceEndDate, setNewAbsenceEndDate] = useState<Date | undefined>();
   const [newWorkMode, setNewWorkMode] = useState<WorkMode>(employee.workMode);
+  const [newEmploymentType, setNewEmploymentType] = useState<EmploymentType>(employee.employmentType);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -81,6 +83,7 @@ export default function EditEmployeeModal({
       setNewAbsenceReason(employee.absenceReason);
       setNewAbsenceEndDate(employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined);
       setNewWorkMode(employee.workMode || 'Operaciones');
+      setNewEmploymentType(employee.employmentType || 'Full-Time');
       setIsNameEditable(false);
     }
   }, [isOpen, employee]);
@@ -112,6 +115,7 @@ export default function EditEmployeeModal({
                      newStatus !== employee.status ||
                      newAbsenceReason !== employee.absenceReason ||
                      newWorkMode !== employee.workMode ||
+                     newEmploymentType !== (employee.employmentType || 'Full-Time') ||
                      (newAbsenceEndDate ? formatInTimeZone(newAbsenceEndDate, 'UTC', 'yyyy-MM-dd') : null) !== (employee.absenceEndDate || null);
 
     if (!hasChanged) {
@@ -135,6 +139,7 @@ export default function EditEmployeeModal({
     if (newOfficeId !== employee.officeId) updates.officeId = newOfficeId;
     if (newStatus !== employee.status) updates.status = newStatus;
     if (newWorkMode !== employee.workMode) updates.workMode = newWorkMode;
+    if (newEmploymentType !== (employee.employmentType || 'Full-Time')) updates.employmentType = newEmploymentType;
     
     if (newStatus === 'Ausente') {
         updates.absenceReason = newAbsenceReason;
@@ -154,6 +159,7 @@ export default function EditEmployeeModal({
             officeId: newOfficeId,
             status: newStatus,
             workMode: newWorkMode,
+            employmentType: newEmploymentType,
             absenceReason: updates.absenceReason!,
             absenceEndDate: updates.absenceEndDate,
         };
@@ -220,21 +226,38 @@ export default function EditEmployeeModal({
                 </Button>
              </div>
            </div>
-            <div className="space-y-1">
-             <Label htmlFor="new-work-mode">Modo de Trabajo</Label>
-             <Select value={newWorkMode} onValueChange={(value) => setNewWorkMode(value as WorkMode)}>
-                <SelectTrigger id="new-work-mode">
-                    <SelectValue placeholder="Selecciona un modo" />
-                </SelectTrigger>
-                <SelectContent>
-                    {WORK_MODES.map((mode) => (
-                        <SelectItem key={mode} value={mode}>
-                            {mode}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-             </Select>
-           </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                 <Label htmlFor="new-work-mode">Modo de Trabajo</Label>
+                 <Select value={newWorkMode} onValueChange={(value) => setNewWorkMode(value as WorkMode)}>
+                    <SelectTrigger id="new-work-mode">
+                        <SelectValue placeholder="Selecciona un modo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {WORK_MODES.map((mode) => (
+                            <SelectItem key={mode} value={mode}>
+                                {mode}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                 </Select>
+               </div>
+               <div className="space-y-1">
+                 <Label htmlFor="new-employment-type">Modo de Contratación</Label>
+                 <Select value={newEmploymentType} onValueChange={(value) => setNewEmploymentType(value as EmploymentType)}>
+                    <SelectTrigger id="new-employment-type">
+                        <SelectValue placeholder="Selecciona un modo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {EMPLOYMENT_TYPES.map((type) => (
+                            <SelectItem key={type} value={type}>
+                                {type}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                 </Select>
+               </div>
+            </div>
            <div className="space-y-1">
              <Label htmlFor="new-office">Oficina</Label>
              <Select value={newOfficeId} onValueChange={setNewOfficeId} disabled={newWorkMode === 'Administrativo'}>

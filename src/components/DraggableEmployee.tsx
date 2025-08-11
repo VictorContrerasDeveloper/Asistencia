@@ -5,7 +5,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Employee, EmployeeLevel, EmployeeRole, AbsenceReason } from '@/lib/data';
-import { GripVertical, Loader2 } from 'lucide-react';
+import { GripVertical, Loader2, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 
@@ -73,6 +73,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
         className="flex items-center gap-2 truncate flex-1 cursor-pointer" 
         onClick={onNameClick}
        >
+        {employee.employmentType === 'Part-Time' && <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" title="Part-Time" />}
          <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
           {displayPrefix}
          </span>

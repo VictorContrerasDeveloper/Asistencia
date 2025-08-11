@@ -37,6 +37,7 @@ export type AbsenceReason = 'Inasistencia' | 'Licencia médica' | 'Vacaciones' |
 export type EmployeeRole = 'Modulo' | 'Anfitrión' | 'Tablet' | 'Supervisión';
 export type EmployeeLevel = 'Nivel 1' | 'Nivel 2' | 'Nivel intermedio' | 'Nivel Básico';
 export type WorkMode = 'Operaciones' | 'Administrativo';
+export type EmploymentType = 'Full-Time' | 'Part-Time';
 
 export type Employee = {
   id:string;
@@ -47,6 +48,7 @@ export type Employee = {
   role: EmployeeRole;
   level: EmployeeLevel;
   workMode: WorkMode;
+  employmentType: EmploymentType;
   absenceEndDate?: string | null;
 };
 
@@ -191,7 +193,8 @@ export const getEmployees = async (officeId?: string): Promise<Employee[]> => {
       id: doc.id, 
       ...data,
       level: data.level || 'Nivel Básico',
-      workMode: data.workMode || 'Operaciones'
+      workMode: data.workMode || 'Operaciones',
+      employmentType: data.employmentType || 'Full-Time'
     } as Employee
   });
   return employees.sort((a,b) => a.name.localeCompare(b.name));
@@ -254,6 +257,7 @@ export const addEmployee = async (name: string, officeId: string, role: Employee
     role: role || 'Modulo',
     level: level || 'Nivel Básico',
     workMode: 'Operaciones',
+    employmentType: 'Full-Time',
     absenceEndDate: null
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
@@ -276,6 +280,7 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       role: 'Modulo',
       level: 'Nivel Básico',
       workMode: 'Operaciones',
+      employmentType: 'Full-Time',
       absenceEndDate: null
     };
     const docRef = doc(employeesCollection);
