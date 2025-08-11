@@ -25,6 +25,7 @@ import { Separator } from './ui/separator';
 type ManualEntryTableProps = {
   offices: Office[];
   employees: Employee[];
+  onStaffingUpdate: (officeId: string, role: EmployeeRole, value: number) => void;
 };
 
 const DISPLAY_ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
@@ -45,7 +46,7 @@ type OfficeAttendanceState = {
 }
 
 
-const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTableProps, ref) => {
+const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: ManualEntryTableProps, ref) => {
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
   const [attendance, setAttendance] = useState<OfficeAttendanceState>({});
@@ -189,6 +190,7 @@ const ManualEntryTable = forwardRef(({ offices, employees }: ManualEntryTablePro
 
     try {
         await updateOfficeRealStaffing(officeId, { [role]: numberValue });
+        onStaffingUpdate(officeId, role, numberValue);
     } catch(error) {
     }
   }
@@ -421,6 +423,7 @@ export default ManualEntryTable;
 
 
     
+
 
 
 

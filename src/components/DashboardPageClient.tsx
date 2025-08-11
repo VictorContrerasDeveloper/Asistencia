@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, UserPlus, Download, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
-import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing } from '@/lib/data';
+import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing, EmployeeRole } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
 import DraggableStaffDashboard from './DraggableStaffDashboard';
@@ -39,7 +39,7 @@ export default function DashboardPageClient({
   const [employees, setEmployees] = useState(allEmployeesProp);
   const [offices, setOffices] = useState<Office[]>(officesProp);
   const [dailySummaries, setDailySummaries] = useState<DailySummary[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('staffing');
 
 
@@ -53,7 +53,7 @@ export default function DashboardPageClient({
   const [isClearAlertOpen, setClearAlertOpen] = useState(false);
   
 
-  const refetchAllData = async () => {
+  const refetchData = async () => {
      setLoading(true);
      const [allEmployeesData, allOfficesData, fetchedSummaries] = await Promise.all([
        getEmployees(),
@@ -67,7 +67,21 @@ export default function DashboardPageClient({
   }
 
   useEffect(() => {
-    refetchAllData();
+    setEmployees(allEmployeesProp);
+  }, [allEmployeesProp]);
+
+  useEffect(() => {
+    setOffices(officesProp);
+  }, [officesProp])
+
+  useEffect(() => {
+    const fetchSummaries = async () => {
+        setLoading(true);
+        const fetchedSummaries = await getDailySummaries();
+        setDailySummaries(fetchedSummaries);
+        setLoading(false);
+    }
+    fetchSummaries();
   }, [])
 
   const handleExport = () => {
@@ -201,6 +215,18 @@ export default function DashboardPageClient({
     }
   };
 
+  const handleStaffingUpdate = (officeId: string, role: EmployeeRole, value: number) => {
+    setOffices(prevOffices => {
+      return prevOffices.map(o => {
+        if (o.id === officeId) {
+          const newRealStaffing = { ...o.realStaffing, [role]: value };
+          return { ...o, realStaffing: newRealStaffing };
+        }
+        return o;
+      });
+    });
+  };
+
   const officeHeader = (
      <div className="flex items-center justify-center">
       <h1 className="text-xl md:text-2xl font-bold text-card-foreground">
@@ -257,7 +283,7 @@ export default function DashboardPageClient({
                   offices={offices} 
                   employees={employees} 
                   onEmployeeUpdate={handleEmployeeUpdated}
-                  onRefreshData={refetchAllData}
+                  onRefreshData={refetchData}
                 />
               </TabsContent>
               <TabsContent value="report" className="space-y-8 mt-6">
@@ -274,7 +300,12 @@ export default function DashboardPageClient({
                             <Skeleton className="h-10 w-full" />
                           </div>
                         ) : (
-                          <ManualEntryTable ref={manualEntryTableRef} offices={manualOffices} employees={employees} />
+                          <ManualEntryTable 
+                            ref={manualEntryTableRef} 
+                            offices={manualOffices} 
+                            employees={employees} 
+                            onStaffingUpdate={handleStaffingUpdate}
+                          />
                         )}
                       </CardContent>
                     </div>
@@ -364,7 +395,7 @@ export default function DashboardPageClient({
     <AddEmployeeModal
         isOpen={isAddModalOpen}
         onClose={() => setAddModalOpen(false)}
-        onSuccess={refetchAllData}
+        onSuccess={refetchData}
     />
      <AddAbsenceModal 
         isOpen={isAbsenceModalOpen}
@@ -375,7 +406,7 @@ export default function DashboardPageClient({
      <EditTheoreticalStaffingModal
         isOpen={isEditStaffingModalOpen}
         onClose={() => setIsEditStaffingModalOpen(false)}
-        onSuccess={refetchAllData}
+        onSuccess={refetchData}
         offices={offices}
       />
     <SaveDayModal

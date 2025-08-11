@@ -160,7 +160,6 @@ export default function DraggableStaffDashboard({
     }
   
     if (activeEmployee.officeId !== targetOfficeId) {
-      const originalEmployees = [...employees];
       
       const updatedEmployee = { ...activeEmployee, officeId: targetOfficeId };
       onEmployeeUpdate(updatedEmployee);
@@ -169,9 +168,9 @@ export default function DraggableStaffDashboard({
   
       try {
         await updateEmployee(active.id as string, { officeId: targetOfficeId });
-        // No need to call onRefreshData if we are manually updating state
       } catch (error) {
-        setEmployees(originalEmployees);
+        // Revert on failure
+        onEmployeeUpdate(activeEmployee);
         toast({
           title: "Error de Reasignación",
           description: `No se pudo mover a ${activeEmployee.name}. Se revirtió el cambio.`,
