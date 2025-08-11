@@ -19,7 +19,7 @@ import {
   arrayMove,
   useSortable
 } from '@dnd-kit/sortable';
-import { Office, Employee, EmployeeRole, EmployeeLevel, updateEmployee, AbsenceReason, updateOfficeOrder } from '@/lib/data';
+import { Office, Employee, EmployeeRole, EmployeeLevel, updateEmployee, AbsenceReason, updateOfficeOrder, WorkMode } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import DroppableOffice from './DroppableOffice';
 import DraggableEmployee from './DraggableEmployee';
@@ -72,7 +72,7 @@ const SortableOfficeItem = ({ office, children }: { office: Office, children: Re
     };
 
     return (
-        <div ref={setNodeRef} style={style}>
+        <div ref={setNodeRef} style={style} className="w-64 flex-shrink-0">
             <DroppableOffice
                 office={office}
                 employeeCount={office.employees.length}
@@ -89,7 +89,11 @@ export default function DraggableStaffDashboard({
   offices: initialOffices, 
   employees: initialEmployees, 
   onEmployeeUpdate,
-}: DraggableStaffDashboardProps) {
+}: { 
+  offices: Office[]; 
+  employees: Employee[]; 
+  onEmployeeUpdate: (employee: Employee) => void;
+}) {
   const { toast } = useToast();
   const [employees, setEmployees] = useState(initialEmployees);
   const [offices, setOffices] = useState(initialOffices);
@@ -226,7 +230,7 @@ export default function DraggableStaffDashboard({
     const activeEmployee = employeeMap.get(activeId)!;
     
     let targetOfficeId: string | null = null;
-    let targetWorkMode = activeEmployee.workMode;
+    let targetWorkMode: WorkMode = activeEmployee.workMode;
 
     if (overId === ADMIN_CONTAINER_ID || overData?.type === 'AdminContainer') {
         targetWorkMode = 'Administrativo';
@@ -253,14 +257,15 @@ export default function DraggableStaffDashboard({
         }
 
         const updatedEmployee = { ...activeEmployee, ...updates };
-        onEmployeeUpdate(updatedEmployee);
+        setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
 
         setUpdatingEmployeeId(activeId);
     
         try {
             await updateEmployee(activeId, updates);
+            onEmployeeUpdate(updatedEmployee);
         } catch (error) {
-            onEmployeeUpdate(activeEmployee); // Revert
+            setEmployees(prev => prev.map(e => e.id === activeEmployee.id ? activeEmployee : e)); // Revert
             toast({
             title: "Error de Reasignación",
             description: `No se pudo mover a ${activeEmployee.name}.`,
@@ -333,7 +338,7 @@ export default function DraggableStaffDashboard({
       onDragEnd={handleDragEnd}
     >
       <TooltipProvider>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 items-start">
+        <div className="flex flex-wrap gap-4 items-start">
             <SortableContext items={offices.map(o => o.id)}>
               {offices.map(office => {
                   const { active: activeEmployees, prolongedAbsence: prolongedAbsenceEmployees, dailyAbsence: dailyAbsenceEmployees } = employeesByOffice[office.id] || { officeData: office, active: [], prolongedAbsence: [], dailyAbsence: [] };
@@ -359,30 +364,32 @@ export default function DraggableStaffDashboard({
                   </SortableOfficeItem>
               )})}
             </SortableContext>
-             <DroppableOffice
-                office={{id: ADMIN_CONTAINER_ID, name: "Personal Administrativo"}}
-                employeeCount={adminEmployeesCount}
-                dragHandleProps={{style: { display: 'none' }}}
-            >
-                <SortableContext items={allAdministrativeEmployeeIds()} strategy={verticalListSortingStrategy}>
-                    <div className="space-y-1">
-                        {administrativeEmployees.active.length > 0 && renderEmployeeGroup(administrativeEmployees.active, null)}
-                        {administrativeEmployees.dailyAbsence.length > 0 && renderEmployeeGroup(administrativeEmployees.dailyAbsence, 'Ausencia del Día')}
-                        {administrativeEmployees.prolongedAbsence.length > 0 && renderEmployeeGroup(administrativeEmployees.prolongedAbsence, 'Ausencias Prolongadas')}
+             <div className="w-64 flex-shrink-0">
+                <DroppableOffice
+                    office={{id: ADMIN_CONTAINER_ID, name: "Personal Administrativo"}}
+                    employeeCount={adminEmployeesCount}
+                    dragHandleProps={{style: { display: 'none' }}}
+                >
+                    <SortableContext items={allAdministrativeEmployeeIds()} strategy={verticalListSortingStrategy}>
+                        <div className="space-y-1">
+                            {administrativeEmployees.active.length > 0 && renderEmployeeGroup(administrativeEmployees.active, null)}
+                            {administrativeEmployees.dailyAbsence.length > 0 && renderEmployeeGroup(administrativeEmployees.dailyAbsence, 'Ausencia del Día')}
+                            {administrativeEmployees.prolongedAbsence.length > 0 && renderEmployeeGroup(administrativeEmployees.prolongedAbsence, 'Ausencias Prolongadas')}
+                        </div>
+                    </SortableContext>
+                    {adminEmployeesCount === 0 && (
+                    <div className="text-sm text-muted-foreground text-center py-4">
+                        Sin personal
                     </div>
-                </SortableContext>
-                {adminEmployeesCount === 0 && (
-                  <div className="text-sm text-muted-foreground text-center py-4">
-                      Sin personal
-                  </div>
-                )}
-            </DroppableOffice>
+                    )}
+                </DroppableOffice>
+            </div>
         </div>
       </TooltipProvider>
       <DragOverlay>
         {activeItem ? (
             activeType === 'Employee' ? <DraggableEmployee employee={activeItem as Employee} isOverlay /> :
-            activeType === 'Office' ? <DroppableOffice office={activeItem as Office} isOverlay employeeCount={(activeItem as Office).employees?.length || 0} /> : null
+            activeType === 'Office' ? <div className="w-64"><DroppableOffice office={activeItem as Office} isOverlay employeeCount={(activeItem as Office).employees?.length || 0} /></div> : null
         ) : null}
       </DragOverlay>
     </DndContext>
