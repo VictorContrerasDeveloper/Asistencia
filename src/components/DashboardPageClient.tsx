@@ -29,10 +29,6 @@ type DashboardPageClientProps = {
   offices: Office[];
 };
 
-const ADMIN_OFFICE_ID = 'admin-staff';
-const ADMIN_OFFICE_NAME = 'Back/Admin HelpBank';
-
-
 export default function DashboardPageClient({ 
     office, 
     allEmployees: allEmployeesProp, 
@@ -72,23 +68,8 @@ export default function DashboardPageClient({
 
   useEffect(() => {
     setEmployees(allEmployeesProp);
-  }, [allEmployeesProp]);
-
-  useEffect(() => {
-    const adminOfficeExists = officesProp.some(o => o.id === ADMIN_OFFICE_ID);
-    
-    if (!adminOfficeExists) {
-        const adminOffice: Office = {
-            id: ADMIN_OFFICE_ID,
-            name: ADMIN_OFFICE_NAME,
-            theoreticalStaffing: {},
-            realStaffing: {}
-        };
-        setOffices([...officesProp, adminOffice]);
-    } else {
-        setOffices(officesProp);
-    }
-  }, [officesProp]);
+    setOffices(officesProp);
+  }, [allEmployeesProp, officesProp]);
 
   useEffect(() => {
     const fetchSummaries = async () => {
@@ -102,7 +83,9 @@ export default function DashboardPageClient({
 
   const handleExport = () => {
     const officeMap = new Map(offices.map(o => [o.id, o.name]));
-    const dataToExport = employees.map(emp => ({
+    const dataToExport = employees
+    .filter(emp => emp.workMode === 'Operaciones')
+    .map(emp => ({
       'Nombre': emp.name,
       'Oficina': officeMap.get(emp.officeId) || 'Sin Asignar',
       'Rol': emp.role,
@@ -125,10 +108,16 @@ export default function DashboardPageClient({
   }
 
   const handleEmployeeUpdated = (updatedEmployee: Employee) => {
-    setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
-    if (updatedEmployee.officeId) {
-      refetchData();
-    }
+    setEmployees(prev => {
+        const index = prev.findIndex(e => e.id === updatedEmployee.id);
+        if(index !== -1) {
+            const newEmployees = [...prev];
+            newEmployees[index] = updatedEmployee;
+            return newEmployees;
+        }
+        // If employee was deleted, filter them out.
+        return prev.filter(e => e.id !== updatedEmployee.id);
+    });
   }
 
   // Manual Entry functions
@@ -292,7 +281,7 @@ export default function DashboardPageClient({
     </div>
   )
 
-  const manualOffices = offices.filter(office => !office.name.toLowerCase().includes('movil') && office.id !== ADMIN_OFFICE_ID);
+  const manualOffices = offices.filter(office => !office.name.toLowerCase().includes('movil'));
 
 
   return (
@@ -507,5 +496,3 @@ export default function DashboardPageClient({
     </TooltipProvider>
   );
 }
-
-    
