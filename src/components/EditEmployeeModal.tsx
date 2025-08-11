@@ -63,6 +63,7 @@ export default function EditEmployeeModal({
   const [newStatus, setNewStatus] = useState<AttendanceStatus>(employee.status);
   const [newAbsenceReason, setNewAbsenceReason] = useState<AbsenceReason>(employee.absenceReason);
   const [newAbsenceEndDate, setNewAbsenceEndDate] = useState<Date | undefined>();
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isNameEditable, setIsNameEditable] = useState(false);
@@ -284,7 +285,7 @@ export default function EditEmployeeModal({
                 {newAbsenceReason && PROLONGED_ABSENCE_REASONS.includes(newAbsenceReason) && (
                     <div className="space-y-1">
                         <Label htmlFor="new-absence-endDate">Fecha de Término</Label>
-                         <Popover>
+                         <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                             <PopoverTrigger asChild>
                                 <Button
                                 variant={"outline"}
@@ -301,7 +302,10 @@ export default function EditEmployeeModal({
                                 <Calendar
                                 mode="single"
                                 selected={newAbsenceEndDate}
-                                onSelect={setNewAbsenceEndDate}
+                                onSelect={(date) => {
+                                    setNewAbsenceEndDate(date)
+                                    setIsCalendarOpen(false)
+                                }}
                                 initialFocus
                                 locale={es}
                                 />

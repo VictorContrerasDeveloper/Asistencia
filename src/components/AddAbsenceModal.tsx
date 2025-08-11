@@ -36,10 +36,11 @@ const ABSENCE_REASONS: Exclude<AbsenceReason, null | 'Inasistencia'>[] = ['Licen
 
 export default function AddAbsenceModal({ isOpen, onClose, onAbsenceAdded, allEmployees }: AddAbsenceModalProps) {
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
+  const [openCombobox, setOpenCombobox] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [reason, setReason] = useState<string>('');
   const [endDate, setEndDate] = useState<Date | undefined>();
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const sortedEmployees = useMemo(() => {
       return [...allEmployees].sort((a,b) => a.name.localeCompare(b.name));
@@ -97,12 +98,12 @@ export default function AddAbsenceModal({ isOpen, onClose, onAbsenceAdded, allEm
         <div className="py-4 space-y-4">
           <div className="space-y-2">
             <Label>Ejecutivo</Label>
-             <Popover open={open} onOpenChange={setOpen}>
+             <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
                 <PopoverTrigger asChild>
                     <Button
                     variant="outline"
                     role="combobox"
-                    aria-expanded={open}
+                    aria-expanded={openCombobox}
                     className="w-full justify-between"
                     >
                     {selectedEmployee
@@ -123,7 +124,7 @@ export default function AddAbsenceModal({ isOpen, onClose, onAbsenceAdded, allEm
                             value={employee.name}
                             onSelect={() => {
                                 setSelectedEmployee(employee)
-                                setOpen(false)
+                                setOpenCombobox(false)
                             }}
                             >
                             <Check
@@ -158,7 +159,7 @@ export default function AddAbsenceModal({ isOpen, onClose, onAbsenceAdded, allEm
           </div>
            <div className="space-y-2">
              <Label htmlFor="absence-endDate">Fecha de Término (Opcional)</Label>
-              <Popover>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                     <Button
                     variant={"outline"}
@@ -175,7 +176,10 @@ export default function AddAbsenceModal({ isOpen, onClose, onAbsenceAdded, allEm
                     <Calendar
                     mode="single"
                     selected={endDate}
-                    onSelect={setEndDate}
+                    onSelect={(date) => {
+                        setEndDate(date);
+                        setIsCalendarOpen(false);
+                    }}
                     initialFocus
                     locale={es}
                     />

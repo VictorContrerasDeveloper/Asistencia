@@ -38,6 +38,7 @@ export default function ManualEntryPage() {
   const [isAbsenceModalOpen, setIsAbsenceModalOpen] = useState(false);
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
   const manualEntryTableRef = React.useRef<{ getSummaryData: () => any }>(null);
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
@@ -174,7 +175,7 @@ export default function ManualEntryPage() {
             <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Ingreso Manual de Asistencia</h1>
           </div>
            <div className="flex items-center gap-2">
-            <Popover>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
@@ -191,7 +192,10 @@ export default function ManualEntryPage() {
                 <Calendar
                   mode="single"
                   selected={selectedDate || undefined}
-                  onSelect={(date) => date && setSelectedDate(date)}
+                  onSelect={(date) => {
+                    if (date) setSelectedDate(date);
+                    setIsCalendarOpen(false);
+                  }}
                   initialFocus
                 />
               </PopoverContent>
@@ -216,7 +220,7 @@ export default function ManualEntryPage() {
                       <Skeleton className="h-10 w-full" />
                     </div>
                   ) : (
-                    <ManualEntryTable ref={manualEntryTableRef} offices={offices} employees={employees} />
+                    <ManualEntryTable ref={manualEntryTableRef} offices={offices} employees={employees} onStaffingUpdate={() => {}} onAttendanceChange={() => {}}/>
                   )}
                 </CardContent>
               </div>
@@ -313,7 +317,3 @@ export default function ManualEntryPage() {
     </>
   );
 }
-
-    
-
-    

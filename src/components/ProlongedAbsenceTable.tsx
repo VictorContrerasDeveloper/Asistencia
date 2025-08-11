@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { type Employee, type Office, updateEmployee } from '@/lib/data';
 import {
   Table,
@@ -30,8 +30,13 @@ type ProlongedAbsenceTableProps = {
 
 const PROLONGED_ABSENCE_REASONS: (string | null)[] = ['Licencia médica', 'Vacaciones', 'Otro'];
 
+type CalendarState = {
+    [employeeId: string]: boolean;
+}
+
 const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbsenceUpdated }: ProlongedAbsenceTableProps) => {
     const { toast } = useToast();
+    const [openCalendars, setOpenCalendars] = useState<CalendarState>({});
     
     const officeMap = useMemo(() => {
       return new Map(offices.map(office => [office.id, office.name]));
@@ -127,7 +132,7 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
                   <TableCell className="font-medium p-2 text-xs">{employee.name}</TableCell>
                   <TableCell className="p-2 text-xs">{employee.absenceReason}</TableCell>
                   <TableCell className="p-2 text-xs">
-                      <Popover>
+                      <Popover open={openCalendars[employee.id]} onOpenChange={(isOpen) => setOpenCalendars(prev => ({...prev, [employee.id]: isOpen}))}>
                           <PopoverTrigger asChild>
                               <Button
                               variant={"outline"}
@@ -145,7 +150,10 @@ const ProlongedAbsenceTable = ({ employees, offices, onEmployeeReinstated, onAbs
                               <Calendar
                               mode="single"
                               selected={selectedDate}
-                              onSelect={(date) => handleDateChange(employee, date)}
+                              onSelect={(date) => {
+                                handleDateChange(employee, date);
+                                setOpenCalendars(prev => ({...prev, [employee.id]: false}));
+                              }}
                               initialFocus
                               locale={es}
                               />
