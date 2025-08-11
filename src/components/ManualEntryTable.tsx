@@ -269,7 +269,7 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
                                                                     checked={emp.status === 'Atrasado'}
                                                                     onCheckedChange={(checked) => handleCheckboxChange(emp.id, emp.status, 'Atrasado', !!checked)}
                                                                 />
-                                                                <Label htmlFor={`atrasado-${office.id}-${emp.id}`} className="text-xs">T</Label>
+                                                                <Label htmlFor={`atrasado-${office.id}-${emp.id}`} className="text-xs">Atr</Label>
                                                             </div>
                                                             <div className="flex items-center space-x-2">
                                                                 <Checkbox
@@ -277,7 +277,7 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onA
                                                                     checked={emp.status === 'Ausente'}
                                                                     onCheckedChange={(checked) => handleCheckboxChange(emp.id, emp.status, 'Ausente', !!checked)}
                                                                 />
-                                                                <Label htmlFor={`ausente-${office.id}-${emp.id}`} className="text-xs">A</Label>
+                                                                <Label htmlFor={`ausente-${office.id}-${emp.id}`} className="text-xs">Aus</Label>
                                                             </div>
                                                         </div>
                                                     </div>
