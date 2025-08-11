@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, UserPlus, Download, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
-import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing, EmployeeRole } from '@/lib/data';
+import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing, EmployeeRole, AttendanceStatus, updateEmployee } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
 import DraggableStaffDashboard from './DraggableStaffDashboard';
@@ -227,6 +227,44 @@ export default function DashboardPageClient({
     });
   };
 
+   const handleAttendanceChange = async (employeeId: string, newStatus: AttendanceStatus) => {
+    const originalEmployees = [...employees];
+    
+    // Optimistic update
+    const updatedEmployees = employees.map(emp => {
+      if (emp.id === employeeId) {
+        const updates: Partial<Employee> = { status: newStatus };
+        if (newStatus === 'Presente' || newStatus === 'Atrasado') {
+          updates.absenceReason = null;
+        } else if (newStatus === 'Ausente') {
+          updates.absenceReason = 'Inasistencia';
+        }
+        return { ...emp, ...updates };
+      }
+      return emp;
+    });
+    setEmployees(updatedEmployees);
+
+    try {
+        const updates: Partial<Employee> = { status: newStatus };
+         if (newStatus === 'Presente' || newStatus === 'Atrasado') {
+          updates.absenceReason = null;
+        } else {
+          updates.absenceReason = 'Inasistencia';
+        }
+        await updateEmployee(employeeId, updates);
+    } catch (error) {
+        // Revert on failure
+        setEmployees(originalEmployees);
+        toast({
+            title: "Error",
+            description: "No se pudo actualizar el estado del empleado.",
+            variant: "destructive"
+        });
+    }
+  };
+
+
   const officeHeader = (
      <div className="flex items-center justify-center">
       <h1 className="text-xl md:text-2xl font-bold text-card-foreground">
@@ -305,6 +343,7 @@ export default function DashboardPageClient({
                             offices={manualOffices} 
                             employees={employees} 
                             onStaffingUpdate={handleStaffingUpdate}
+                            onAttendanceChange={handleAttendanceChange}
                           />
                         )}
                       </CardContent>

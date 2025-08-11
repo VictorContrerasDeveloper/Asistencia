@@ -26,6 +26,7 @@ type ManualEntryTableProps = {
   offices: Office[];
   employees: Employee[];
   onStaffingUpdate: (officeId: string, role: EmployeeRole, value: number) => void;
+  onAttendanceChange: (employeeId: string, newStatus: AttendanceStatus) => void;
 };
 
 const DISPLAY_ROLES: EmployeeRole[] = ['Modulo', 'Anfitrión', 'Tablet'];
@@ -37,22 +38,11 @@ type RealStaffingValues = {
   };
 };
 
-type AttendanceState = {
-    [employeeId: string]: AttendanceStatus;
-}
-
-type OfficeAttendanceState = {
-    [officeId: string]: AttendanceState
-}
-
-
-const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: ManualEntryTableProps, ref) => {
+const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate, onAttendanceChange }: ManualEntryTableProps, ref) => {
   const { toast } = useToast();
   const [realStaffing, setRealStaffing] = useState<RealStaffingValues>({});
-  const [attendance, setAttendance] = useState<OfficeAttendanceState>({});
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Effect for initializing and updating real staffing based on `offices` prop
   useEffect(() => {
     const initialStaffing: RealStaffingValues = {};
     offices.forEach(office => {
@@ -66,25 +56,13 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: M
     inputRefs.current = new Array(offices.length * DISPLAY_ROLES.length);
   }, [offices]);
 
-  // Effect for initializing and updating attendance based on `employees` prop
-  useEffect(() => {
-    const initialAttendance: OfficeAttendanceState = {};
-     offices.forEach(office => {
-      initialAttendance[office.id] = {};
-       (employees.filter(e => e.officeId === office.id)).forEach(emp => {
-        initialAttendance[office.id][emp.id] = emp.status;
-      });
-    });
-    setAttendance(initialAttendance);
-  }, [employees, offices]);
 
     useImperativeHandle(ref, () => ({
         getSummaryData: () => {
             const summaryData: { [officeId: string]: any } = {};
             offices.forEach(office => {
-                const officeAttendance = attendance[office.id] || {};
                 const absentEmployeeNames = employees
-                    .filter(emp => emp.officeId === office.id && officeAttendance[emp.id] === 'Ausente' && !PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason))
+                    .filter(emp => emp.officeId === office.id && emp.status === 'Ausente' && !PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason))
                     .map(emp => emp.name)
                     .join(' / ');
                 
@@ -126,11 +104,8 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: M
     return grouped;
   }, [employees]);
 
-  const handleAttendanceChange = async (officeId: string, employeeId: string, type: 'Atrasado' | 'Ausente', isChecked: boolean) => {
-    const originalAttendanceState = { ...attendance };
-    
+  const handleCheckboxChange = (employeeId: string, currentStatus: AttendanceStatus, type: 'Atrasado' | 'Ausente', isChecked: boolean) => {
     let newStatus: AttendanceStatus;
-    const currentState = attendance[officeId]?.[employeeId];
 
     if (isChecked) {
         newStatus = type;
@@ -138,33 +113,8 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: M
         newStatus = 'Presente';
     }
 
-    // Optimistic update
-    setAttendance(prev => {
-        const newOfficeAttendance = { ...prev[officeId], [employeeId]: newStatus };
-        return {
-            ...prev,
-            [officeId]: newOfficeAttendance
-        };
-    });
-    
-
-    try {
-        const updates: Partial<Employee> = { status: newStatus };
-         if (newStatus === 'Presente' || newStatus === 'Atrasado') {
-          updates.absenceReason = null;
-        } else {
-          // Default reason when switching to Ausente
-          updates.absenceReason = 'Inasistencia';
-        }
-        await updateEmployee(employeeId, updates);
-    } catch (error) {
-        // Revert on failure
-        setAttendance(originalAttendanceState);
-        toast({
-            title: "Error",
-            description: "No se pudo actualizar el estado del empleado.",
-            variant: "destructive"
-        });
+    if (newStatus !== currentStatus) {
+      onAttendanceChange(employeeId, newStatus);
     }
 };
 
@@ -200,13 +150,8 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: M
   };
   
   const getEmployeeNamesByStatus = (officeId: string, status: AttendanceStatus): React.ReactElement | "-" => {
-     const officeAttendance = attendance[officeId] || {};
-     const employeeIdsWithStatus = Object.entries(officeAttendance)
-        .filter(([, s]) => s === status)
-        .map(([id]) => id);
-
-    const filteredEmployees = employees
-        .filter(emp => employeeIdsWithStatus.includes(emp.id))
+     const filteredEmployees = employees
+        .filter(emp => emp.officeId === officeId && emp.status === status)
         .filter(emp => {
             if (status === 'Ausente') {
                 return !PROLONGED_ABSENCE_REASONS.includes(emp.absenceReason);
@@ -321,16 +266,16 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: M
                                                             <div className="flex items-center space-x-2">
                                                                 <Checkbox
                                                                     id={`atrasado-${office.id}-${emp.id}`}
-                                                                    checked={attendance[office.id]?.[emp.id] === 'Atrasado'}
-                                                                    onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Atrasado', !!checked)}
+                                                                    checked={emp.status === 'Atrasado'}
+                                                                    onCheckedChange={(checked) => handleCheckboxChange(emp.id, emp.status, 'Atrasado', !!checked)}
                                                                 />
                                                                 <Label htmlFor={`atrasado-${office.id}-${emp.id}`} className="text-xs">T</Label>
                                                             </div>
                                                             <div className="flex items-center space-x-2">
                                                                 <Checkbox
                                                                     id={`ausente-${office.id}-${emp.id}`}
-                                                                    checked={attendance[office.id]?.[emp.id] === 'Ausente'}
-                                                                    onCheckedChange={(checked) => handleAttendanceChange(office.id, emp.id, 'Ausente', !!checked)}
+                                                                    checked={emp.status === 'Ausente'}
+                                                                    onCheckedChange={(checked) => handleCheckboxChange(emp.id, emp.status, 'Ausente', !!checked)}
                                                                 />
                                                                 <Label htmlFor={`ausente-${office.id}-${emp.id}`} className="text-xs">A</Label>
                                                             </div>
@@ -414,19 +359,3 @@ const ManualEntryTable = forwardRef(({ offices, employees, onStaffingUpdate }: M
 
 ManualEntryTable.displayName = 'ManualEntryTable';
 export default ManualEntryTable;
-
-    
-
-    
-
-
-
-
-    
-
-
-
-
-
-
-
