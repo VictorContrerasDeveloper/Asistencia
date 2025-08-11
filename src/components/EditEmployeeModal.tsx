@@ -37,7 +37,7 @@ import {
 type EditEmployeeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (updatedEmployee: Employee) => void;
   employee: Employee;
   offices: Office[];
 };
@@ -124,24 +124,35 @@ export default function EditEmployeeModal({
         return;
     }
     setIsSaving(true);
-    try {
-        const updates: Partial<Employee> = {};
-        if (newName !== employee.name) updates.name = newName;
-        if (newRole !== employee.role) updates.role = newRole;
-        if (newLevel !== (employee.level || 'Nivel Básico')) updates.level = newLevel;
-        if (newOfficeId !== employee.officeId) updates.officeId = newOfficeId;
-        if (newStatus !== employee.status) updates.status = newStatus;
-        
-        if (newStatus === 'Ausente') {
-           updates.absenceReason = newAbsenceReason;
-           updates.absenceEndDate = newAbsenceEndDate ? formatInTimeZone(newAbsenceEndDate, 'UTC', 'yyyy-MM-dd') : null
-        } else {
-            updates.absenceReason = null;
-            updates.absenceEndDate = null;
-        }
+    
+    const updates: Partial<Employee> = {};
+    if (newName !== employee.name) updates.name = newName;
+    if (newRole !== employee.role) updates.role = newRole;
+    if (newLevel !== (employee.level || 'Nivel Básico')) updates.level = newLevel;
+    if (newOfficeId !== employee.officeId) updates.officeId = newOfficeId;
+    if (newStatus !== employee.status) updates.status = newStatus;
+    
+    if (newStatus === 'Ausente') {
+        updates.absenceReason = newAbsenceReason;
+        updates.absenceEndDate = newAbsenceEndDate ? formatInTimeZone(newAbsenceEndDate, 'UTC', 'yyyy-MM-dd') : null
+    } else {
+        updates.absenceReason = null;
+        updates.absenceEndDate = null;
+    }
 
+    try {
         await updateEmployee(employee.id, updates);
-        onSuccess();
+        const updatedEmployee: Employee = {
+            ...employee,
+            name: newName,
+            role: newRole,
+            level: newLevel,
+            officeId: newOfficeId,
+            status: newStatus,
+            absenceReason: updates.absenceReason!,
+            absenceEndDate: updates.absenceEndDate,
+        };
+        onSuccess(updatedEmployee);
     } catch (error) {
         toast({
             title: "Error",
@@ -161,7 +172,8 @@ export default function EditEmployeeModal({
             title: "Personal Eliminado",
             description: `${employee.name} ha sido eliminado/a permanentemente.`,
         });
-        onSuccess();
+        // We pass the deleted employee so the parent can filter it out
+        onSuccess(employee);
     } catch (error) {
         toast({
             title: "Error de Eliminación",
@@ -348,3 +360,5 @@ export default function EditEmployeeModal({
     </>
   );
 }
+
+    

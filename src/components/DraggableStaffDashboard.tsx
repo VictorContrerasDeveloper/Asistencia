@@ -30,7 +30,6 @@ type DraggableStaffDashboardProps = {
   offices: Office[];
   employees: Employee[];
   onEmployeeUpdate: (employee: Employee) => void;
-  onRefreshData: () => Promise<void>;
 };
 
 const ROLE_ORDER: Record<EmployeeRole, number> = {
@@ -59,7 +58,6 @@ export default function DraggableStaffDashboard({
   offices: initialOffices, 
   employees: initialEmployees, 
   onEmployeeUpdate,
-  onRefreshData,
 }: DraggableStaffDashboardProps) {
   const { toast } = useToast();
   const [employees, setEmployees] = useState(initialEmployees);
@@ -193,8 +191,8 @@ export default function DraggableStaffDashboard({
     setIsEditModalOpen(true);
   };
 
-  const handleEditSuccess = () => {
-    onRefreshData();
+  const handleEditSuccess = (updatedEmployee: Employee) => {
+    onEmployeeUpdate(updatedEmployee);
     setIsEditModalOpen(false);
   }
 
@@ -207,6 +205,14 @@ export default function DraggableStaffDashboard({
         ...groups.prolongedAbsence.map(e => e.id)
     ];
   }
+  
+  const sortedOffices = useMemo(() => {
+    return [...offices].sort((a,b) => {
+      if(a.id === 'admin-staff') return 1;
+      if(b.id === 'admin-staff') return -1;
+      return a.name.localeCompare(b.name);
+    })
+  }, [offices]);
 
   return (
     <>
@@ -219,7 +225,7 @@ export default function DraggableStaffDashboard({
     >
       <TooltipProvider>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 items-start">
-          {offices.map(office => {
+          {sortedOffices.map(office => {
               const { active: activeEmployees, prolongedAbsence: prolongedAbsenceEmployees, dailyAbsence: dailyAbsenceEmployees } = employeesByOffice[office.id] || { active: [], prolongedAbsence: [], dailyAbsence: [] };
               const totalEmployees = activeEmployees.length + prolongedAbsenceEmployees.length + dailyAbsenceEmployees.length;
 
@@ -301,7 +307,7 @@ export default function DraggableStaffDashboard({
         <EditEmployeeModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
-            onSuccess={onRefreshData}
+            onSuccess={handleEditSuccess}
             employee={selectedEmployee}
             offices={offices}
         />
@@ -309,3 +315,5 @@ export default function DraggableStaffDashboard({
     </>
   );
 }
+
+    

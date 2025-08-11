@@ -29,6 +29,10 @@ type DashboardPageClientProps = {
   offices: Office[];
 };
 
+const ADMIN_OFFICE_ID = 'admin-staff';
+const ADMIN_OFFICE_NAME = 'Back/Admin HelpBank';
+
+
 export default function DashboardPageClient({ 
     office, 
     allEmployees: allEmployeesProp, 
@@ -71,8 +75,20 @@ export default function DashboardPageClient({
   }, [allEmployeesProp]);
 
   useEffect(() => {
-    setOffices(officesProp);
-  }, [officesProp])
+    const adminOfficeExists = officesProp.some(o => o.id === ADMIN_OFFICE_ID);
+    
+    if (!adminOfficeExists) {
+        const adminOffice: Office = {
+            id: ADMIN_OFFICE_ID,
+            name: ADMIN_OFFICE_NAME,
+            theoreticalStaffing: {},
+            realStaffing: {}
+        };
+        setOffices([...officesProp, adminOffice]);
+    } else {
+        setOffices(officesProp);
+    }
+  }, [officesProp]);
 
   useEffect(() => {
     const fetchSummaries = async () => {
@@ -321,7 +337,6 @@ export default function DashboardPageClient({
                   offices={offices} 
                   employees={employees} 
                   onEmployeeUpdate={handleEmployeeUpdated}
-                  onRefreshData={refetchData}
                 />
               </TabsContent>
               <TabsContent value="report" className="space-y-8 mt-6">
@@ -489,3 +504,5 @@ export default function DashboardPageClient({
     </TooltipProvider>
   );
 }
+
+    
