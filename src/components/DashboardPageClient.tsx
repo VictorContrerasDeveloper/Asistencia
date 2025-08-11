@@ -126,6 +126,9 @@ export default function DashboardPageClient({
 
   const handleEmployeeUpdated = (updatedEmployee: Employee) => {
     setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
+    if (updatedEmployee.officeId) {
+      refetchData();
+    }
   }
 
   // Manual Entry functions
@@ -289,7 +292,7 @@ export default function DashboardPageClient({
     </div>
   )
 
-  const manualOffices = offices.filter(office => !office.name.toLowerCase().includes('movil'));
+  const manualOffices = offices.filter(office => !office.name.toLowerCase().includes('movil') && office.id !== ADMIN_OFFICE_ID);
 
 
   return (
