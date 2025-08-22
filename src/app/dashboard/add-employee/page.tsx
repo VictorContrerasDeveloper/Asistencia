@@ -52,11 +52,11 @@ export default function AddEmployeePage() {
     <div className="flex flex-col min-h-screen bg-background">
        <header className="flex items-center justify-between p-4 border-b bg-card">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/general">
-            <Button variant="outline" size="icon">
+          <Button asChild variant="outline" size="icon">
+            <Link href="/dashboard/general">
               <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <h1 className="text-xl md:text-2xl font-bold text-card-foreground">Agregar Nuevo Personal</h1>
         </div>
       </header>
@@ -126,11 +126,11 @@ export default function AddEmployeePage() {
                 </Select>
               </div>
               <div className="flex justify-end gap-2">
-                 <Link href="/dashboard/general">
-                    <Button variant="outline">
+                 <Button asChild variant="outline">
+                    <Link href="/dashboard/general">
                         Cancelar
-                    </Button>
-                 </Link>
+                    </Link>
+                 </Button>
                 <Button type="submit">
                     Guardar Personal
                 </Button>
