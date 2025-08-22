@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, UserPlus, Download, Save, Eraser, PlusCircle, Pencil } from 'lucide-react';
+import { ArrowLeft, UserPlus, Download, Save, Eraser, PlusCircle, Pencil, LogOut } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing, EmployeeRole, AttendanceStatus, updateEmployee } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -22,6 +22,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import EditTheoreticalStaffingModal from './EditTheoreticalStaffingModal';
 import SaveDayModal from './SaveDayModal';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { useAuth } from '@/hooks/useAuth';
 
 type DashboardPageClientProps = {
   office: { name: string; id: string; };
@@ -34,6 +35,7 @@ export default function DashboardPageClient({
     allEmployees: allEmployeesProp, 
     offices: officesProp,
 }: DashboardPageClientProps) {
+  const { logout } = useAuth();
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditStaffingModalOpen, setIsEditStaffingModalOpen] = useState(false);
   const [employees, setEmployees] = useState(allEmployeesProp);
@@ -291,12 +293,6 @@ export default function DashboardPageClient({
           <>
              <header className="flex flex-col md:flex-row items-center justify-between p-4 border-b bg-card mb-8 gap-4">
                <div className="flex items-center gap-2 flex-wrap justify-center">
-                  <Link href="/">
-                    <Button variant="outline">
-                      <ArrowLeft />
-                      Volver a Paneles
-                    </Button>
-                  </Link>
                   <Button variant="secondary" onClick={() => setAddModalOpen(true)}>
                       <UserPlus />
                       <span>Agregar Personal</span>
@@ -315,6 +311,16 @@ export default function DashboardPageClient({
                         </TooltipContent>
                     </Tooltip>
                   )}
+                   <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button variant="destructive" size="icon" onClick={logout}>
+                              <LogOut />
+                           </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                           <p>Cerrar Sesión</p>
+                        </TooltipContent>
+                    </Tooltip>
                </div>
             </header>
             
