@@ -14,16 +14,16 @@ import { auth } from '@/lib/firebase';
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  login: (email: string, pass: string) => void;
-  logout: () => void;
+  login: (email: string, pass: string) => Promise<void>;
+  logout: () => Promise<void>;
   error: string | null;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  login: () => {},
-  logout: () => {},
+  login: async () => {},
+  logout: async () => {},
   error: null
 });
 
@@ -42,27 +42,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, pass: string) => {
-    setLoading(true);
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      router.push('/dashboard/general');
     } catch (err: any) {
-        if(err.code === 'auth/invalid-credential') {
+        if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
             setError("Credenciales inválidas. Por favor, revisa tu correo y contraseña.");
         } else {
-            setError("Ocurrió un error al iniciar sesión.");
+            setError("Ocurrió un error inesperado. Por favor, revisa la consola para más detalles.");
+            console.error("Firebase Auth Error:", err);
         }
-    } finally {
-      setLoading(false);
     }
   };
 
   const logout = async () => {
-    setLoading(true);
     await signOut(auth);
     router.push('/');
-    setLoading(false);
   };
 
   const value = { user, loading, login, logout, error };

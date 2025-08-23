@@ -17,19 +17,24 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (!loading && user) {
       router.push('/dashboard/general');
     }
-  }, [user, router]);
+  }, [user, loading, router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, password);
+    setIsLoggingIn(true);
+    await login(email, password);
+    setIsLoggingIn(false);
   };
   
-  if (loading || user) {
+  const isLoading = loading || isLoggingIn;
+
+  if (loading && !isLoggingIn) {
      return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -38,6 +43,7 @@ export default function LoginPage() {
       </div>
     );
   }
+
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-8">
@@ -70,6 +76,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -81,6 +88,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={isLoading}
                   />
                   <Button
                     type="button"
@@ -88,6 +96,7 @@ export default function LoginPage() {
                     size="icon"
                     className="absolute inset-y-0 right-0 h-full px-3"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     <span className="sr-only">{showPassword ? 'Ocultar' : 'Mostrar'} contraseña</span>
@@ -97,8 +106,8 @@ export default function LoginPage() {
               {error && (
                 <p className="text-sm text-destructive">{error}</p>
               )}
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Ingresando...
