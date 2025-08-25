@@ -2,8 +2,8 @@
 "use client";
 
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, UserPlus, Download, Save, Eraser, PlusCircle, Pencil, LogOut } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ArrowLeft, UserPlus, Download, Save, Eraser, PlusCircle, Pencil, LogOut, Loader2 } from 'lucide-react';
 import { Office, Employee, getEmployees, getOffices, DailySummary, getDailySummaries, saveDailySummary, deleteDailySummary, clearAllRealStaffing, EmployeeRole, AttendanceStatus, updateEmployee } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import AddEmployeeModal from './AddEmployeeModal';
@@ -26,22 +26,18 @@ import { useAuth } from '@/hooks/useAuth';
 
 type DashboardPageClientProps = {
   office: { name: string; id: string; };
-  allEmployees: Employee[];
-  offices: Office[];
 };
 
 export default function DashboardPageClient({ 
     office, 
-    allEmployees: allEmployeesProp, 
-    offices: officesProp,
 }: DashboardPageClientProps) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditStaffingModalOpen, setIsEditStaffingModalOpen] = useState(false);
-  const [employees, setEmployees] = useState(allEmployeesProp);
-  const [offices, setOffices] = useState<Office[]>(officesProp);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [offices, setOffices] = useState<Office[]>([]);
   const [dailySummaries, setDailySummaries] = useState<DailySummary[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('staffing');
 
 
@@ -54,7 +50,6 @@ export default function DashboardPageClient({
   const [summaryToDelete, setSummaryToDelete] = useState<string | null>(null);
   const [isClearAlertOpen, setClearAlertOpen] = useState(false);
   
-
   const refetchData = async () => {
      setLoading(true);
      const [allEmployeesData, allOfficesData, fetchedSummaries] = await Promise.all([
@@ -67,21 +62,12 @@ export default function DashboardPageClient({
      setDailySummaries(fetchedSummaries);
      setLoading(false);
   }
-
+  
   useEffect(() => {
-    setEmployees(allEmployeesProp);
-    setOffices(officesProp);
-  }, [allEmployeesProp, officesProp]);
-
-  useEffect(() => {
-    const fetchSummaries = async () => {
-        setLoading(true);
-        const fetchedSummaries = await getDailySummaries();
-        setDailySummaries(fetchedSummaries);
-        setLoading(false);
-    }
-    fetchSummaries();
-  }, [])
+      if(user) {
+          refetchData();
+      }
+  }, [user]);
 
   const handleExport = () => {
     const officeMap = new Map(offices.map(o => [o.id, o.name]));
@@ -285,6 +271,16 @@ export default function DashboardPageClient({
 
   const manualOffices = offices.filter(office => !office.name.toLowerCase().includes('movil'));
 
+  if (loading) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center bg-background">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Cargando datos...</p>
+          </div>
+        </div>
+      );
+  }
 
   return (
     <TooltipProvider>
@@ -344,21 +340,13 @@ export default function DashboardPageClient({
                         <CardTitle className="underline">Resumen dotacion Of. Com. Helpbank</CardTitle>
                       </CardHeader>
                       <CardContent className="px-4">
-                        {loading ? (
-                          <div className="space-y-2 p-6">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
-                          </div>
-                        ) : (
-                          <ManualEntryTable 
-                            ref={manualEntryTableRef} 
-                            offices={manualOffices} 
-                            employees={employees} 
-                            onStaffingUpdate={handleStaffingUpdate}
-                            onAttendanceChange={handleAttendanceChange}
-                          />
-                        )}
+                        <ManualEntryTable 
+                          ref={manualEntryTableRef} 
+                          offices={manualOffices} 
+                          employees={employees} 
+                          onStaffingUpdate={handleStaffingUpdate}
+                          onAttendanceChange={handleAttendanceChange}
+                        />
                       </CardContent>
                     </div>
                     <CardFooter className="flex justify-end items-center p-2 exclude-from-image bg-card">
@@ -404,10 +392,10 @@ export default function DashboardPageClient({
                       <CardTitle>Resumen Diario Guardado</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {loading ? (
-                        <Skeleton className="h-40 w-full" />
-                      ) : (
+                      {dailySummaries.length > 0 ? (
                         <DailySummaryTable summaries={dailySummaries} onDelete={setSummaryToDelete} />
+                      ) : (
+                          <p className="text-sm text-muted-foreground text-center py-4">No hay resúmenes guardados.</p>
                       )}
                     </CardContent>
                   </Card>
@@ -419,18 +407,12 @@ export default function DashboardPageClient({
                             <CardTitle className="w-full">Ausencias Prolongadas</CardTitle>
                         </CardHeader>
                         <CardContent className="px-4">
-                            {loading ? (
-                            <div className="p-6">
-                                <Skeleton className="h-40 w-full" />
-                            </div>
-                            ) : (
-                                <ProlongedAbsenceTable 
-                                    offices={manualOffices} 
-                                    employees={employees}
-                                    onEmployeeReinstated={handleEmployeeReinstated}
-                                    onAbsenceUpdated={handleAbsenceUpdated}
-                                />
-                            )}
+                            <ProlongedAbsenceTable 
+                                offices={manualOffices} 
+                                employees={employees}
+                                onEmployeeReinstated={handleEmployeeReinstated}
+                                onAbsenceUpdated={handleAbsenceUpdated}
+                            />
                         </CardContent>
                     </div>
                     <CardFooter className="flex justify-end p-2 exclude-from-image bg-card gap-2">
