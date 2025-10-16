@@ -67,6 +67,9 @@ export default function EditEmployeeModal({
   const [newAbsenceEndDate, setNewAbsenceEndDate] = useState<Date | undefined>();
   const [newWorkMode, setNewWorkMode] = useState<WorkMode>(employee.workMode);
   const [newEmploymentType, setNewEmploymentType] = useState<EmploymentType>(employee.employmentType);
+  const [newPhone, setNewPhone] = useState(employee.phone || '');
+  const [newEmail, setNewEmail] = useState(employee.email || '');
+  const [newSalesforceUser, setNewSalesforceUser] = useState(employee.salesforceUser || '');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -84,6 +87,9 @@ export default function EditEmployeeModal({
       setNewAbsenceEndDate(employee.absenceEndDate ? parseISO(employee.absenceEndDate) : undefined);
       setNewWorkMode(employee.workMode || 'Operaciones');
       setNewEmploymentType(employee.employmentType || 'Full-Time');
+      setNewPhone(employee.phone || '');
+      setNewEmail(employee.email || '');
+      setNewSalesforceUser(employee.salesforceUser || '');
       setIsNameEditable(false);
     }
   }, [isOpen, employee]);
@@ -116,6 +122,9 @@ export default function EditEmployeeModal({
                      newAbsenceReason !== employee.absenceReason ||
                      newWorkMode !== employee.workMode ||
                      newEmploymentType !== (employee.employmentType || 'Full-Time') ||
+                     newPhone !== (employee.phone || '') ||
+                     newEmail !== (employee.email || '') ||
+                     newSalesforceUser !== (employee.salesforceUser || '') ||
                      (newAbsenceEndDate ? formatInTimeZone(newAbsenceEndDate, 'UTC', 'yyyy-MM-dd') : null) !== (employee.absenceEndDate || null);
 
     if (!hasChanged) {
@@ -140,6 +149,9 @@ export default function EditEmployeeModal({
     if (newStatus !== employee.status) updates.status = newStatus;
     if (newWorkMode !== employee.workMode) updates.workMode = newWorkMode;
     if (newEmploymentType !== (employee.employmentType || 'Full-Time')) updates.employmentType = newEmploymentType;
+    if (newPhone !== (employee.phone || '')) updates.phone = newPhone;
+    if (newEmail !== (employee.email || '')) updates.email = newEmail;
+    if (newSalesforceUser !== (employee.salesforceUser || '')) updates.salesforceUser = newSalesforceUser;
     
     if (newStatus === 'Ausente') {
         updates.absenceReason = newAbsenceReason;
@@ -153,15 +165,7 @@ export default function EditEmployeeModal({
         await updateEmployee(employee.id, updates);
         const updatedEmployee: Employee = {
             ...employee,
-            name: newName,
-            role: newRole,
-            level: newLevel,
-            officeId: newOfficeId,
-            status: newStatus,
-            workMode: newWorkMode,
-            employmentType: newEmploymentType,
-            absenceReason: updates.absenceReason!,
-            absenceEndDate: updates.absenceEndDate,
+            ...updates,
         };
         onSuccess(updatedEmployee);
     } catch (error) {
@@ -226,6 +230,20 @@ export default function EditEmployeeModal({
                 </Button>
              </div>
            </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="new-phone">Teléfono de contacto</Label>
+                <Input id="new-phone" value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="+569..." />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="new-email">Correo electrónico</Label>
+                <Input id="new-email" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="ejecutivo@example.com" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="new-salesforce">Usuario Salesforce</Label>
+                <Input id="new-salesforce" value={newSalesforceUser} onChange={(e) => setNewSalesforceUser(e.target.value)} placeholder="usuario.sf" />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                  <Label htmlFor="new-work-mode">Modo de Trabajo</Label>

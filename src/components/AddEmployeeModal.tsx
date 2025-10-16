@@ -33,6 +33,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
   const [officeId, setOfficeId] = useState('');
   const [role, setRole] = useState<EmployeeRole>('Modulo');
   const [level, setLevel] = useState<EmployeeLevel>('Nivel Básico');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [salesforceUser, setSalesforceUser] = useState('');
   const [offices, setOffices] = useState<Office[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -51,6 +54,9 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
     setOfficeId('');
     setRole('Modulo');
     setLevel('Nivel Básico');
+    setPhone('');
+    setEmail('');
+    setSalesforceUser('');
   }
 
   const handleClose = () => {
@@ -63,14 +69,14 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
     if (!name || !officeId || !role || !level) {
       toast({
         title: "Error",
-        description: "Por favor, completa todos los campos.",
+        description: "Por favor, completa todos los campos obligatorios.",
         variant: "destructive",
       });
       return;
     }
     setIsSaving(true);
     try {
-        await addEmployee(name, officeId, role, level);
+        await addEmployee(name, officeId, role, level, phone, email, salesforceUser);
         toast({
             title: "Personal Agregado",
             description: `${name} ha sido agregado/a exitosamente.`
@@ -90,14 +96,14 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Agregar Nuevo Personal</DialogTitle>
           <DialogDescription>
             Ingresa la información del nuevo personal y asígnalo a una oficina.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6 py-4">
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nombre Completo</Label>
             <Input
@@ -106,6 +112,34 @@ export default function AddEmployeeModal({ isOpen, onClose, onSuccess }: AddEmpl
               onChange={(e) => setName(e.target.value)}
               placeholder="Ej: Juan Pérez"
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Teléfono de contacto</Label>
+            <Input
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Ej: +56912345678"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Correo electrónico</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Ej: juan.perez@example.com"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="salesforceUser">Usuario Salesforce</Label>
+            <Input
+              id="salesforceUser"
+              value={salesforceUser}
+              onChange={(e) => setSalesforceUser(e.target.value)}
+              placeholder="Ej: jperez"
             />
           </div>
           <div className="space-y-2">

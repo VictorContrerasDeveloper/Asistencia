@@ -50,6 +50,9 @@ export type Employee = {
   workMode: WorkMode;
   employmentType: EmploymentType;
   absenceEndDate?: string | null;
+  phone?: string;
+  email?: string;
+  salesforceUser?: string;
 };
 
 export type DailySummary = {
@@ -194,7 +197,10 @@ export const getEmployees = async (officeId?: string): Promise<Employee[]> => {
       ...data,
       level: data.level || 'Nivel Básico',
       workMode: data.workMode || 'Operaciones',
-      employmentType: data.employmentType || 'Full-Time'
+      employmentType: data.employmentType || 'Full-Time',
+      phone: data.phone || '',
+      email: data.email || '',
+      salesforceUser: data.salesforceUser || '',
     } as Employee
   });
   return employees.sort((a,b) => a.name.localeCompare(b.name));
@@ -248,7 +254,7 @@ export const bulkUpdateEmployeeLevels = async (updates: { employeeId: string, le
 }
 
 
-export const addEmployee = async (name: string, officeId: string, role: EmployeeRole, level: EmployeeLevel) => {
+export const addEmployee = async (name: string, officeId: string, role: EmployeeRole, level: EmployeeLevel, phone: string, email: string, salesforceUser: string) => {
   const newEmployee = {
     name,
     officeId,
@@ -258,7 +264,10 @@ export const addEmployee = async (name: string, officeId: string, role: Employee
     level: level || 'Nivel Básico',
     workMode: 'Operaciones',
     employmentType: 'Full-Time',
-    absenceEndDate: null
+    absenceEndDate: null,
+    phone: phone || '',
+    email: email || '',
+    salesforceUser: salesforceUser || ''
   };
   const docRef = await addDoc(employeesCollection, newEmployee);
   return { id: docRef.id, ...newEmployee } as Employee;
@@ -281,7 +290,10 @@ export const bulkAddEmployees = async (names: string, officeId: string) => {
       level: 'Nivel Básico',
       workMode: 'Operaciones',
       employmentType: 'Full-Time',
-      absenceEndDate: null
+      absenceEndDate: null,
+      phone: '',
+      email: '',
+      salesforceUser: ''
     };
     const docRef = doc(employeesCollection);
     batch.set(docRef, newEmployee);
