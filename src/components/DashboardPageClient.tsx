@@ -79,6 +79,8 @@ export default function DashboardPageClient({
       'Rol': emp.role,
       'Nivel': emp.level || 'Nivel Básico',
       'Estado': emp.status,
+      'Correo electrónico': emp.email || '',
+      'Usuario Salesforce': emp.salesforceUser || '',
     }));
 
     const csv = Papa.unparse(dataToExport, { delimiter: ';' });
