@@ -44,13 +44,13 @@ export default function AddEmployeePage() {
       });
       return;
     }
-    await addEmployee(name, officeId, role, level);
+    await addEmployee(name, officeId, role, level, '', '', '');
     router.push('/dashboard/general');
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-       <header className="flex items-center justify-between p-4 border-b bg-card">
+      <header className="flex items-center justify-between p-4 border-b bg-card">
         <div className="flex items-center gap-4">
           <Button asChild variant="outline" size="icon">
             <Link href="/dashboard/general">
@@ -83,56 +83,56 @@ export default function AddEmployeePage() {
               <div className="space-y-2">
                 <Label htmlFor="office">Oficina Asignada</Label>
                 <Select value={officeId} onValueChange={setOfficeId} required>
-                    <SelectTrigger id="office">
-                        <SelectValue placeholder="Selecciona una oficina" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {offices.map((office) => (
-                            <SelectItem key={office.id} value={office.id}>
-                                {office.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
+                  <SelectTrigger id="office">
+                    <SelectValue placeholder="Selecciona una oficina" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {offices.map((office) => (
+                      <SelectItem key={office.id} value={office.id}>
+                        {office.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="role">Función Asignada</Label>
                 <Select value={role} onValueChange={(value) => setRole(value as EmployeeRole)} required>
-                    <SelectTrigger id="role">
-                        <SelectValue placeholder="Selecciona una función" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {ROLES.map((role) => (
-                            <SelectItem key={role} value={role}>
-                                {role}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Selecciona una función" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="level">Nivel</Label>
                 <Select value={level} onValueChange={(value) => setLevel(value as EmployeeLevel)} required>
-                    <SelectTrigger id="level">
-                        <SelectValue placeholder="Selecciona un nivel" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {LEVELS.map((level) => (
-                            <SelectItem key={level} value={level}>
-                                {level}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
+                  <SelectTrigger id="level">
+                    <SelectValue placeholder="Selecciona un nivel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEVELS.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {level}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex justify-end gap-2">
-                 <Button asChild variant="outline">
-                    <Link href="/dashboard/general">
-                        Cancelar
-                    </Link>
-                 </Button>
+                <Button asChild variant="outline">
+                  <Link href="/dashboard/general">
+                    Cancelar
+                  </Link>
+                </Button>
                 <Button type="submit">
-                    Guardar Personal
+                  Guardar Personal
                 </Button>
               </div>
             </form>

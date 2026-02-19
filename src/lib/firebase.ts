@@ -3,13 +3,13 @@ import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  "projectId": "attendance-hero-av2o3",
-  "appId": "1:351962014198:web:de46856783bc89291c67d7",
-  "storageBucket": "attendance-hero-av2o3.firebasestorage.app",
-  "apiKey": "AIzaSyD9DrrKNZ9Egms20S3Di0bSVLZbNWAf5A0",
-  "authDomain": "attendance-hero-av2o3.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "351962014198"
+  "projectId": process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  "appId": process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  "storageBucket": process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  "apiKey": process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  "authDomain": process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  "measurementId": process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "",
+  "messagingSenderId": process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 };
 
 // Initialize Firebase

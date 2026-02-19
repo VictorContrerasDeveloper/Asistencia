@@ -10,16 +10,16 @@ import { cn } from '@/lib/utils';
 
 
 const LevelAbbreviations: Record<EmployeeLevel, string> = {
-    'Nivel 1': 'Ej1.',
-    'Nivel 2': 'Ej2.',
-    'Nivel intermedio': 'Int.',
-    'Nivel Básico': 'Basic.',
+  'Nivel 1': 'Ej1.',
+  'Nivel 2': 'Ej2.',
+  'Nivel intermedio': 'Int.',
+  'Nivel Básico': 'Basic.',
 }
 
 const RolePrefixes: Partial<Record<EmployeeRole, string>> = {
-    'Supervisión': 'Sup.',
-    'Anfitrión': 'Anf.',
-    'Tablet': 'Tab.'
+  'Supervisión': 'Sup.',
+  'Anfitrión': 'Anf.',
+  'Tablet': 'Tab.'
 };
 
 const PROLONGED_ABSENCE_REASONS: AbsenceReason[] = ['Licencia médica', 'Vacaciones', 'Otro'];
@@ -40,7 +40,7 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: employee.id, data: {type: 'Employee', employee} });
+  } = useSortable({ id: employee.id, data: { type: 'Employee', employee } });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -48,12 +48,12 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 100 : 'auto',
   };
-  
+
   const levelAbbreviation = LevelAbbreviations[employee.level] || 'Basic.';
   const rolePrefix = RolePrefixes[employee.role];
   const displayPrefix = rolePrefix ? rolePrefix : levelAbbreviation;
-  
-  const isProlongedAbsence = PROLONGED_ABSENCE_REASONS.includes(employee.absenceReason);
+
+  const isProlongedAbsence = !!employee.absenceReason && PROLONGED_ABSENCE_REASONS.includes(employee.absenceReason);
   const isDailyAbsence = employee.absenceReason === 'Inasistencia';
 
   return (
@@ -69,23 +69,23 @@ export default function DraggableEmployee({ employee, isOverlay, onNameClick, is
         isProlongedAbsence && "text-muted-foreground italic"
       )}
     >
-       <div 
-        className="flex items-center gap-2 truncate flex-1 cursor-pointer" 
+      <div
+        className="flex items-center gap-2 truncate flex-1 cursor-pointer"
         onClick={onNameClick}
-       >
-         <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
+      >
+        <span className="text-muted-foreground font-semibold text-xs w-auto flex-shrink-0">
           {displayPrefix}
-         </span>
-         <span className="truncate">{employee.name}</span>
-         {employee.employmentType === 'Part-Time' && <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" title="Part-Time" />}
-       </div>
-       {isUpdating ? (
-          <Loader2 className="h-4 w-4 text-muted-foreground/50 animate-spin" />
-        ) : (
-          <div {...attributes} {...listeners}>
-            <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
-          </div>
-        )}
+        </span>
+        <span className="truncate">{employee.name}</span>
+        {employee.employmentType === 'Part-Time' && <Clock className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
+      </div>
+      {isUpdating ? (
+        <Loader2 className="h-4 w-4 text-muted-foreground/50 animate-spin" />
+      ) : (
+        <div {...attributes} {...listeners}>
+          <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
+        </div>
+      )}
     </div>
   );
 }

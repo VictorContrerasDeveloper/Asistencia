@@ -1,13 +1,13 @@
 
 import { app } from './firebase';
-import { 
-  getFirestore, 
-  collection, 
-  getDocs, 
-  query, 
-  where, 
-  doc, 
-  updateDoc, 
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc,
   addDoc,
   getDoc,
   deleteDoc,
@@ -40,7 +40,7 @@ export type WorkMode = 'Operaciones' | 'Administrativo';
 export type EmploymentType = 'Full-Time' | 'Part-Time';
 
 export type Employee = {
-  id:string;
+  id: string;
   name: string;
   officeId: string;
   status: AttendanceStatus;
@@ -64,7 +64,7 @@ export type DailySummary = {
       realStaffing: {
         [key in EmployeeRole]?: number;
       };
-       theoreticalStaffing: {
+      theoreticalStaffing: {
         [key in EmployeeRole]?: number;
       };
       absent: string;
@@ -92,18 +92,18 @@ export function slugify(text: string): string {
 }
 
 export const getOffices = async (): Promise<Office[]> => {
-    const snapshot = await getDocs(query(officesCollection));
-    const offices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Office));
-    
-    // Sort by order, then by name for offices without a specific order
-    return offices.sort((a, b) => {
-        const orderA = a.order ?? 999;
-        const orderB = b.order ?? 999;
-        if (orderA !== orderB) {
-            return orderA - orderB;
-        }
-        return a.name.localeCompare(b.name);
-    });
+  const snapshot = await getDocs(query(officesCollection));
+  const offices = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id, employees: [] } as unknown as Office));
+
+  // Sort by order, then by name for offices without a specific order
+  return offices.sort((a, b) => {
+    const orderA = a.order ?? 999;
+    const orderB = b.order ?? 999;
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    return a.name.localeCompare(b.name);
+  });
 };
 
 export const addOffice = async (name: string) => {
@@ -111,7 +111,7 @@ export const addOffice = async (name: string) => {
     name,
   };
   const docRef = await addDoc(officesCollection, newOffice);
-  return { id: docRef.id, ...newOffice } as Office;
+  return { ...newOffice, id: docRef.id, employees: [] } as unknown as Office;
 };
 
 export const getOfficeById = async (id: string): Promise<Office | undefined> => {
@@ -119,7 +119,7 @@ export const getOfficeById = async (id: string): Promise<Office | undefined> => 
   const docRef = doc(db, 'offices', id);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
-    return { id: docSnap.id, ...docSnap.data() } as Office;
+    return { ...docSnap.data(), id: docSnap.id, employees: [] } as unknown as Office;
   }
   return undefined;
 };
@@ -130,50 +130,50 @@ export const updateOfficeStaffing = async (officeId: string, theoreticalStaffing
 }
 
 export const updateOfficeOrder = async (updates: { id: string, order: number }[]) => {
-    const batch = writeBatch(db);
-    updates.forEach(update => {
-        const officeRef = doc(db, 'offices', update.id);
-        batch.update(officeRef, { order: update.order });
-    });
-    await batch.commit();
+  const batch = writeBatch(db);
+  updates.forEach(update => {
+    const officeRef = doc(db, 'offices', update.id);
+    batch.update(officeRef, { order: update.order });
+  });
+  await batch.commit();
 }
 
 export const clearAllRealStaffing = async (officeIds: string[]) => {
-    const batch = writeBatch(db);
-    const clearedStaffing = {
-        Modulo: 0,
-        Anfitrión: 0,
-        Tablet: 0,
-        Supervisión: 0,
-    };
-    officeIds.forEach(id => {
-        const officeRef = doc(db, 'offices', id);
-        batch.update(officeRef, { realStaffing: clearedStaffing });
-    });
-    await batch.commit();
+  const batch = writeBatch(db);
+  const clearedStaffing = {
+    Modulo: 0,
+    Anfitrión: 0,
+    Tablet: 0,
+    Supervisión: 0,
+  };
+  officeIds.forEach(id => {
+    const officeRef = doc(db, 'offices', id);
+    batch.update(officeRef, { realStaffing: clearedStaffing });
+  });
+  await batch.commit();
 }
 
 export const updateOfficeRealStaffing = async (officeId: string, realStaffing: { [key in EmployeeRole]?: number }) => {
-    const officeRef = doc(db, 'offices', officeId);
-    
-    const officeDoc = await getDoc(officeRef);
-    if(!officeDoc.exists()) {
-        throw new Error("Office not found");
-    }
+  const officeRef = doc(db, 'offices', officeId);
 
-    const currentStaffing = officeDoc.data().realStaffing || {};
-    
-    // Ensure 0 is saved if that's the value, otherwise merge
-    const updatedStaffing: { [key in EmployeeRole]?: number } = { ...currentStaffing };
-    for (const role in realStaffing) {
-        const key = role as EmployeeRole;
-        const value = realStaffing[key];
-        if (value !== undefined) {
-          updatedStaffing[key] = value;
-        }
+  const officeDoc = await getDoc(officeRef);
+  if (!officeDoc.exists()) {
+    throw new Error("Office not found");
+  }
+
+  const currentStaffing = officeDoc.data().realStaffing || {};
+
+  // Ensure 0 is saved if that's the value, otherwise merge
+  const updatedStaffing: { [key in EmployeeRole]?: number } = { ...currentStaffing };
+  for (const role in realStaffing) {
+    const key = role as EmployeeRole;
+    const value = realStaffing[key];
+    if (value !== undefined) {
+      updatedStaffing[key] = value;
     }
-    
-    await updateDoc(officeRef, { realStaffing: updatedStaffing });
+  }
+
+  await updateDoc(officeRef, { realStaffing: updatedStaffing });
 };
 
 export const getOfficeBySlug = async (slug: string, offices?: Office[]): Promise<Office | undefined> => {
@@ -192,8 +192,8 @@ export const getEmployees = async (officeId?: string): Promise<Employee[]> => {
   const snapshot = await getDocs(q);
   const employees = snapshot.docs.map(doc => {
     const data = doc.data();
-    return { 
-      id: doc.id, 
+    return {
+      id: doc.id,
       ...data,
       level: data.level || 'Nivel Básico',
       workMode: data.workMode || 'Operaciones',
@@ -203,54 +203,54 @@ export const getEmployees = async (officeId?: string): Promise<Employee[]> => {
       salesforceUser: data.salesforceUser || '',
     } as Employee
   });
-  return employees.sort((a,b) => a.name.localeCompare(b.name));
+  return employees.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const updateEmployee = async (employeeId: string, updates: Partial<Employee>) => {
-    const employeeRef = doc(db, 'employees', employeeId);
-    
-    const finalUpdates: { [key: string]: any } = {};
-    for(const key in updates) {
-        const value = updates[key as keyof Employee];
-        if(value !== undefined) {
-            finalUpdates[key] = value;
-        }
-    }
+  const employeeRef = doc(db, 'employees', employeeId);
 
-    if (Object.prototype.hasOwnProperty.call(updates, 'absenceReason') && updates.absenceReason === null) {
-      finalUpdates.absenceReason = null;
+  const finalUpdates: { [key: string]: any } = {};
+  for (const key in updates) {
+    const value = updates[key as keyof Employee];
+    if (value !== undefined) {
+      finalUpdates[key] = value;
     }
-     if (Object.prototype.hasOwnProperty.call(updates, 'absenceEndDate') && updates.absenceEndDate === null) {
-      finalUpdates.absenceEndDate = null;
-    }
+  }
 
-    await updateDoc(employeeRef, finalUpdates);
+  if (Object.prototype.hasOwnProperty.call(updates, 'absenceReason') && updates.absenceReason === null) {
+    finalUpdates.absenceReason = null;
+  }
+  if (Object.prototype.hasOwnProperty.call(updates, 'absenceEndDate') && updates.absenceEndDate === null) {
+    finalUpdates.absenceEndDate = null;
+  }
+
+  await updateDoc(employeeRef, finalUpdates);
 };
 
 export const bulkUpdateEmployeeNames = async (updates: { employeeId: string, name: string }[]): Promise<void> => {
-    if (updates.length === 0) {
-        return;
-    }
+  if (updates.length === 0) {
+    return;
+  }
 
-    const batch = writeBatch(db);
-    updates.forEach(update => {
-        const employeeRef = doc(db, 'employees', update.employeeId);
-        batch.update(employeeRef, { name: update.name });
-    });
-    
-    await batch.commit();
+  const batch = writeBatch(db);
+  updates.forEach(update => {
+    const employeeRef = doc(db, 'employees', update.employeeId);
+    batch.update(employeeRef, { name: update.name });
+  });
+
+  await batch.commit();
 }
 
 export const bulkUpdateEmployeeLevels = async (updates: { employeeId: string, level: EmployeeLevel }[]): Promise<void> => {
-    if(updates.length === 0) {
-        return;
-    }
-    const batch = writeBatch(db);
-    updates.forEach(update => {
-        const employeeRef = doc(db, 'employees', update.employeeId);
-        batch.update(employeeRef, { level: update.level });
-    });
-    await batch.commit();
+  if (updates.length === 0) {
+    return;
+  }
+  const batch = writeBatch(db);
+  updates.forEach(update => {
+    const employeeRef = doc(db, 'employees', update.employeeId);
+    batch.update(employeeRef, { level: update.level });
+  });
+  await batch.commit();
 }
 
 
